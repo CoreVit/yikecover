@@ -36,9 +36,10 @@ function createEpisodeOpening(ctx: CanvasRenderer, brand: string): void {
     INSET, bottom - RADIUS + CIRCLE_CONTROL, INSET, bottom - RADIUS);
   ctx.lineTo(INSET, 192);
   ctx.quadraticCurveTo(INSET, 136, 82, 136);
-  ctx.lineTo(notchEnd - 116, 136);
-  ctx.quadraticCurveTo(notchEnd - 54, 136, notchEnd - 32, 80);
-  ctx.quadraticCurveTo(notchEnd - 12, INSET, notchEnd, INSET);
+  const shelfEnd: number = notchEnd - 116;
+  ctx.lineTo(shelfEnd, 136);
+  ctx.bezierCurveTo(shelfEnd + 52, 136,
+    notchEnd - 52, INSET, notchEnd, INSET);
 
   // The episode corner is part of the photo opening itself. It enters and
   // leaves the diagonal with tangent-continuous curves instead of covering a
@@ -91,16 +92,6 @@ function drawEpisodeBrand(ctx: CanvasRenderer, brand: string): void {
   const width: number = tabWidth(ctx, brand);
   const size: number = fitSingleText(ctx, brand, width - 126,
     BRAND_SIZE, 54, { bold: true, italic: true });
-  ctx.fillStyle = '#EB0000';
-  ctx.beginPath();
-  ctx.moveTo(0, 0);
-  ctx.lineTo(width, 0);
-  ctx.lineTo(width - 44, 98);
-  ctx.quadraticCurveTo(width - 58, 128, width - 102, 128);
-  ctx.lineTo(0, 128);
-  ctx.closePath();
-  ctx.fill();
-
   ctx.fillStyle = '#FFFFFF';
   setCanvasFont(ctx, size, { bold: true, italic: true });
   ctx.textAlign = 'left';

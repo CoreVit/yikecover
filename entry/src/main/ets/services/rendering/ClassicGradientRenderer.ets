@@ -35,9 +35,10 @@ function createClassicOpening(ctx: CanvasRenderer, brand: string): void {
   ctx.quadraticCurveTo(INSET, bottom, INSET, bottom - RADIUS);
   ctx.lineTo(INSET, 192);
   ctx.quadraticCurveTo(INSET, 136, 82, 136);
-  ctx.lineTo(notchEnd - 116, 136);
-  ctx.quadraticCurveTo(notchEnd - 54, 136, notchEnd - 32, 80);
-  ctx.quadraticCurveTo(notchEnd - 12, INSET, notchEnd, INSET);
+  const shelfEnd: number = notchEnd - 116;
+  ctx.lineTo(shelfEnd, 136);
+  ctx.bezierCurveTo(shelfEnd + 52, 136,
+    notchEnd - 52, INSET, notchEnd, INSET);
   ctx.lineTo(right - RADIUS, INSET);
   ctx.quadraticCurveTo(right, INSET, right, INSET + RADIUS);
   ctx.lineTo(right, bottom - RADIUS);
@@ -78,16 +79,6 @@ function drawBrandTab(ctx: CanvasRenderer, brand: string): void {
   const width: number = brandTabWidth(ctx, brand);
   const size: number = fitSingleText(ctx, brand, width - 126,
     BRAND_SIZE, 54, { bold: true, italic: true });
-  ctx.fillStyle = '#EB0000';
-  ctx.beginPath();
-  ctx.moveTo(0, 0);
-  ctx.lineTo(width, 0);
-  ctx.lineTo(width - 44, 98);
-  ctx.quadraticCurveTo(width - 58, 128, width - 102, 128);
-  ctx.lineTo(0, 128);
-  ctx.closePath();
-  ctx.fill();
-
   ctx.fillStyle = '#FFFFFF';
   setCanvasFont(ctx, size, { bold: true, italic: true });
   ctx.textAlign = 'left';
