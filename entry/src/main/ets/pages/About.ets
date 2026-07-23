@@ -285,6 +285,7 @@ struct About {
         .width('100%')
         .padding({ left: 18, right: 18, top: 10 })
       }
+      .align(Alignment.TopStart)
       .layoutWeight(1)
       .scrollBar(BarState.Off)
     }

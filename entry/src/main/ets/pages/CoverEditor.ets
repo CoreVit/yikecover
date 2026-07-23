@@ -995,6 +995,7 @@ struct CoverEditor {
         .width('100%')
         .padding({ left: 14, right: 14, bottom: 28 })
       }
+      .align(Alignment.TopStart)
       .scrollBar(BarState.Off)
       .layoutWeight(1)
     }

@@ -261,6 +261,7 @@ struct ExportSettingsPage {
         }
         .padding({ left: 16, right: 16, top: 16 })
       }
+      .align(Alignment.TopStart)
       .scrollBar(BarState.Off)
       .layoutWeight(1)
     }

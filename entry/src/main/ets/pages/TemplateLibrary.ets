@@ -115,6 +115,7 @@ struct TemplateLibrary {
         .width('100%')
         .padding({ left: 16, right: 16, top: 14, bottom: 28 })
       }
+      .align(Alignment.TopStart)
       .scrollBar(BarState.Off)
       .layoutWeight(1)
     }
