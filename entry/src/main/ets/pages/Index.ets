@@ -1,5 +1,6 @@
 import {
   AtomicServiceTabs,
+  SymbolGlyphModifier,
   TabBarOptions,
   TabBarPosition
 } from '@kit.ArkUI';
@@ -14,6 +15,21 @@ struct Index {
 
   onPageShow(): void {
     this.worksRefreshToken += 1;
+  }
+
+  private tabSymbol(symbol: Resource): TabBarSymbol {
+    const normal: SymbolGlyphModifier = new SymbolGlyphModifier(symbol);
+    normal.fontSize(24);
+    normal.fontColor([$r('app.color.text_muted')]);
+
+    const selected: SymbolGlyphModifier = new SymbolGlyphModifier(symbol);
+    selected.fontSize(24);
+    selected.fontColor([$r('app.color.brand_primary')]);
+
+    return {
+      normal: normal,
+      selected: selected
+    };
   }
 
   @Builder
@@ -45,22 +61,18 @@ struct Index {
     Column() {
       AtomicServiceTabs({
         tabContents: [
-          () => {
-            this.createTabContent()
-          },
-          () => {
-            this.worksTabContent()
-          }
+          this.createTabContent,
+          this.worksTabContent
         ],
         tabBarOptionsArray: [
           new TabBarOptions(
-            $r('sys.symbol.plus'),
+            this.tabSymbol($r('sys.symbol.plus')),
             '制作',
             $r('app.color.text_muted'),
             $r('app.color.brand_primary')
           ),
           new TabBarOptions(
-            $r('sys.symbol.rectangle_on_rectangle'),
+            this.tabSymbol($r('sys.symbol.rectangle_on_rectangle')),
             '作品',
             $r('app.color.text_muted'),
             $r('app.color.brand_primary')
@@ -78,7 +90,7 @@ struct Index {
         }
       })
       .width('100%')
-      .height('100%')
+      .layoutWeight(1)
     }
     .width('100%')
     .height('100%')
