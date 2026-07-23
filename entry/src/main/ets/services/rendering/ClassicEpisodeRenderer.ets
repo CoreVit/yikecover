@@ -99,11 +99,17 @@ function drawEpisodeBrand(ctx: CanvasRenderer, brand: string): void {
 }
 
 function drawEpisodeCorner(ctx: CanvasRenderer, episode: string): void {
+  const innerRight: number = DESIGN_WIDTH - INSET;
   ctx.fillStyle = '#EB0000';
   ctx.beginPath();
-  ctx.moveTo(1700, 0);
+  ctx.moveTo(1628, 0);
   ctx.lineTo(DESIGN_WIDTH, 0);
-  ctx.lineTo(DESIGN_WIDTH, 248);
+  ctx.lineTo(DESIGN_WIDTH, 286);
+  ctx.lineTo(innerRight, 260);
+  ctx.quadraticCurveTo(innerRight, 210, innerRight - 38, 172);
+  ctx.lineTo(1780, 84);
+  ctx.quadraticCurveTo(1722, 26, 1658, INSET);
+  ctx.lineTo(1644, INSET);
   ctx.closePath();
   ctx.fill();
 

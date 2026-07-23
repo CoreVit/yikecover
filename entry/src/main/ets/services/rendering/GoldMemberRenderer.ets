@@ -47,14 +47,31 @@ function createMemberOpening(ctx: CanvasRenderer, brand: string): void {
 function drawMemberFrame(ctx: CanvasRenderer, draft: CoverDraft,
   bitmap: ImageBitmap | undefined): void {
   const frame: CanvasGradient =
-    ctx.createConicGradient(0, DESIGN_WIDTH / 2, DESIGN_HEIGHT / 2);
+    ctx.createLinearGradient(0, 0, DESIGN_WIDTH, 0);
   frame.addColorStop(0, '#FEF3A4');
-  frame.addColorStop(0.2, '#E1C57C');
-  frame.addColorStop(0.43, '#A1590D');
-  frame.addColorStop(0.64, '#984C00');
-  frame.addColorStop(0.82, '#F2C246');
-  frame.addColorStop(1, '#FEF3A4');
+  frame.addColorStop(0.28, '#F8E69A');
+  frame.addColorStop(0.52, '#E1C57C');
+  frame.addColorStop(0.76, '#A1590D');
+  frame.addColorStop(1, '#984C00');
   ctx.fillStyle = frame;
+  ctx.fillRect(0, 0, DESIGN_WIDTH, DESIGN_HEIGHT);
+
+  const lowerWarmth: CanvasGradient =
+    ctx.createLinearGradient(0, 0, 0, DESIGN_HEIGHT);
+  lowerWarmth.addColorStop(0, '#00F2C246');
+  lowerWarmth.addColorStop(0.58, '#0CF2C246');
+  lowerWarmth.addColorStop(1, '#78F2C246');
+  ctx.fillStyle = lowerWarmth;
+  ctx.fillRect(0, 0, DESIGN_WIDTH, DESIGN_HEIGHT);
+
+  const metalHighlight: CanvasGradient =
+    ctx.createLinearGradient(0, 0, DESIGN_WIDTH, DESIGN_HEIGHT);
+  metalHighlight.addColorStop(0, '#32FFFFFF');
+  metalHighlight.addColorStop(0.24, '#08FFFFFF');
+  metalHighlight.addColorStop(0.48, '#28FFFFFF');
+  metalHighlight.addColorStop(0.7, '#00FFFFFF');
+  metalHighlight.addColorStop(1, '#16FFF2B2');
+  ctx.fillStyle = metalHighlight;
   ctx.fillRect(0, 0, DESIGN_WIDTH, DESIGN_HEIGHT);
 
   ctx.save();
@@ -77,19 +94,6 @@ function drawMemberHeader(ctx: CanvasRenderer, draft: CoverDraft): void {
   const width: number = memberTabWidth(ctx, draft.brand);
   const brandSize: number = fitSingleText(ctx, draft.brand, width - 132,
     BRAND_SIZE, 54, { bold: true, italic: true });
-  const tab: CanvasGradient = ctx.createLinearGradient(0, 0, width, 130);
-  tab.addColorStop(0, '#FEF3A4');
-  tab.addColorStop(0.5, '#F4D678');
-  tab.addColorStop(1, '#D39A2D');
-  ctx.fillStyle = tab;
-  ctx.beginPath();
-  ctx.moveTo(0, 0);
-  ctx.lineTo(width, 0);
-  ctx.lineTo(width - 46, 100);
-  ctx.quadraticCurveTo(width - 60, 132, width - 106, 132);
-  ctx.lineTo(0, 132);
-  ctx.closePath();
-  ctx.fill();
 
   ctx.fillStyle = '#9A570C';
   setCanvasFont(ctx, brandSize, { bold: true, italic: true });
@@ -99,11 +103,13 @@ function drawMemberHeader(ctx: CanvasRenderer, draft: CoverDraft): void {
   ctx.textBaseline = 'alphabetic';
 
   if (draft.versionLabel.length > 0) {
-    ctx.fillStyle = '#F6D56D';
     const versionSize: number = fitSingleText(ctx, draft.versionLabel,
       DESIGN_WIDTH - width - 100, 48, 32, { bold: true, italic: true });
     setCanvasFont(ctx, versionSize, { bold: true, italic: true });
-    ctx.fillText(draft.versionLabel, width + 18, 82);
+    const versionWidth: number =
+      Math.max(1, ctx.measureText(draft.versionLabel).width);
+    drawGradientText(ctx, draft.versionLabel, width + 18, 82,
+      versionWidth, '#FEF3A4', '#DFA83D');
   }
 }
 
@@ -115,14 +121,18 @@ function drawMemberTitles(ctx: CanvasRenderer, draft: CoverDraft): boolean {
   const tooLong: boolean =
     isTextTooWide(ctx, draft.title1, maxWidth) ||
     isTextTooWide(ctx, draft.title2, maxWidth);
+  const title1Width: number =
+    Math.max(1, Math.min(maxWidth, ctx.measureText(draft.title1).width));
+  const title2Width: number =
+    Math.max(1, Math.min(maxWidth, ctx.measureText(draft.title2).width));
 
   ctx.shadowColor = '#A8000000';
   ctx.shadowBlur = 13;
   ctx.shadowOffsetX = 4;
   ctx.shadowOffsetY = 5;
-  drawGradientText(ctx, draft.title1, 72, 882, maxWidth,
+  drawGradientText(ctx, draft.title1, 72, 882, title1Width,
     '#FBE17F', '#FCEC9A');
-  drawGradientText(ctx, draft.title2, 72, 1005, maxWidth,
+  drawGradientText(ctx, draft.title2, 72, 1005, title2Width,
     '#FCEC9A', '#DDAE41');
   ctx.shadowColor = '#00000000';
   ctx.shadowBlur = 0;
