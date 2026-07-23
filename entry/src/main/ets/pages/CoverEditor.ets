@@ -27,7 +27,6 @@ interface TemplateRouteParams {
 @Entry
 @Component
 struct CoverEditor {
-  private photoBitmap: ImageBitmap | undefined = undefined;
   private savedDraftJson: string = '';
   private sessionModified: boolean = false;
   private leaving: boolean = false;
@@ -64,6 +63,7 @@ struct CoverEditor {
   };
   @State titleTooLong: boolean = false;
   @State exporting: boolean = false;
+  @State exportStage: string = 'idle';
   @State photoLoading: boolean = false;
   @State photoLoadFailed: boolean = false;
   @State previewDraftJson: string = '';
@@ -129,13 +129,6 @@ struct CoverEditor {
     this.podcastEnglish = draft.podcastEnglish;
     this.tags = draft.tags;
     this.publishDate = draft.publishDate;
-    if (this.photoUri.length > 0) {
-      try {
-        this.photoBitmap = new ImageBitmap(this.photoUri);
-      } catch (error) {
-        this.photoUri = '';
-      }
-    }
     this.requestPreview();
     this.savedDraftJson = JSON.stringify(this.draft());
   }
@@ -178,7 +171,7 @@ struct CoverEditor {
     const canvas: OffscreenCanvas = new OffscreenCanvas(1920, 1080);
     const context: OffscreenCanvasRenderingContext2D = canvas.getContext('2d');
     const result: RenderResult = CoverRenderer.render(context, this.definition(),
-      this.draft(), this.photoBitmap, 1);
+      this.draft(), undefined, 1);
     this.titleTooLong = result.titleTooLong;
     return !result.titleTooLong;
   }
@@ -202,11 +195,7 @@ struct CoverEditor {
           `${hostContext.filesDir}/cover-photo-${this.templateId}-${Date.now()}.img`;
         fileIo.copyFileSync(source.fd, localPath);
         fileIo.closeSync(source);
-        if (this.photoBitmap !== undefined) {
-          this.photoBitmap.close();
-        }
         this.photoUri = localPath;
-        this.photoBitmap = new ImageBitmap(this.photoUri);
         this.requestPreview();
         this.showToast('已按 16:9 居中裁切');
       }
@@ -278,7 +267,7 @@ struct CoverEditor {
     this.showToast('文案已复制');
   }
 
-  private async exportCover(): Promise<void> {
+  private exportCover(): void {
     if (this.exporting) {
       return;
     }
@@ -297,22 +286,33 @@ struct CoverEditor {
     if (!this.validateEpisode()) {
       return;
     }
-    if (!this.validateRender()) {
-      this.showToast('标题过长，请精简后再导出');
-      return;
-    }
     if (this.exportSettings.format === 'WebP' && !this.exportSettings.webpSupported) {
       this.showToast('当前设备暂不支持 WebP');
       return;
     }
     this.exporting = true;
+    this.exportStage = 'rendering';
+    // Return control to ArkUI first so the busy state is painted before
+    // title validation, 4K rendering and image encoding begin.
+    setTimeout(() => {
+      this.performExport();
+    }, 16);
+  }
+
+  private async performExport(): Promise<void> {
     try {
+      if (!this.validateRender()) {
+        this.showToast('标题过长，请精简后再导出');
+        return;
+      }
       const hostContext: Context | undefined = this.getUIContext().getHostContext();
       if (hostContext === undefined) {
         throw new Error('无法访问应用目录');
       }
       await ExportService.exportToGallery(this.definition(), this.draft(),
-        this.exportSettings, this.photoBitmap, hostContext);
+        this.exportSettings, hostContext, (): void => {
+          this.exportStage = 'saving';
+        });
       await LocalStore.markExported(this.draft());
       this.savedDraftJson = JSON.stringify(this.draft());
       this.sessionModified = false;
@@ -322,6 +322,7 @@ struct CoverEditor {
       this.showToast(message);
     } finally {
       this.exporting = false;
+      this.exportStage = 'idle';
     }
   }
 
@@ -953,7 +954,8 @@ struct CoverEditor {
           .enabled(false)
       } else {
         Button(this.photoLoading ? '图片载入中…' :
-          (this.exporting ? '正在生成…' : '保存到相册'),
+          (this.exportStage === 'saving' ? '等待确认保存…' :
+            (this.exporting ? '正在生成…' : '保存到相册')),
           { type: ButtonType.Capsule })
           .width('100%')
           .height(50)
