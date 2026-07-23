@@ -7,56 +7,18 @@ struct Index {
   @State currentTab: number = 0;
 
   @Builder
-  private createIcon(selected: boolean) {
-    Stack() {
-      Row()
-        .width(18)
-        .height(2)
-        .borderRadius(1)
-        .backgroundColor(selected ? $r('app.color.brand_primary') : $r('app.color.text_muted'))
-      Row()
-        .width(2)
-        .height(18)
-        .borderRadius(1)
-        .backgroundColor(selected ? $r('app.color.brand_primary') : $r('app.color.text_muted'))
-    }
-    .width(24)
-    .height(24)
-  }
-
-  @Builder
-  private worksIcon(selected: boolean) {
-    Stack() {
-      Row()
-        .width(17)
-        .height(12)
-        .border({
-          width: 1.5,
-          color: selected ? $r('app.color.brand_primary') : $r('app.color.text_muted')
-        })
-        .borderRadius(3)
-        .position({ x: 4, y: 7 })
-      Row()
-        .width(14)
-        .height(10)
-        .border({
-          width: 1.5,
-          color: selected ? $r('app.color.brand_primary') : $r('app.color.text_muted')
-        })
-        .borderRadius(3)
-        .position({ x: 7, y: 3 })
-    }
-    .width(28)
-    .height(24)
-  }
-
-  @Builder
   private tabItem(label: string, index: number) {
     Column({ space: 4 }) {
       if (index === 0) {
-        this.createIcon(this.currentTab === index)
+        SymbolGlyph($r('sys.symbol.plus'))
+          .fontSize(24)
+          .fontColor([this.currentTab === index ?
+            $r('app.color.brand_primary') : $r('app.color.text_muted')])
       } else {
-        this.worksIcon(this.currentTab === index)
+        SymbolGlyph($r('sys.symbol.rectangle_on_rectangle'))
+          .fontSize(24)
+          .fontColor([this.currentTab === index ?
+            $r('app.color.brand_primary') : $r('app.color.text_muted')])
       }
       Text(label)
         .fontSize(11)

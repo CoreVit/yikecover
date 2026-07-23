@@ -107,12 +107,11 @@ struct About {
   build() {
     Column() {
       Row() {
-        Text('‹')
+        SymbolGlyph($r('sys.symbol.chevron_backward'))
           .width(40)
           .height(40)
-          .fontSize(32)
-          .fontColor($r('app.color.text_primary'))
-          .textAlign(TextAlign.Center)
+          .fontSize(24)
+          .fontColor([$r('app.color.text_primary')])
           .backgroundColor($r('app.color.control_background'))
           .borderRadius(20)
           .onClick(() => {
@@ -212,12 +211,21 @@ struct About {
               .fontColor($r('app.color.text_muted'))
               .margin({ top: 13 })
 
-            Button('查看 GitHub 源码  ↗', { type: ButtonType.Normal })
+            Button({ type: ButtonType.Normal }) {
+              Row({ space: 7 }) {
+                Text('查看 GitHub 源码')
+                  .fontSize(14)
+                  .fontWeight(FontWeight.Bold)
+                  .fontColor('#FFFFFF')
+                SymbolGlyph($r('sys.symbol.arrow_right_up_and_square'))
+                  .fontSize(16)
+                  .fontColor(['#FFFFFF'])
+              }
+              .justifyContent(FlexAlign.Center)
+              .width('100%')
+            }
               .width('100%')
               .height(46)
-              .fontSize(14)
-              .fontWeight(FontWeight.Bold)
-              .fontColor('#FFFFFF')
               .backgroundColor($r('app.color.brand_primary'))
               .borderRadius(12)
               .margin({ top: 18 })

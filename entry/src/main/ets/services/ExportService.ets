@@ -1,4 +1,5 @@
 import fileIo from '@ohos.file.fs';
+import fileUri from '@ohos.file.fileuri';
 import photoAccessHelper from '@ohos.file.photoAccessHelper';
 import image from '@ohos.multimedia.image';
 import { CoverDraft, ExportSettings, TemplateDefinition, DESIGN_WIDTH } from '../model/CoverModels';
@@ -44,7 +45,8 @@ export class ExportService {
       const helper: photoAccessHelper.PhotoAccessHelper =
         photoAccessHelper.getPhotoAccessHelper(appContext);
       const request: photoAccessHelper.MediaAssetChangeRequest =
-        photoAccessHelper.MediaAssetChangeRequest.createImageAssetRequest(appContext, path);
+        photoAccessHelper.MediaAssetChangeRequest.createImageAssetRequest(appContext,
+          fileUri.getUriFromPath(path));
       await helper.applyChanges(request);
       return path;
     } catch (error) {

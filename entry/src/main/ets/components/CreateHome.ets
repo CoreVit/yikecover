@@ -1,73 +1,36 @@
+import { CoverPreview } from './CoverPreview';
+import { createDefaultDraft, getTemplateDefinition } from '../model/CoverModels';
+
 interface TemplateShortcut {
   id: number;
-  title: string;
-  subtitle: string;
-  number: string;
-  accent: string;
 }
 
 const TEMPLATE_SHORTCUTS: TemplateShortcut[] = [
   {
-    id: 1,
-    title: '经典拍案',
-    subtitle: '异形红橙底板',
-    number: '01',
-    accent: '#F03A2B'
+    id: 1
   },
   {
-    id: 2,
-    title: '经典分集',
-    subtitle: '同母版右上分集',
-    number: '02',
-    accent: '#D12722'
+    id: 2
   },
   {
-    id: 4,
-    title: '美食细线',
-    subtitle: '暖色细边框',
-    number: '04',
-    accent: '#F2A526'
+    id: 4
   }
 ];
 
 @Component
 export struct CreateHome {
+  private previewJson(templateId: number): string {
+    return JSON.stringify(createDefaultDraft(getTemplateDefinition(templateId)));
+  }
+
   @Builder
-  private heroCover(title: string, label: string, accent: string) {
-    Stack({ alignContent: Alignment.BottomStart }) {
-      Row()
+  private heroCover(templateId: number) {
+    Stack() {
+      CoverPreview({
+        templateId: templateId,
+        draftJson: this.previewJson(templateId)
+      })
         .width('100%')
-        .height('100%')
-        .backgroundColor('#252A34')
-
-      Row()
-        .width(74)
-        .height(120)
-        .backgroundColor(accent)
-        .rotate({ angle: 18 })
-        .translate({ x: -22, y: -6 })
-
-      Column({ space: 3 }) {
-        Text(label)
-          .fontSize(9)
-          .fontWeight(FontWeight.Bold)
-          .fontColor('#FFFFFF')
-        Text(title)
-          .fontSize(17)
-          .fontWeight(FontWeight.Bold)
-          .fontColor('#FFFFFF')
-      }
-      .alignItems(HorizontalAlign.Start)
-      .padding({ left: 14, bottom: 12 })
-
-      Text('一刻封面')
-        .fontSize(8)
-        .fontWeight(FontWeight.Medium)
-        .fontColor('#FFFFFF')
-        .padding({ left: 6, right: 6, top: 3, bottom: 3 })
-        .backgroundColor(accent)
-        .borderRadius(3)
-        .position({ x: 10, y: 9 })
     }
     .width(220)
     .height(124)
@@ -84,46 +47,22 @@ export struct CreateHome {
   @Builder
   private templateCard(item: TemplateShortcut) {
     Column({ space: 10 }) {
-      Stack({ alignContent: Alignment.BottomStart }) {
-        Row()
-          .width('100%')
-          .height('100%')
-          .backgroundColor('#242832')
-
-        Row()
-          .width(48)
-          .height(96)
-          .backgroundColor(item.accent)
-          .rotate({ angle: 16 })
-          .translate({ x: -16, y: -4 })
-
-        Text(item.title)
-          .fontSize(14)
-          .fontWeight(FontWeight.Bold)
-          .fontColor('#FFFFFF')
-          .padding({ left: 10, bottom: 9 })
-
-        Text(item.number)
-          .fontSize(10)
-          .fontWeight(FontWeight.Bold)
-          .fontColor('#FFFFFF')
-          .padding({ left: 5, right: 5, top: 3, bottom: 3 })
-          .backgroundColor('#B8000000')
-          .borderRadius(4)
-          .position({ x: 118, y: 55 })
-      }
+      CoverPreview({
+        templateId: item.id,
+        draftJson: this.previewJson(item.id)
+      })
       .width(146)
       .height(82)
       .borderRadius(10)
       .clip(true)
 
       Column({ space: 3 }) {
-        Text(item.title)
+        Text(getTemplateDefinition(item.id).name)
           .fontSize(15)
           .fontWeight(FontWeight.Medium)
           .fontColor($r('app.color.text_primary'))
           .maxLines(1)
-        Text(item.subtitle)
+        Text(getTemplateDefinition(item.id).subtitle)
           .fontSize(11)
           .fontColor($r('app.color.text_secondary'))
           .maxLines(1)
@@ -178,21 +117,21 @@ export struct CreateHome {
         Column() {
           Stack({ alignContent: Alignment.Center }) {
             Row() {
-              this.heroCover('美食分集', '当期推荐', '#E7A322')
+              this.heroCover(4)
             }
             .rotate({ angle: -7 })
             .translate({ x: -34, y: 9 })
             .opacity(0.58)
 
             Row() {
-              this.heroCover('经典分集', '系列内容', '#C8322B')
+              this.heroCover(2)
             }
             .rotate({ angle: 5 })
             .translate({ x: 34, y: 3 })
             .opacity(0.78)
 
             Row() {
-              this.heroCover('经典拍案', '今日封面', '#F04A32')
+              this.heroCover(1)
             }
           }
           .width('100%')

@@ -81,6 +81,7 @@ export interface HistoryRecord {
   title: string;
   status: string;
   updatedAt: string;
+  draftJson?: string;
 }
 
 function capabilities(requiresPhoto: boolean, episode: boolean, version: boolean,
@@ -238,16 +239,16 @@ export function createDefaultDraft(definition: TemplateDefinition): CoverDraft {
     brand: definition.defaultBrand,
     title1: definition.defaultTitle1,
     title2: definition.defaultTitle2,
-    kicker: '中国改革的总工程师',
-    personName: '人物主名',
-    englishName: 'FEATURE STORY',
+    kicker: '人物专题',
+    personName: '示例人物',
+    englishName: 'PORTRAIT',
     episodeTitle: '本期主题',
     episodePreset: EpisodePreset.UP,
     customEpisode: '',
     versionLabel: definition.capabilities.supportsVersion ? '会员专享' : '',
     grayscale: false,
     theme: definition.id === 6 ? CoverTheme.RED : CoverTheme.GOLD,
-    quoteLabel: '行业观察',
+    quoteLabel: '本期话题',
     podcastBody: '在这里输入播客正文，支持自动换行与字号适配。',
     podcastEnglish: 'Yike Podcast',
     tags: [],
@@ -274,11 +275,17 @@ export function isValidCustomEpisode(value: string): boolean {
 }
 
 export function automaticCopy(draft: CoverDraft, definition: TemplateDefinition): string {
+  let mainText: string;
   if (definition.capabilities.supportsPersonFields) {
-    return `${draft.personName}${draft.episodeTitle}｜${draft.brand}`;
+    mainText = `${draft.personName}${draft.episodeTitle}`;
+  } else if (definition.capabilities.supportsPodcastFields) {
+    mainText = `${draft.quoteLabel}${draft.podcastBody}`;
+  } else {
+    mainText = `${draft.title1}${draft.title2}`;
   }
-  if (definition.capabilities.supportsPodcastFields) {
-    return `${draft.quoteLabel}＋${draft.podcastBody}｜${draft.brand}`;
+  let result: string = mainText;
+  for (let index: number = 0; index < draft.tags.length; index++) {
+    result += `｜${draft.tags[index]}`;
   }
-  return `${draft.title1}＋${draft.title2}｜${draft.brand}`;
+  return `${result}｜${draft.brand}${draft.publishDate.replace(/-/g, '')}`;
 }

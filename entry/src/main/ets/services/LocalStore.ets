@@ -123,7 +123,8 @@ export class LocalStore {
       templateName: definition.name,
       title: recordTitle(draft),
       status: '草稿',
-      updatedAt: new Date().toLocaleString()
+      updatedAt: new Date().toLocaleString(),
+      draftJson: JSON.stringify(draft)
     };
     let found: boolean = false;
     for (let index: number = 0; index < records.length; index++) {
@@ -149,7 +150,8 @@ export class LocalStore {
       templateName: definition.name,
       title: recordTitle(draft),
       status: '已导出',
-      updatedAt: new Date().toLocaleString()
+      updatedAt: new Date().toLocaleString(),
+      draftJson: JSON.stringify(draft)
     });
     store.putSync('history', JSON.stringify(records.slice(0, 50)));
     await store.flush();

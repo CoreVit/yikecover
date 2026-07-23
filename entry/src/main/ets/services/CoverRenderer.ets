@@ -84,15 +84,6 @@ function drawCoverPhoto(ctx: CanvasRenderer, bitmap: ImageBitmap | undefined,
   ctx.restore();
 }
 
-function drawPhotoClipped(ctx: CanvasRenderer, bitmap: ImageBitmap | undefined,
-  grayscale: boolean, inset: number, radius: number): void {
-  ctx.save();
-  roundedRect(ctx, inset, inset, DESIGN_WIDTH - inset * 2, DESIGN_HEIGHT - inset * 2, radius);
-  ctx.clip();
-  drawCoverPhoto(ctx, bitmap, grayscale);
-  ctx.restore();
-}
-
 function drawBottomShade(ctx: CanvasRenderer, height: number): void {
   const shade: CanvasGradient = ctx.createLinearGradient(0, DESIGN_HEIGHT - height, 0, DESIGN_HEIGHT);
   shade.addColorStop(0, '#00000000');
@@ -157,6 +148,71 @@ function drawClassicBrand(ctx: CanvasRenderer, brand: string, color: string, fon
   ctx.fillText(brand, 60, 62);
 }
 
+function classicInnerPath(ctx: CanvasRenderer, brand: string): void {
+  const inset: number = 24;
+  const right: number = DESIGN_WIDTH - inset;
+  const bottom: number = DESIGN_HEIGHT - inset;
+  const radius: number = 78;
+  const notchEnd: number = Math.min(brandWidth(ctx, brand, 76) + 34, right - radius * 2);
+  ctx.beginPath();
+  ctx.moveTo(notchEnd, inset);
+  ctx.lineTo(right - radius, inset);
+  ctx.quadraticCurveTo(right, inset, right, inset + radius);
+  ctx.lineTo(right, bottom - radius);
+  ctx.quadraticCurveTo(right, bottom, right - radius, bottom);
+  ctx.lineTo(inset + radius, bottom);
+  ctx.quadraticCurveTo(inset, bottom, inset, bottom - radius);
+  ctx.lineTo(inset, 192);
+  ctx.quadraticCurveTo(inset, 136, 82, 136);
+  ctx.lineTo(notchEnd - 112, 136);
+  ctx.quadraticCurveTo(notchEnd - 52, 136, notchEnd - 32, 82);
+  ctx.quadraticCurveTo(notchEnd - 12, inset, notchEnd, inset);
+  ctx.closePath();
+}
+
+function drawClassicPhoto(ctx: CanvasRenderer, draft: CoverDraft,
+  bitmap: ImageBitmap | undefined): void {
+  ctx.save();
+  classicInnerPath(ctx, draft.brand);
+  ctx.clip();
+  drawCoverPhoto(ctx, bitmap, draft.grayscale);
+  ctx.restore();
+}
+
+function drawClassicInnerVignette(ctx: CanvasRenderer, brand: string): void {
+  ctx.save();
+  classicInnerPath(ctx, brand);
+  ctx.clip();
+
+  const topShade: CanvasGradient = ctx.createLinearGradient(0, 24, 0, 230);
+  topShade.addColorStop(0, '#76000000');
+  topShade.addColorStop(1, '#00000000');
+  ctx.fillStyle = topShade;
+  ctx.fillRect(0, 0, DESIGN_WIDTH, 250);
+
+  const leftShade: CanvasGradient = ctx.createLinearGradient(24, 0, 250, 0);
+  leftShade.addColorStop(0, '#62000000');
+  leftShade.addColorStop(1, '#00000000');
+  ctx.fillStyle = leftShade;
+  ctx.fillRect(0, 0, 270, DESIGN_HEIGHT);
+
+  const rightShade: CanvasGradient =
+    ctx.createLinearGradient(DESIGN_WIDTH - 250, 0, DESIGN_WIDTH - 24, 0);
+  rightShade.addColorStop(0, '#00000000');
+  rightShade.addColorStop(1, '#62000000');
+  ctx.fillStyle = rightShade;
+  ctx.fillRect(DESIGN_WIDTH - 270, 0, 270, DESIGN_HEIGHT);
+
+  const bottomShade: CanvasGradient =
+    ctx.createLinearGradient(0, DESIGN_HEIGHT - 300, 0, DESIGN_HEIGHT - 24);
+  bottomShade.addColorStop(0, '#00000000');
+  bottomShade.addColorStop(0.55, '#20000000');
+  bottomShade.addColorStop(1, '#70000000');
+  ctx.fillStyle = bottomShade;
+  ctx.fillRect(0, DESIGN_HEIGHT - 320, DESIGN_WIDTH, 320);
+  ctx.restore();
+}
+
 function drawClassicFrame(ctx: CanvasRenderer, draft: CoverDraft, bitmap: ImageBitmap | undefined,
   goldStyle: boolean): void {
   let frame: CanvasGradient;
@@ -175,8 +231,8 @@ function drawClassicFrame(ctx: CanvasRenderer, draft: CoverDraft, bitmap: ImageB
   }
   ctx.fillStyle = frame;
   ctx.fillRect(0, 0, DESIGN_WIDTH, DESIGN_HEIGHT);
-  drawPhotoClipped(ctx, bitmap, draft.grayscale, 24, 72);
-  drawBottomShade(ctx, 390);
+  drawClassicPhoto(ctx, draft, bitmap);
+  drawClassicInnerVignette(ctx, draft.brand);
   drawClassicBrand(ctx, draft.brand, goldStyle ? '#FFF0A0' : RED, goldStyle ? '#9A570C' : '#FFFFFF');
   if (goldStyle && draft.versionLabel.length > 0) {
     const offset: number = brandWidth(ctx, draft.brand, 76);

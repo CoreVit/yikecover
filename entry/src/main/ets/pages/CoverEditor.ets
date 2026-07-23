@@ -14,6 +14,7 @@ import {
   isValidCustomEpisode,
   todayText
 } from '../model/CoverModels';
+import { CoverPreview } from '../components/CoverPreview';
 import { CoverRenderer, RenderResult } from '../services/CoverRenderer';
 import { ExportService } from '../services/ExportService';
 import { LocalStore } from '../services/LocalStore';
@@ -25,11 +26,7 @@ interface TemplateRouteParams {
 @Entry
 @Component
 struct CoverEditor {
-  private previewSettings: RenderingContextSettings = new RenderingContextSettings(true);
-  private previewContext: CanvasRenderingContext2D = new CanvasRenderingContext2D(this.previewSettings);
   private photoBitmap: ImageBitmap | undefined = undefined;
-  private previewWidth: number = 360;
-  private canvasReady: boolean = false;
 
   @State templateId: number = 1;
   @State photoUri: string = '';
@@ -63,6 +60,8 @@ struct CoverEditor {
   };
   @State titleTooLong: boolean = false;
   @State exporting: boolean = false;
+  @State previewDraftJson: string = '';
+  @State previewRevision: number = 0;
 
   aboutToAppear(): void {
     const hostContext: Context | undefined = this.getUIContext().getHostContext();
@@ -159,18 +158,17 @@ struct CoverEditor {
   }
 
   private requestPreview(): void {
-    setTimeout(() => {
-      this.drawPreview();
-    }, 0);
+    this.previewDraftJson = JSON.stringify(this.draft());
+    this.previewRevision += 1;
   }
 
-  private drawPreview(): void {
-    if (!this.canvasReady) {
-      return;
-    }
-    const result: RenderResult = CoverRenderer.render(this.previewContext, this.definition(),
-      this.draft(), this.photoBitmap, this.previewWidth / 1920);
+  private validateRender(): boolean {
+    const canvas: OffscreenCanvas = new OffscreenCanvas(1920, 1080);
+    const context: OffscreenCanvasRenderingContext2D = canvas.getContext('2d');
+    const result: RenderResult = CoverRenderer.render(context, this.definition(),
+      this.draft(), this.photoBitmap, 1);
     this.titleTooLong = result.titleTooLong;
+    return !result.titleTooLong;
   }
 
   private async selectPhoto(): Promise<void> {
@@ -186,7 +184,8 @@ struct CoverEditor {
           throw new Error('无法访问应用目录');
         }
         const source: fileIo.File = fileIo.openSync(result.photoUris[0], fileIo.OpenMode.READ_ONLY);
-        const localPath: string = `${hostContext.filesDir}/cover-photo-${this.templateId}.img`;
+        const localPath: string =
+          `${hostContext.filesDir}/cover-photo-${this.templateId}-${Date.now()}.img`;
         fileIo.copyFileSync(source.fd, localPath);
         fileIo.closeSync(source);
         if (this.photoBitmap !== undefined) {
@@ -248,8 +247,7 @@ struct CoverEditor {
     if (!this.validateEpisode()) {
       return;
     }
-    this.drawPreview();
-    if (this.titleTooLong) {
+    if (!this.validateRender()) {
       this.showToast('标题过长，请精简后再导出');
       return;
     }
@@ -295,15 +293,42 @@ struct CoverEditor {
     this.tagInput = '';
   }
 
+  private selectedPublishDate(): Date {
+    const values: string[] = this.publishDate.split('-');
+    if (values.length === 3) {
+      const year: number = Number(values[0]);
+      const month: number = Number(values[1]);
+      const day: number = Number(values[2]);
+      if (year > 0 && month >= 1 && month <= 12 && day >= 1 && day <= 31) {
+        return new Date(year, month - 1, day);
+      }
+    }
+    return new Date();
+  }
+
+  private updatePublishDate(value: Date): void {
+    const month: string = (value.getMonth() + 1).toString().padStart(2, '0');
+    const day: string = value.getDate().toString().padStart(2, '0');
+    this.publishDate = `${value.getFullYear()}-${month}-${day}`;
+  }
+
+  private showPublishDatePicker(): void {
+    this.getUIContext().showDatePickerDialog({
+      selected: this.selectedPublishDate(),
+      onDateAccept: (value: Date): void => {
+        this.updatePublishDate(value);
+      }
+    });
+  }
+
   @Builder
   private header() {
     Row() {
-      Text('‹')
+      SymbolGlyph($r('sys.symbol.chevron_backward'))
         .width(40)
         .height(40)
-        .fontSize(32)
-        .fontColor($r('app.color.text_primary'))
-        .textAlign(TextAlign.Center)
+        .fontSize(24)
+        .fontColor([$r('app.color.text_primary')])
         .backgroundColor($r('app.color.control_background'))
         .borderRadius(20)
         .onClick(() => {
@@ -404,21 +429,17 @@ struct CoverEditor {
   @Builder
   private preview() {
     Column({ space: 10 }) {
-      Canvas(this.previewContext)
+      CoverPreview({
+        templateId: this.templateId,
+        draftJson: this.previewDraftJson,
+        revision: this.previewRevision,
+        onResult: (tooLong: boolean): void => {
+          this.titleTooLong = tooLong;
+        }
+      })
         .width('100%')
-        .aspectRatio(16 / 9)
-        .backgroundColor('#15191F')
-        .onReady(() => {
-          this.canvasReady = true;
-          this.drawPreview();
-        })
-        .onAreaChange((oldValue: Area, newValue: Area) => {
-          const width: number = Number(newValue.width);
-          if (width > 0) {
-            this.previewWidth = width;
-            this.requestPreview();
-          }
-        })
+        .borderRadius(12)
+        .clip(true)
 
       Row() {
         Row({ space: 7 }) {
@@ -439,7 +460,7 @@ struct CoverEditor {
       .width('100%')
     }
     .width('100%')
-    .backgroundColor('#0E1116')
+    .padding({ bottom: 2 })
   }
 
   @Builder
@@ -448,9 +469,10 @@ struct CoverEditor {
       this.sectionTitle('01', '背景图片', '上传后自动进行 16:9 居中裁切')
       Row() {
         Column({ space: 5 }) {
-          Text(this.photoUri.length > 0 ? '✓' : '＋')
+          SymbolGlyph(this.photoUri.length > 0 ?
+            $r('sys.symbol.checkmark') : $r('sys.symbol.plus'))
             .fontSize(24)
-            .fontColor(this.photoUri.length > 0 ? '#47D889' : $r('app.color.brand_primary'))
+            .fontColor([this.photoUri.length > 0 ? '#5AA77B' : $r('app.color.brand_primary')])
           Text(this.photoUri.length > 0 ? '更换主图' : '上传主图')
             .fontSize(13)
             .fontWeight(FontWeight.Medium)
@@ -485,7 +507,7 @@ struct CoverEditor {
       this.field('品牌', this.brand, '输入品牌', (value: string) => { this.brand = value; })
 
       if (this.definition().capabilities.supportsPersonFields) {
-        this.field('人物说明', this.kicker, '例如：中国改革的总工程师',
+        this.field('人物说明', this.kicker, '例如：人物专题',
           (value: string) => { this.kicker = value; })
         this.field('人物主名', this.personName, '输入人物主名',
           (value: string) => { this.personName = value; })
@@ -494,7 +516,7 @@ struct CoverEditor {
         this.field('分集标题', this.episodeTitle, '输入本集标题',
           (value: string) => { this.episodeTitle = value; })
       } else if (this.definition().capabilities.supportsPodcastFields) {
-        this.field('引言标签', this.quoteLabel, '例如：中国音乐版权业内人',
+        this.field('引言标签', this.quoteLabel, '例如：本期话题',
           (value: string) => { this.quoteLabel = value; })
         Column({ space: 6 }) {
           Text('正文')
@@ -631,7 +653,8 @@ struct CoverEditor {
             .layoutWeight(1)
             .height(38)
             .fontSize(12)
-            .fontColor('#FFFFFF')
+            .fontColor(this.theme === CoverTheme.RED ?
+              '#FFFFFF' : $r('app.color.text_secondary'))
             .textAlign(TextAlign.Center)
             .backgroundColor(this.theme === CoverTheme.RED ? '#E30A15' :
               $r('app.color.control_background'))
@@ -644,7 +667,8 @@ struct CoverEditor {
             .layoutWeight(1)
             .height(38)
             .fontSize(12)
-            .fontColor('#FFFFFF')
+            .fontColor(this.theme === CoverTheme.CYAN ?
+              '#FFFFFF' : $r('app.color.text_secondary'))
             .textAlign(TextAlign.Center)
             .backgroundColor(this.theme === CoverTheme.CYAN ? '#0B9EAF' :
               $r('app.color.control_background'))
@@ -668,7 +692,7 @@ struct CoverEditor {
     Column({ space: 13 }) {
       this.sectionTitle('04', '发布信息', '仅作为草稿元数据，不绘制到封面')
       Row({ space: 8 }) {
-        TextInput({ text: this.tagInput, placeholder: '输入标签，如：小红书' })
+        TextInput({ text: this.tagInput, placeholder: '输入标签，如：示例标签' })
           .layoutWeight(1)
           .height(42)
           .fontSize(12)
@@ -692,9 +716,14 @@ struct CoverEditor {
       if (this.tags.length > 0) {
         Flex({ wrap: FlexWrap.Wrap }) {
           ForEach(this.tags, (tag: string, index: number) => {
-            Text(`# ${tag}  ×`)
-              .fontSize(10)
-              .fontColor($r('app.color.text_secondary'))
+            Row({ space: 5 }) {
+              Text(`# ${tag}`)
+                .fontSize(10)
+                .fontColor($r('app.color.text_secondary'))
+              SymbolGlyph($r('sys.symbol.xmark'))
+                .fontSize(9)
+                .fontColor([$r('app.color.text_muted')])
+            }
               .padding({ left: 9, right: 9, top: 6, bottom: 6 })
               .backgroundColor($r('app.color.control_background'))
               .borderRadius(12)
@@ -706,8 +735,30 @@ struct CoverEditor {
         }
         .width('100%')
       }
-      this.field('发布日期', this.publishDate, '年-月-日',
-        (value: string) => { this.publishDate = value; })
+      Column({ space: 6 }) {
+        Text('发布日期')
+          .width('100%')
+          .fontSize(11)
+          .fontColor($r('app.color.text_secondary'))
+        Row() {
+          Text(this.publishDate)
+            .fontSize(13)
+            .fontColor($r('app.color.text_primary'))
+          Blank()
+          SymbolGlyph($r('sys.symbol.calendar'))
+            .fontSize(18)
+            .fontColor([$r('app.color.text_secondary')])
+        }
+        .width('100%')
+        .height(44)
+        .padding({ left: 12, right: 12 })
+        .backgroundColor($r('app.color.control_background'))
+        .borderRadius(9)
+        .onClick(() => {
+          this.showPublishDatePicker();
+        })
+      }
+      .width('100%')
       Column({ space: 8 }) {
         Row() {
           Text('自动整合结果')
@@ -761,9 +812,14 @@ struct CoverEditor {
         }
         .alignItems(HorizontalAlign.Start)
         Blank()
-        Text('修改 ›')
-          .fontSize(12)
-          .fontColor($r('app.color.brand_primary'))
+        Row({ space: 3 }) {
+          Text('修改')
+            .fontSize(12)
+            .fontColor($r('app.color.brand_primary'))
+          SymbolGlyph($r('sys.symbol.chevron_forward'))
+            .fontSize(12)
+            .fontColor([$r('app.color.brand_primary')])
+        }
           .padding({ left: 10, right: 10, top: 7, bottom: 7 })
           .backgroundColor($r('app.color.brand_soft'))
           .borderRadius(14)

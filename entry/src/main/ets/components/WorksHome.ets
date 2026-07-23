@@ -1,4 +1,9 @@
-import { HistoryRecord } from '../model/CoverModels';
+import {
+  HistoryRecord,
+  createDefaultDraft,
+  getTemplateDefinition
+} from '../model/CoverModels';
+import { CoverPreview } from './CoverPreview';
 import { LocalStore } from '../services/LocalStore';
 
 interface SettingEntry {
@@ -60,6 +65,13 @@ export struct WorksHome {
     return this.records.filter((item: HistoryRecord) => item.status === status);
   }
 
+  private previewJson(item: HistoryRecord): string {
+    if (item.draftJson !== undefined && item.draftJson.length > 0) {
+      return item.draftJson;
+    }
+    return JSON.stringify(createDefaultDraft(getTemplateDefinition(item.templateId)));
+  }
+
   @Builder
   private filterButton(label: string, index: number) {
     Text(label)
@@ -82,7 +94,7 @@ export struct WorksHome {
       Row()
         .width(118)
         .height(67)
-        .backgroundColor('#242832')
+        .backgroundColor($r('app.color.control_background'))
         .border({
           width: 1,
           color: $r('app.color.divider')
@@ -95,7 +107,7 @@ export struct WorksHome {
         Row()
           .width('100%')
           .height('100%')
-          .backgroundColor('#2B303B')
+          .backgroundColor($r('app.color.control_selected'))
         Row()
           .width(42)
           .height(86)
@@ -105,7 +117,7 @@ export struct WorksHome {
         Text('一刻封面')
           .fontSize(11)
           .fontWeight(FontWeight.Bold)
-          .fontColor('#FFFFFF')
+          .fontColor($r('app.color.text_primary'))
           .padding({ left: 10, bottom: 9 })
       }
       .width(126)
@@ -135,9 +147,9 @@ export struct WorksHome {
 
         Blank()
 
-        Text('›')
-          .fontSize(24)
-          .fontColor($r('app.color.text_muted'))
+        SymbolGlyph($r('sys.symbol.chevron_forward'))
+          .fontSize(18)
+          .fontColor([$r('app.color.text_muted')])
       }
       .width('100%')
       .padding({ top: 15, bottom: 15 })
@@ -165,23 +177,10 @@ export struct WorksHome {
   @Builder
   private historyCard(item: HistoryRecord) {
     Row({ space: 12 }) {
-      Stack({ alignContent: Alignment.BottomStart }) {
-        Row()
-          .width('100%')
-          .height('100%')
-          .backgroundColor('#242A32')
-        Row()
-          .width(34)
-          .height(66)
-          .backgroundColor(item.status === '已导出' ? '#4D9E72' : $r('app.color.brand_primary'))
-          .rotate({ angle: 16 })
-          .translate({ x: -12, y: -3 })
-        Text(item.templateId.toString().padStart(2, '0'))
-          .fontSize(9)
-          .fontWeight(FontWeight.Bold)
-          .fontColor('#FFFFFF')
-          .padding({ left: 7, bottom: 6 })
-      }
+      CoverPreview({
+        templateId: item.templateId,
+        draftJson: this.previewJson(item)
+      })
       .width(88)
       .height(50)
       .borderRadius(8)

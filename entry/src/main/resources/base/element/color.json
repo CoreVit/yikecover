@@ -2,59 +2,63 @@
   "color": [
     {
       "name": "start_window_background",
-      "value": "#101217"
+      "value": "#C9CAC8"
     },
     {
       "name": "page_background",
-      "value": "#101217"
+      "value": "#C9CAC8"
     },
     {
       "name": "nav_background",
-      "value": "#12151B"
+      "value": "#D3D4D1"
     },
     {
       "name": "card_background",
-      "value": "#181B22"
+      "value": "#DFDFDB"
     },
     {
       "name": "control_background",
-      "value": "#20242C"
+      "value": "#BEC1C0"
     },
     {
       "name": "control_selected",
-      "value": "#303640"
+      "value": "#AEB2B2"
     },
     {
       "name": "divider",
-      "value": "#2B303A"
+      "value": "#A8ACAB"
     },
     {
       "name": "text_primary",
-      "value": "#F5F7FA"
+      "value": "#272A2F"
     },
     {
       "name": "text_secondary",
-      "value": "#929BAA"
+      "value": "#555B62"
     },
     {
       "name": "text_muted",
-      "value": "#687180"
+      "value": "#747B82"
     },
     {
       "name": "brand_primary",
-      "value": "#FF5B3D"
+      "value": "#A95447"
     },
     {
       "name": "brand_soft",
-      "value": "#33201D"
+      "value": "#D8BDB7"
     },
     {
       "name": "source_accent",
-      "value": "#68C9AC"
+      "value": "#3B7568"
     },
     {
       "name": "source_soft",
-      "value": "#18312C"
+      "value": "#BFD3CE"
+    },
+    {
+      "name": "preview_background",
+      "value": "#2B2D31"
     }
   ]
 }
