@@ -778,20 +778,39 @@ struct CoverEditor {
       .backgroundColor($r('app.color.control_background'))
       .borderRadius(11)
 
-      Button(this.exporting ? '正在生成…' :
-        (this.definition().capabilities.requiresPhoto && this.photoUri.length === 0 ?
-          '请先上传图片' : '生成并保存到相册 →'), { type: ButtonType.Normal })
-        .width('100%')
-        .height(50)
-        .fontSize(14)
-        .fontWeight(FontWeight.Bold)
-        .fontColor('#FFFFFF')
-        .backgroundColor(this.definition().capabilities.requiresPhoto && this.photoUri.length === 0 ?
-          '#724037' : $r('app.color.brand_primary'))
-        .borderRadius(11)
-        .onClick(() => {
-          this.exportCover();
+      if (this.definition().capabilities.requiresPhoto && this.photoUri.length === 0) {
+        Button('请先上传图片', { type: ButtonType.Normal })
+          .width('100%')
+          .height(50)
+          .fontSize(14)
+          .fontWeight(FontWeight.Bold)
+          .fontColor('#FFFFFF')
+          .backgroundColor('#724037')
+          .borderRadius(25)
+          .enabled(false)
+      } else {
+        SaveButton({
+          icon: SaveIconStyle.FULL_FILLED,
+          text: SaveDescription.SAVE_TO_GALLERY,
+          buttonType: ButtonType.Capsule
         })
+          .width('100%')
+          .height(50)
+          .fontSize(14)
+          .fontWeight(FontWeight.Bold)
+          .fontColor('#FFFFFF')
+          .backgroundColor($r('app.color.brand_primary'))
+          .enabled(!this.exporting)
+          .onClick((event: ClickEvent, result: SaveButtonOnClickResult) => {
+            if (result === SaveButtonOnClickResult.SUCCESS) {
+              this.exportCover();
+            } else if (result === SaveButtonOnClickResult.CANCELED_BY_USER) {
+              this.showToast('已取消保存');
+            } else {
+              this.showToast('未获得图库临时授权，请重试');
+            }
+          })
+      }
     }
     .width('100%')
     .padding(16)

@@ -43,20 +43,16 @@ export class ExportService {
 
       const helper: photoAccessHelper.PhotoAccessHelper =
         photoAccessHelper.getPhotoAccessHelper(appContext);
-      const saved: string[] = await helper.showAssetsCreationDialog([`file://${path}`], [{
-        title: `一刻封面-${Date.now()}`,
-        fileNameExtension: extension,
-        photoType: photoAccessHelper.PhotoType.IMAGE
-      }]);
-      if (saved.length === 0) {
-        throw new Error('未保存到相册');
-      }
-      return saved[0];
+      const request: photoAccessHelper.MediaAssetChangeRequest =
+        photoAccessHelper.MediaAssetChangeRequest.createImageAssetRequest(appContext, path);
+      await helper.applyChanges(request);
+      return path;
     } catch (error) {
       if (settings.resolution === '4K') {
         throw new Error('4K 渲染失败或设备内存不足，请切换为 1080P');
       }
-      throw new Error('导出失败，请检查相册授权后重试');
+      const message: string = error instanceof Error ? error.message : '未知错误';
+      throw new Error(`保存失败：${message}`);
     }
   }
 }
