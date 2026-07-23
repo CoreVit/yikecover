@@ -63,6 +63,8 @@ struct CoverEditor {
   };
   @State titleTooLong: boolean = false;
   @State exporting: boolean = false;
+  @State photoLoading: boolean = false;
+  @State photoLoadFailed: boolean = false;
   @State previewDraftJson: string = '';
   @State previewRevision: number = 0;
 
@@ -188,6 +190,8 @@ struct CoverEditor {
       options.maxSelectNumber = 1;
       const result: photoAccessHelper.PhotoSelectResult = await picker.select(options);
       if (result.photoUris.length > 0) {
+        this.photoLoading = true;
+        this.photoLoadFailed = false;
         const hostContext: Context | undefined = this.getUIContext().getHostContext();
         if (hostContext === undefined) {
           throw new Error('无法访问应用目录');
@@ -206,6 +210,8 @@ struct CoverEditor {
         this.showToast('已按 16:9 居中裁切');
       }
     } catch (error) {
+      this.photoLoading = false;
+      this.photoLoadFailed = true;
       this.showToast('未能读取所选图片');
     }
   }
@@ -277,6 +283,14 @@ struct CoverEditor {
     }
     if (this.definition().capabilities.requiresPhoto && this.photoUri.length === 0) {
       this.showToast('请先上传图片');
+      return;
+    }
+    if (this.photoLoading) {
+      this.showToast('图片正在载入，请稍候');
+      return;
+    }
+    if (this.photoLoadFailed) {
+      this.showToast('图片未能载入，请重新选择');
       return;
     }
     if (!this.validateEpisode()) {
@@ -464,17 +478,67 @@ struct CoverEditor {
   @Builder
   private preview() {
     Column({ space: 10 }) {
-      CoverPreview({
-        templateId: this.templateId,
-        draftJson: this.previewDraftJson,
-        revision: this.previewRevision,
-        onResult: (tooLong: boolean): void => {
-          this.titleTooLong = tooLong;
-        }
-      })
+      Stack({ alignContent: Alignment.Center }) {
+        CoverPreview({
+          templateId: this.templateId,
+          draftJson: this.previewDraftJson,
+          revision: this.previewRevision,
+          onResult: (tooLong: boolean): void => {
+            this.titleTooLong = tooLong;
+          },
+          onPhotoStateChanged: (state: string): void => {
+            if (state === 'loading') {
+              this.photoLoading = true;
+              this.photoLoadFailed = false;
+            } else if (state === 'ready') {
+              this.photoLoading = false;
+              this.photoLoadFailed = false;
+            } else {
+              this.photoLoading = false;
+              this.photoLoadFailed = true;
+              this.showToast('图片未能载入，请重新选择');
+            }
+          }
+        })
         .width('100%')
-        .borderRadius(12)
-        .clip(true)
+
+        if (this.photoLoading) {
+          Column({ space: 10 }) {
+            LoadingProgress()
+              .width(34)
+              .height(34)
+              .color('#FFFFFF')
+            Text('正在载入图片')
+              .fontSize(13)
+              .fontWeight(FontWeight.Medium)
+              .fontColor('#FFFFFF')
+            Text('完成后会自动刷新')
+              .fontSize(10)
+              .fontColor('#CCFFFFFF')
+          }
+          .width('100%')
+          .height('100%')
+          .justifyContent(FlexAlign.Center)
+          .backgroundColor('#780B1016')
+        } else if (this.photoLoadFailed) {
+          Column({ space: 8 }) {
+            SymbolGlyph($r('sys.symbol.exclamationmark_triangle'))
+              .fontSize(25)
+              .fontColor(['#FFFFFF'])
+            Text('图片未能载入，请重新选择')
+              .fontSize(12)
+              .fontColor('#FFFFFF')
+          }
+          .width('100%')
+          .height('100%')
+          .justifyContent(FlexAlign.Center)
+          .backgroundColor('#780B1016')
+        }
+      }
+      .width('100%')
+      .aspectRatio(16 / 9)
+      .borderRadius(12)
+      .clip(true)
 
       Row() {
         Row({ space: 7 }) {
@@ -504,15 +568,27 @@ struct CoverEditor {
       this.sectionTitle('01', '背景图片', '上传后自动进行 16:9 居中裁切')
       Row() {
         Column({ space: 5 }) {
-          SymbolGlyph(this.photoUri.length > 0 ?
-            $r('sys.symbol.checkmark') : $r('sys.symbol.plus'))
-            .fontSize(24)
-            .fontColor([this.photoUri.length > 0 ? '#5AA77B' : $r('app.color.brand_primary')])
-          Text(this.photoUri.length > 0 ? '更换主图' : '上传主图')
+          if (this.photoLoading) {
+            LoadingProgress()
+              .width(25)
+              .height(25)
+              .color($r('app.color.brand_primary'))
+          } else {
+            SymbolGlyph(this.photoLoadFailed ? $r('sys.symbol.exclamationmark_triangle') :
+              (this.photoUri.length > 0 ? $r('sys.symbol.checkmark') : $r('sys.symbol.plus')))
+              .fontSize(24)
+              .fontColor([this.photoLoadFailed ? $r('app.color.brand_primary') :
+                (this.photoUri.length > 0 ? '#5AA77B' : $r('app.color.brand_primary'))])
+          }
+          Text(this.photoLoading ? '正在载入主图' :
+            (this.photoLoadFailed ? '重新选择主图' :
+              (this.photoUri.length > 0 ? '更换主图' : '上传主图')))
             .fontSize(13)
             .fontWeight(FontWeight.Medium)
             .fontColor($r('app.color.text_primary'))
-          Text(this.photoUri.length > 0 ? '已加载 · 点击可替换' : '支持系统相册中的图片')
+          Text(this.photoLoading ? '完成后预览会自动刷新' :
+            (this.photoLoadFailed ? '上次图片没有成功载入' :
+              (this.photoUri.length > 0 ? '已加载 · 点击可替换' : '支持系统相册中的图片')))
             .fontSize(10)
             .fontColor($r('app.color.text_secondary'))
         }
@@ -880,7 +956,8 @@ struct CoverEditor {
           .borderRadius(25)
           .enabled(false)
       } else {
-        Button(this.exporting ? '正在生成…' : '保存到相册',
+        Button(this.photoLoading ? '图片载入中…' :
+          (this.exporting ? '正在生成…' : '保存到相册'),
           { type: ButtonType.Capsule })
           .width('100%')
           .height(50)
@@ -888,7 +965,7 @@ struct CoverEditor {
           .fontWeight(FontWeight.Bold)
           .fontColor('#FFFFFF')
           .backgroundColor($r('app.color.brand_primary'))
-          .enabled(!this.exporting)
+          .enabled(!this.exporting && !this.photoLoading && !this.photoLoadFailed)
           .onClick(() => {
             this.exportCover();
           })

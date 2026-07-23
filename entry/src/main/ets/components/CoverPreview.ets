@@ -1,3 +1,5 @@
+import image from '@ohos.multimedia.image';
+import fileIo from '@ohos.file.fs';
 import {
   CoverDraft,
   DESIGN_WIDTH,
@@ -12,7 +14,10 @@ export struct CoverPreview {
   private context: CanvasRenderingContext2D =
     new CanvasRenderingContext2D(this.contextSettings);
   private bitmap: ImageBitmap | undefined = undefined;
+  private pixelMap: PixelMap | undefined = undefined;
   private bitmapUri: string = '';
+  private requestedBitmapUri: string = '';
+  private imageLoadGeneration: number = 0;
   private canvasReady: boolean = false;
   private drawScheduled: boolean = false;
 
@@ -20,6 +25,8 @@ export struct CoverPreview {
   @Prop @Watch('onContentChanged') draftJson: string = '';
   @Prop @Watch('onContentChanged') revision: number = 0;
   onResult: (titleTooLong: boolean) => void = (_titleTooLong: boolean): void => {
+  };
+  onPhotoStateChanged: (state: string) => void = (_state: string): void => {
   };
 
   private draft(): CoverDraft {
@@ -32,21 +39,87 @@ export struct CoverPreview {
     return createDefaultDraft(getTemplateDefinition(this.templateId));
   }
 
-  private syncBitmap(draft: CoverDraft): void {
-    if (draft.photoUri === this.bitmapUri) {
-      return;
-    }
+  private releaseActiveImage(): void {
     if (this.bitmap !== undefined) {
       this.bitmap.close();
       this.bitmap = undefined;
     }
-    this.bitmapUri = draft.photoUri;
-    if (draft.photoUri.length > 0) {
-      try {
-        this.bitmap = new ImageBitmap(draft.photoUri);
-      } catch (error) {
-        this.bitmap = undefined;
-        this.bitmapUri = '';
+    if (this.pixelMap !== undefined) {
+      this.pixelMap.release();
+      this.pixelMap = undefined;
+    }
+    this.bitmapUri = '';
+  }
+
+  private syncBitmap(draft: CoverDraft): void {
+    if (draft.photoUri === this.requestedBitmapUri) {
+      return;
+    }
+    this.requestedBitmapUri = draft.photoUri;
+    this.imageLoadGeneration += 1;
+    const generation: number = this.imageLoadGeneration;
+    if (draft.photoUri.length === 0) {
+      this.releaseActiveImage();
+      this.onPhotoStateChanged('ready');
+      return;
+    }
+    this.onPhotoStateChanged('loading');
+    this.loadBitmap(draft.photoUri, generation);
+  }
+
+  private async loadBitmap(uri: string, generation: number): Promise<void> {
+    let sourceFile: fileIo.File | undefined = undefined;
+    let imageSource: image.ImageSource | undefined = undefined;
+    let decodedPixelMap: PixelMap | undefined = undefined;
+    let accepted: boolean = false;
+    try {
+      sourceFile = fileIo.openSync(uri, fileIo.OpenMode.READ_ONLY);
+      imageSource = image.createImageSource(sourceFile.fd);
+      decodedPixelMap = await imageSource.createPixelMap();
+      if (generation !== this.imageLoadGeneration ||
+        uri !== this.requestedBitmapUri) {
+        await decodedPixelMap.release();
+        decodedPixelMap = undefined;
+        return;
+      }
+
+      const decodedBitmap: ImageBitmap = new ImageBitmap(decodedPixelMap);
+      const oldBitmap: ImageBitmap | undefined = this.bitmap;
+      const oldPixelMap: PixelMap | undefined = this.pixelMap;
+      this.bitmap = decodedBitmap;
+      this.pixelMap = decodedPixelMap;
+      this.bitmapUri = uri;
+      accepted = true;
+      decodedPixelMap = undefined;
+
+      if (oldBitmap !== undefined) {
+        oldBitmap.close();
+      }
+      if (oldPixelMap !== undefined) {
+        try {
+          await oldPixelMap.release();
+        } catch (error) {
+        }
+      }
+      this.requestDraw();
+      this.onPhotoStateChanged('ready');
+    } catch (error) {
+      if (generation === this.imageLoadGeneration &&
+        uri === this.requestedBitmapUri) {
+        this.onPhotoStateChanged('error');
+      }
+    } finally {
+      if (!accepted && decodedPixelMap !== undefined) {
+        try {
+          await decodedPixelMap.release();
+        } catch (error) {
+        }
+      }
+      if (sourceFile !== undefined) {
+        try {
+          fileIo.closeSync(sourceFile);
+        } catch (error) {
+        }
       }
     }
   }
@@ -79,10 +152,8 @@ export struct CoverPreview {
   }
 
   aboutToDisappear(): void {
-    if (this.bitmap !== undefined) {
-      this.bitmap.close();
-      this.bitmap = undefined;
-    }
+    this.imageLoadGeneration += 1;
+    this.releaseActiveImage();
   }
 
   build() {
