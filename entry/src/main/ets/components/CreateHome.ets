@@ -10,6 +10,11 @@ interface TemplateShortcut {
   id: number;
 }
 
+const HERO_SWIPE_DISTANCE: number = 150;
+const HERO_MAX_DRAG: number = 190;
+const HERO_SWITCH_THRESHOLD: number = 54;
+const HERO_VELOCITY_THRESHOLD: number = 680;
+
 const TEMPLATE_SHORTCUTS: TemplateShortcut[] = [
   {
     id: 1
@@ -25,6 +30,8 @@ const TEMPLATE_SHORTCUTS: TemplateShortcut[] = [
 @Component
 export struct CreateHome {
   @State currentHeroIndex: number = 0;
+  @State heroDragOffset: number = 0;
+  private heroSettling: boolean = false;
 
   private previewJson(templateId: number): string {
     return JSON.stringify(createDefaultDraft(getTemplateDefinition(templateId)));
@@ -32,6 +39,95 @@ export struct CreateHome {
 
   private currentHeroTemplate(): TemplateDefinition {
     return TEMPLATE_DEFINITIONS[this.currentHeroIndex];
+  }
+
+  private relativeHeroIndex(index: number): number {
+    let relative: number = index - this.currentHeroIndex;
+    const half: number = Math.floor(TEMPLATE_DEFINITIONS.length / 2);
+    if (relative > half) {
+      relative -= TEMPLATE_DEFINITIONS.length;
+    } else if (relative < -half) {
+      relative += TEMPLATE_DEFINITIONS.length;
+    }
+    return relative;
+  }
+
+  private heroPosition(index: number): number {
+    return this.relativeHeroIndex(index) + this.heroDragOffset / HERO_SWIPE_DISTANCE;
+  }
+
+  private heroTranslateX(index: number): number {
+    const position: number = this.heroPosition(index);
+    const direction: number = position < 0 ? -1 : 1;
+    const distance: number = Math.min(Math.abs(position), 2.2);
+    return direction * (distance * 47 + Math.max(0, distance - 1) * 12);
+  }
+
+  private heroTranslateY(index: number): number {
+    return Math.min(Math.abs(this.heroPosition(index)), 2) * 10 + 4;
+  }
+
+  private heroScale(index: number): number {
+    return 1 - Math.min(Math.abs(this.heroPosition(index)), 2) * 0.09;
+  }
+
+  private heroOpacity(index: number): number {
+    return Math.max(0.3, 1 - Math.min(Math.abs(this.heroPosition(index)), 2.2) * 0.24);
+  }
+
+  private heroRotation(index: number): number {
+    return Math.max(-9, Math.min(9, this.heroPosition(index) * 6.5));
+  }
+
+  private heroZIndex(index: number): number {
+    return 100 - Math.round(Math.min(Math.abs(this.heroPosition(index)), 3) * 10);
+  }
+
+  private settleHero(direction: number): void {
+    if (this.heroSettling) {
+      return;
+    }
+    this.heroSettling = true;
+    if (direction === 0) {
+      this.getUIContext().animateTo({
+        duration: 300,
+        curve: Curve.Friction,
+        onFinish: () => {
+          this.heroSettling = false;
+        }
+      }, () => {
+        this.heroDragOffset = 0;
+      });
+      return;
+    }
+
+    const targetOffset: number = direction > 0 ? -HERO_SWIPE_DISTANCE : HERO_SWIPE_DISTANCE;
+    this.getUIContext().animateTo({
+      duration: 340,
+      curve: Curve.Friction,
+      onFinish: () => {
+        this.currentHeroIndex =
+          (this.currentHeroIndex + direction + TEMPLATE_DEFINITIONS.length) % TEMPLATE_DEFINITIONS.length;
+        this.heroDragOffset = 0;
+        this.heroSettling = false;
+      }
+    }, () => {
+      this.heroDragOffset = targetOffset;
+    });
+  }
+
+  private handleHeroRelease(event: GestureEvent): void {
+    const shouldSwitch: boolean =
+      Math.abs(this.heroDragOffset) >= HERO_SWITCH_THRESHOLD ||
+        Math.abs(event.velocityX) >= HERO_VELOCITY_THRESHOLD;
+    if (!shouldSwitch) {
+      this.settleHero(0);
+      return;
+    }
+    const direction: number = Math.abs(event.velocityX) >= HERO_VELOCITY_THRESHOLD
+      ? (event.velocityX < 0 ? 1 : -1)
+      : (this.heroDragOffset < 0 ? 1 : -1);
+    this.settleHero(direction);
   }
 
   private openTemplate(templateId: number): void {
@@ -44,7 +140,7 @@ export struct CreateHome {
   }
 
   @Builder
-  private heroCover(item: TemplateDefinition) {
+  private heroCover(item: TemplateDefinition, index: number) {
     Column() {
       CoverPreview({
         templateId: item.id,
@@ -55,16 +151,32 @@ export struct CreateHome {
       .borderRadius(13)
       .clip(true)
       .shadow({
-        radius: 16,
-        color: '#44000000',
+        radius: index === this.currentHeroIndex ? 18 : 10,
+        color: index === this.currentHeroIndex ? '#4D000000' : '#2E000000',
         offsetX: 0,
-        offsetY: 8
+        offsetY: index === this.currentHeroIndex ? 9 : 5
       })
     }
-    .width('100%')
-    .padding({ left: 4, right: 4, top: 6, bottom: 24 })
+    .width('82%')
+    .translate({
+      x: this.heroTranslateX(index),
+      y: this.heroTranslateY(index)
+    })
+    .rotate({
+      angle: this.heroRotation(index),
+      centerX: '50%',
+      centerY: '50%'
+    })
+    .scale({
+      x: this.heroScale(index),
+      y: this.heroScale(index)
+    })
+    .opacity(this.heroOpacity(index))
+    .zIndex(this.heroZIndex(index))
     .onClick(() => {
-      this.openTemplate(item.id);
+      if (index === this.currentHeroIndex && Math.abs(this.heroDragOffset) < 4 && !this.heroSettling) {
+        this.openTemplate(item.id);
+      }
     })
   }
 
@@ -134,53 +246,69 @@ export struct CreateHome {
         .alignItems(VerticalAlign.Top)
 
         Column() {
-          Swiper() {
-            ForEach(TEMPLATE_DEFINITIONS, (item: TemplateDefinition) => {
-              this.heroCover(item)
+          Stack({ alignContent: Alignment.Center }) {
+            ForEach(TEMPLATE_DEFINITIONS, (item: TemplateDefinition, index: number) => {
+              if (Math.abs(this.relativeHeroIndex(index)) <= 2) {
+                this.heroCover(item, index)
+              }
             }, (item: TemplateDefinition) => item.id.toString())
           }
-          .index(this.currentHeroIndex)
-          .loop(true)
-          .autoPlay(false)
-          .duration(360)
-          .curve(Curve.Friction)
-          .itemSpace(10)
-          .prevMargin(22)
-          .nextMargin(22)
-          .indicator(
-            new DotIndicator()
-              .itemWidth(5)
-              .itemHeight(5)
-              .selectedItemWidth(16)
-              .selectedItemHeight(5)
-              .color($r('app.color.divider'))
-              .selectedColor($r('app.color.brand_primary'))
-              .bottom(2)
+          .width('100%')
+          .height(190)
+          .clip(false)
+          .gesture(
+            PanGesture({
+              fingers: 1,
+              direction: PanDirection.Horizontal,
+              distance: 8
+            })
+              .onActionUpdate((event: GestureEvent) => {
+                if (!this.heroSettling) {
+                  this.heroDragOffset =
+                    Math.max(-HERO_MAX_DRAG, Math.min(HERO_MAX_DRAG, event.offsetX));
+                }
+              })
+              .onActionEnd((event: GestureEvent) => {
+                if (!this.heroSettling) {
+                  this.handleHeroRelease(event);
+                }
+              })
+              .onActionCancel(() => {
+                if (!this.heroSettling) {
+                  this.settleHero(0);
+                }
+              })
           )
-          .onChange((index: number) => {
-            this.currentHeroIndex = index;
-          })
-          .width('100%')
-          .height(216)
 
-          Row({ space: 6 }) {
-            Text(this.currentHeroTemplate().code)
+          Row() {
+            Row({ space: 6 }) {
+              Text(this.currentHeroTemplate().code)
+                .fontSize(10)
+                .fontWeight(FontWeight.Bold)
+                .fontColor(this.currentHeroTemplate().accent)
+              Text(this.currentHeroTemplate().name)
+                .fontSize(12)
+                .fontWeight(FontWeight.Medium)
+                .fontColor($r('app.color.text_primary'))
+              Text(this.currentHeroTemplate().subtitle)
+                .fontSize(12)
+                .fontColor($r('app.color.text_secondary'))
+                .maxLines(1)
+                .textOverflow({ overflow: TextOverflow.Ellipsis })
+            }
+
+            Blank()
+
+            Text(`${this.currentHeroIndex + 1} / ${TEMPLATE_DEFINITIONS.length}`)
               .fontSize(10)
-              .fontWeight(FontWeight.Bold)
-              .fontColor(this.currentHeroTemplate().accent)
-            Text(this.currentHeroTemplate().name)
-              .fontSize(12)
-              .fontWeight(FontWeight.Medium)
-              .fontColor($r('app.color.text_primary'))
-            Text(this.currentHeroTemplate().subtitle)
-              .fontSize(12)
               .fontColor($r('app.color.text_secondary'))
-              .maxLines(1)
-              .textOverflow({ overflow: TextOverflow.Ellipsis })
+              .padding({ left: 8, right: 8, top: 4, bottom: 4 })
+              .backgroundColor($r('app.color.page_background'))
+              .borderRadius(10)
           }
-          .justifyContent(FlexAlign.Center)
           .width('100%')
-          .height(22)
+          .height(26)
+          .padding({ left: 8, right: 8 })
 
           Text('选择一个模板，开始做封面')
             .fontSize(20)
@@ -188,7 +316,7 @@ export struct CreateHome {
             .fontColor($r('app.color.text_primary'))
             .margin({ top: 5 })
 
-          Text('选定版式后，只需替换图片和内容')
+          Text('左右滑动预览全部模板，选定后替换图片和内容')
             .fontSize(13)
             .fontColor($r('app.color.text_secondary'))
             .margin({ top: 7 })
