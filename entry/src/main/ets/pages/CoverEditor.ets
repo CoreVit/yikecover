@@ -845,11 +845,8 @@ struct CoverEditor {
           .borderRadius(25)
           .enabled(false)
       } else {
-        SaveButton({
-          icon: SaveIconStyle.FULL_FILLED,
-          text: SaveDescription.SAVE_TO_GALLERY,
-          buttonType: ButtonType.Capsule
-        })
+        Button(this.exporting ? '正在生成…' : '保存到相册',
+          { type: ButtonType.Capsule })
           .width('100%')
           .height(50)
           .fontSize(14)
@@ -857,14 +854,8 @@ struct CoverEditor {
           .fontColor('#FFFFFF')
           .backgroundColor($r('app.color.brand_primary'))
           .enabled(!this.exporting)
-          .onClick((event: ClickEvent, result: SaveButtonOnClickResult) => {
-            if (result === SaveButtonOnClickResult.SUCCESS) {
-              this.exportCover();
-            } else if (result === SaveButtonOnClickResult.CANCELED_BY_USER) {
-              this.showToast('已取消保存');
-            } else {
-              this.showToast('未获得图库临时授权，请重试');
-            }
+          .onClick(() => {
+            this.exportCover();
           })
       }
     }

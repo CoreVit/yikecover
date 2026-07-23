@@ -36,19 +36,27 @@ export class ExportService {
         format: mime,
         quality: settings.format === 'PNG' ? 100 : settings.quality
       });
-      const path: string = `${appContext.cacheDir}/一刻封面-${Date.now()}.${extension}`;
-      const file: fileIo.File = fileIo.openSync(path, fileIo.OpenMode.CREATE | fileIo.OpenMode.WRITE_ONLY |
+
+      const path: string =
+        `${appContext.cacheDir}/一刻封面-${Date.now()}.${extension}`;
+      const file: fileIo.File = fileIo.openSync(path,
+        fileIo.OpenMode.CREATE | fileIo.OpenMode.WRITE_ONLY |
         fileIo.OpenMode.TRUNC);
       fileIo.writeSync(file.fd, buffer);
       fileIo.closeSync(file);
 
       const helper: photoAccessHelper.PhotoAccessHelper =
         photoAccessHelper.getPhotoAccessHelper(appContext);
-      const request: photoAccessHelper.MediaAssetChangeRequest =
-        photoAccessHelper.MediaAssetChangeRequest.createImageAssetRequest(appContext,
-          fileUri.getUriFromPath(path));
-      await helper.applyChanges(request);
-      return path;
+      const creationSetting: photoAccessHelper.CreationSetting = {
+        title: `一刻封面-${Date.now()}`,
+        fileNameExtension: extension,
+        photoType: photoAccessHelper.PhotoType.IMAGE
+      };
+      // Atomic services cannot request the full media write permission.
+      // The system creation dialog performs the user-authorized save.
+      const assetUri: string = await helper.showSingleAssetCreationDialogEx(
+        fileUri.getUriFromPath(path), creationSetting, true);
+      return assetUri;
     } catch (error) {
       if (settings.resolution === '4K') {
         throw new Error('4K 渲染失败或设备内存不足，请切换为 1080P');
