@@ -26,14 +26,11 @@ function memberTabWidth(ctx: CanvasRenderer, brand: string): number {
 function createMemberOpening(ctx: CanvasRenderer, brand: string): void {
   const right: number = DESIGN_WIDTH - INSET;
   const bottom: number = DESIGN_HEIGHT - INSET;
+  const bottomJoin: number = DESIGN_WIDTH / 2;
   const notchEnd: number =
     Math.min(memberTabWidth(ctx, brand) + 38, right - RADIUS * 2);
   ctx.beginPath();
-  ctx.moveTo(notchEnd, INSET);
-  ctx.lineTo(right - RADIUS, INSET);
-  ctx.quadraticCurveTo(right, INSET, right, INSET + RADIUS);
-  ctx.lineTo(right, bottom - RADIUS);
-  ctx.quadraticCurveTo(right, bottom, right - RADIUS, bottom);
+  ctx.moveTo(bottomJoin, bottom);
   ctx.lineTo(INSET + RADIUS, bottom);
   ctx.quadraticCurveTo(INSET, bottom, INSET, bottom - RADIUS);
   ctx.lineTo(INSET, 196);
@@ -41,6 +38,11 @@ function createMemberOpening(ctx: CanvasRenderer, brand: string): void {
   ctx.lineTo(notchEnd - 118, 140);
   ctx.quadraticCurveTo(notchEnd - 56, 140, notchEnd - 34, 82);
   ctx.quadraticCurveTo(notchEnd - 12, INSET, notchEnd, INSET);
+  ctx.lineTo(right - RADIUS, INSET);
+  ctx.quadraticCurveTo(right, INSET, right, INSET + RADIUS);
+  ctx.lineTo(right, bottom - RADIUS);
+  ctx.quadraticCurveTo(right, bottom, right - RADIUS, bottom);
+  ctx.lineTo(bottomJoin, bottom);
   ctx.closePath();
 }
 
