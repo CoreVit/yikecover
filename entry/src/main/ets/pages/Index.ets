@@ -5,6 +5,11 @@ import { WorksHome } from '../components/WorksHome';
 @Component
 struct Index {
   @State currentTab: number = 0;
+  @State worksRefreshToken: number = 0;
+
+  onPageShow(): void {
+    this.worksRefreshToken += 1;
+  }
 
   @Builder
   private tabItem(label: string, index: number) {
@@ -39,7 +44,10 @@ struct Index {
       if (this.currentTab === 0) {
         CreateHome()
       } else {
-        WorksHome({ currentTab: $currentTab })
+        WorksHome({
+          currentTab: $currentTab,
+          refreshToken: this.worksRefreshToken
+        })
       }
 
       Row() {

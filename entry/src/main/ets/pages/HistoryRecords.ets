@@ -62,7 +62,10 @@ struct HistoryRecords {
     this.clearing = true;
     try {
       await LocalStore.clearAllLocalData();
-      this.recordCount = 0;
+      await this.loadSummary();
+      if (this.recordCount !== 0) {
+        throw new Error('历史记录清理后仍有残留');
+      }
       this.confirming = false;
       this.cleared = true;
       this.getUIContext().getPromptAction().showToast({
@@ -126,7 +129,7 @@ struct HistoryRecords {
             this.getUIContext().getRouter().back();
           })
         Column({ space: 3 }) {
-          Text('历史与数据')
+          Text('历史记录')
             .fontSize(24)
             .fontWeight(FontWeight.Bold)
             .fontColor($r('app.color.text_primary'))

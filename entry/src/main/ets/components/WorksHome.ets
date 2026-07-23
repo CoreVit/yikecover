@@ -38,6 +38,7 @@ const SETTINGS: SettingEntry[] = [
 @Component
 export struct WorksHome {
   @Link currentTab: number;
+  @Prop @Watch('onRefreshRequested') refreshToken: number = 0;
   @State currentFilter: number = 0;
   @State records: HistoryRecord[] = [];
 
@@ -49,7 +50,7 @@ export struct WorksHome {
     this.loadHistory();
   }
 
-  onPageShow(): void {
+  private onRefreshRequested(): void {
     this.loadHistory();
   }
 

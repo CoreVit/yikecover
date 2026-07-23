@@ -195,9 +195,14 @@ export class LocalStore {
       await preferences.getPreferences(appContext, SETTINGS_STORE);
     const content: preferences.Preferences =
       await preferences.getPreferences(appContext, CONTENT_STORE);
-    settings.clearSync();
-    content.clearSync();
+    await settings.clear();
+    await content.clear();
     await settings.flush();
     await content.flush();
+
+    if (settings.hasSync('resolution') || settings.hasSync('format') ||
+      settings.hasSync('quality') || content.hasSync('history')) {
+      throw new Error('本机数据清理后仍有残留');
+    }
   }
 }
