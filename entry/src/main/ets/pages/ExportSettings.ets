@@ -1,5 +1,6 @@
 import { ExportSettings } from '../model/CoverModels';
 import { LocalStore } from '../services/LocalStore';
+import { SystemBackButton } from '../components/SystemBackButton';
 
 @Entry
 @Component
@@ -143,16 +144,11 @@ struct ExportSettingsPage {
   build() {
     Column() {
       Row() {
-        SymbolGlyph($r('sys.symbol.chevron_backward'))
-          .width(40)
-          .height(40)
-          .fontSize(24)
-          .fontColor([$r('app.color.text_primary')])
-          .backgroundColor($r('app.color.control_background'))
-          .borderRadius(20)
-          .onClick(() => {
+        SystemBackButton({
+          onBack: (): void => {
             this.goBack();
-          })
+          }
+        })
         Column({ space: 3 }) {
           Text('导出设置')
             .fontSize(24)

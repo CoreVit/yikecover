@@ -1,5 +1,6 @@
 import { common } from '@kit.AbilityKit';
 import { BusinessError } from '@kit.BasicServicesKit';
+import { SystemBackButton } from '../components/SystemBackButton';
 
 const REPOSITORY_URL: string = 'https://github.com/CoreVit/yikecover';
 
@@ -107,16 +108,11 @@ struct About {
   build() {
     Column() {
       Row() {
-        SymbolGlyph($r('sys.symbol.chevron_backward'))
-          .width(40)
-          .height(40)
-          .fontSize(24)
-          .fontColor([$r('app.color.text_primary')])
-          .backgroundColor($r('app.color.control_background'))
-          .borderRadius(20)
-          .onClick(() => {
+        SystemBackButton({
+          onBack: (): void => {
             this.goBack();
-          })
+          }
+        })
 
         Text('关于一刻封面')
           .fontSize(18)

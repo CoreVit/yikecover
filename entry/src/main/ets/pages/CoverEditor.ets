@@ -15,6 +15,7 @@ import {
   todayText
 } from '../model/CoverModels';
 import { CoverPreview } from '../components/CoverPreview';
+import { SystemBackButton } from '../components/SystemBackButton';
 import { CoverRenderer, RenderResult } from '../services/CoverRenderer';
 import { ExportService } from '../services/ExportService';
 import { LocalStore } from '../services/LocalStore';
@@ -374,16 +375,11 @@ struct CoverEditor {
   @Builder
   private header() {
     Row() {
-      SymbolGlyph($r('sys.symbol.chevron_backward'))
-        .width(40)
-        .height(40)
-        .fontSize(24)
-        .fontColor([$r('app.color.text_primary')])
-        .backgroundColor($r('app.color.control_background'))
-        .borderRadius(20)
-        .onClick(() => {
+      SystemBackButton({
+        onBack: (): void => {
           this.leaveEditor();
-        })
+        }
+      })
       Column({ space: 3 }) {
         Text(this.definition().name)
           .fontSize(18)

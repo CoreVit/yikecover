@@ -4,24 +4,11 @@ import {
   createDefaultDraft
 } from '../model/CoverModels';
 import { CoverPreview } from '../components/CoverPreview';
+import { SystemBackButton } from '../components/SystemBackButton';
 
 @Entry
 @Component
 struct TemplateLibrary {
-  @Builder
-  private backButton() {
-    SymbolGlyph($r('sys.symbol.chevron_backward'))
-      .width(40)
-      .height(40)
-      .fontSize(24)
-      .fontColor([$r('app.color.text_primary')])
-      .backgroundColor($r('app.color.control_background'))
-      .borderRadius(20)
-      .onClick(() => {
-        this.getUIContext().getRouter().back();
-      })
-  }
-
   @Builder
   private preview(item: TemplateDefinition) {
     CoverPreview({
@@ -75,7 +62,11 @@ struct TemplateLibrary {
   build() {
     Column() {
       Row() {
-        this.backButton()
+        SystemBackButton({
+          onBack: (): void => {
+            this.getUIContext().getRouter().back();
+          }
+        })
         Column({ space: 3 }) {
           Text('模板库')
             .fontSize(24)
