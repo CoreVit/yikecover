@@ -10,3 +10,10 @@
 /.clang-tidy
 **/.test
 /.appanalyzer
+/.ohos/
+*.p12
+*.p7b
+*.cer
+*.pem
+*.key
+/signing/
