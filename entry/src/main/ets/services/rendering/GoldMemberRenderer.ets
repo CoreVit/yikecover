@@ -33,10 +33,10 @@ function createMemberOpening(ctx: CanvasRenderer, brand: string): void {
   ctx.moveTo(bottomJoin, bottom);
   ctx.lineTo(INSET + RADIUS, bottom);
   ctx.quadraticCurveTo(INSET, bottom, INSET, bottom - RADIUS);
-  ctx.lineTo(INSET, 196);
-  ctx.quadraticCurveTo(INSET, 140, 82, 140);
-  ctx.lineTo(notchEnd - 118, 140);
-  ctx.quadraticCurveTo(notchEnd - 56, 140, notchEnd - 34, 82);
+  ctx.lineTo(INSET, 192);
+  ctx.quadraticCurveTo(INSET, 136, 82, 136);
+  ctx.lineTo(notchEnd - 116, 136);
+  ctx.quadraticCurveTo(notchEnd - 54, 136, notchEnd - 32, 80);
   ctx.quadraticCurveTo(notchEnd - 12, INSET, notchEnd, INSET);
   ctx.lineTo(right - RADIUS, INSET);
   ctx.quadraticCurveTo(right, INSET, right, INSET + RADIUS);
