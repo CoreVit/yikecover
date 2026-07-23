@@ -22,9 +22,9 @@ const TEMPLATE_SHORTCUTS: TemplateShortcut[] = [
     accent: '#D12722'
   },
   {
-    id: 3,
-    title: '美食分集',
-    subtitle: '明亮暖色构图',
+    id: 4,
+    title: '美食细线',
+    subtitle: '暖色细边框',
     number: '04',
     accent: '#F2A526'
   }
@@ -132,6 +132,14 @@ export struct CreateHome {
       .width('100%')
     }
     .width(146)
+    .onClick(() => {
+      this.getUIContext().getRouter().pushUrl({
+        url: 'pages/CoverEditor',
+        params: {
+          templateId: item.id
+        }
+      });
+    })
   }
 
   build() {
@@ -158,6 +166,11 @@ export struct CreateHome {
             .padding({ left: 14, right: 14, top: 8, bottom: 8 })
             .backgroundColor($r('app.color.brand_soft'))
             .borderRadius(18)
+            .onClick(() => {
+              this.getUIContext().getRouter().pushUrl({
+                url: 'pages/TemplateLibrary'
+              });
+            })
         }
         .width('100%')
         .alignItems(VerticalAlign.Top)
@@ -205,6 +218,11 @@ export struct CreateHome {
             .backgroundColor($r('app.color.brand_primary'))
             .borderRadius(12)
             .margin({ top: 20 })
+            .onClick(() => {
+              this.getUIContext().getRouter().pushUrl({
+                url: 'pages/TemplateLibrary'
+              });
+            })
         }
         .width('100%')
         .padding({ left: 18, right: 18, top: 18, bottom: 18 })
@@ -221,6 +239,11 @@ export struct CreateHome {
           Text('查看全部')
             .fontSize(13)
             .fontColor($r('app.color.brand_primary'))
+            .onClick(() => {
+              this.getUIContext().getRouter().pushUrl({
+                url: 'pages/TemplateLibrary'
+              });
+            })
         }
         .width('100%')
         .margin({ top: 28, bottom: 14 })

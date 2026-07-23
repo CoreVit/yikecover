@@ -1,3 +1,6 @@
+import { HistoryRecord } from '../model/CoverModels';
+import { LocalStore } from '../services/LocalStore';
+
 interface SettingEntry {
   id: number;
   title: string;
@@ -23,7 +26,7 @@ const SETTINGS: SettingEntry[] = [
   {
     id: 4,
     title: '关于一刻封面',
-    description: '版本信息与隐私说明'
+    description: '开源信息、版本与项目地址'
   }
 ];
 
@@ -31,6 +34,31 @@ const SETTINGS: SettingEntry[] = [
 export struct WorksHome {
   @Link currentTab: number;
   @State currentFilter: number = 0;
+  @State records: HistoryRecord[] = [];
+
+  aboutToAppear(): void {
+    const hostContext: Context | undefined = this.getUIContext().getHostContext();
+    if (hostContext !== undefined) {
+      LocalStore.initialize(hostContext);
+    }
+    this.loadHistory();
+  }
+
+  onPageShow(): void {
+    this.loadHistory();
+  }
+
+  private async loadHistory(): Promise<void> {
+    this.records = await LocalStore.loadHistory();
+  }
+
+  private filteredRecords(): HistoryRecord[] {
+    if (this.currentFilter === 0) {
+      return this.records;
+    }
+    const status: string = this.currentFilter === 1 ? '草稿' : '已导出';
+    return this.records.filter((item: HistoryRecord) => item.status === status);
+  }
 
   @Builder
   private filterButton(label: string, index: number) {
@@ -121,6 +149,77 @@ export struct WorksHome {
       }
     }
     .width('100%')
+    .onClick(() => {
+      if (item.id === 1) {
+        this.getUIContext().getRouter().pushUrl({
+          url: 'pages/ExportSettings'
+        });
+      } else if (item.id === 4) {
+        this.getUIContext().getRouter().pushUrl({
+          url: 'pages/About'
+        });
+      }
+    })
+  }
+
+  @Builder
+  private historyCard(item: HistoryRecord) {
+    Row({ space: 12 }) {
+      Stack({ alignContent: Alignment.BottomStart }) {
+        Row()
+          .width('100%')
+          .height('100%')
+          .backgroundColor('#242A32')
+        Row()
+          .width(34)
+          .height(66)
+          .backgroundColor(item.status === '已导出' ? '#4D9E72' : $r('app.color.brand_primary'))
+          .rotate({ angle: 16 })
+          .translate({ x: -12, y: -3 })
+        Text(item.templateId.toString().padStart(2, '0'))
+          .fontSize(9)
+          .fontWeight(FontWeight.Bold)
+          .fontColor('#FFFFFF')
+          .padding({ left: 7, bottom: 6 })
+      }
+      .width(88)
+      .height(50)
+      .borderRadius(8)
+      .clip(true)
+
+      Column({ space: 4 }) {
+        Text(item.title)
+          .fontSize(13)
+          .fontWeight(FontWeight.Medium)
+          .fontColor($r('app.color.text_primary'))
+          .maxLines(1)
+        Text(`${item.templateName} · ${item.updatedAt}`)
+          .fontSize(9)
+          .fontColor($r('app.color.text_secondary'))
+          .maxLines(1)
+      }
+      .alignItems(HorizontalAlign.Start)
+      .layoutWeight(1)
+
+      Text(item.status)
+        .fontSize(9)
+        .fontColor(item.status === '已导出' ? '#66D89A' : $r('app.color.brand_primary'))
+        .padding({ left: 8, right: 8, top: 5, bottom: 5 })
+        .backgroundColor($r('app.color.control_background'))
+        .borderRadius(10)
+    }
+    .width('100%')
+    .padding(12)
+    .backgroundColor($r('app.color.card_background'))
+    .borderRadius(13)
+    .onClick(() => {
+      this.getUIContext().getRouter().pushUrl({
+        url: 'pages/CoverEditor',
+        params: {
+          templateId: item.templateId
+        }
+      });
+    })
   }
 
   build() {
@@ -132,7 +231,7 @@ export struct WorksHome {
               .fontSize(27)
               .fontWeight(FontWeight.Bold)
               .fontColor($r('app.color.text_primary'))
-            Text('0 张封面')
+            Text(`${this.records.length} 条记录`)
               .fontSize(13)
               .fontColor($r('app.color.text_secondary'))
           }
@@ -161,39 +260,49 @@ export struct WorksHome {
         .borderRadius(20)
         .margin({ top: 24 })
 
-        Column() {
-          this.emptyArtwork()
+        if (this.filteredRecords().length === 0) {
+          Column() {
+            this.emptyArtwork()
 
-          Text('还没有作品')
-            .fontSize(18)
-            .fontWeight(FontWeight.Bold)
-            .fontColor($r('app.color.text_primary'))
-            .margin({ top: 8 })
+            Text('还没有作品')
+              .fontSize(18)
+              .fontWeight(FontWeight.Bold)
+              .fontColor($r('app.color.text_primary'))
+              .margin({ top: 8 })
 
-          Text('完成的封面和未完成的草稿会出现在这里')
-            .fontSize(13)
-            .fontColor($r('app.color.text_secondary'))
-            .textAlign(TextAlign.Center)
-            .margin({ top: 7 })
+            Text('完成的封面和未完成的草稿会出现在这里')
+              .fontSize(13)
+              .fontColor($r('app.color.text_secondary'))
+              .textAlign(TextAlign.Center)
+              .margin({ top: 7 })
 
-          Button('去制作', { type: ButtonType.Normal })
-            .height(42)
-            .padding({ left: 24, right: 24 })
-            .fontSize(14)
-            .fontWeight(FontWeight.Bold)
-            .fontColor('#FFFFFF')
-            .backgroundColor($r('app.color.brand_primary'))
-            .borderRadius(11)
-            .margin({ top: 20 })
-            .onClick(() => {
-              this.currentTab = 0;
-            })
+            Button('去制作', { type: ButtonType.Normal })
+              .height(42)
+              .padding({ left: 24, right: 24 })
+              .fontSize(14)
+              .fontWeight(FontWeight.Bold)
+              .fontColor('#FFFFFF')
+              .backgroundColor($r('app.color.brand_primary'))
+              .borderRadius(11)
+              .margin({ top: 20 })
+              .onClick(() => {
+                this.currentTab = 0;
+              })
+          }
+          .width('100%')
+          .padding({ left: 20, right: 20, top: 30, bottom: 28 })
+          .backgroundColor($r('app.color.card_background'))
+          .borderRadius(18)
+          .margin({ top: 18 })
+        } else {
+          Column({ space: 9 }) {
+            ForEach(this.filteredRecords(), (item: HistoryRecord) => {
+              this.historyCard(item)
+            }, (item: HistoryRecord) => item.id)
+          }
+          .width('100%')
+          .margin({ top: 18 })
         }
-        .width('100%')
-        .padding({ left: 20, right: 20, top: 30, bottom: 28 })
-        .backgroundColor($r('app.color.card_background'))
-        .borderRadius(18)
-        .margin({ top: 18 })
 
         Text('工具与设置')
           .width('100%')

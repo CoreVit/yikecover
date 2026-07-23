@@ -1,0 +1,831 @@
+import photoAccessHelper from '@ohos.file.photoAccessHelper';
+import fileIo from '@ohos.file.fs';
+import pasteboard from '@ohos.pasteboard';
+import {
+  CoverDraft,
+  CoverTheme,
+  EpisodePreset,
+  ExportSettings,
+  TemplateDefinition,
+  VERSION_PRESETS,
+  automaticCopy,
+  createDefaultDraft,
+  getTemplateDefinition,
+  isValidCustomEpisode,
+  todayText
+} from '../model/CoverModels';
+import { CoverRenderer, RenderResult } from '../services/CoverRenderer';
+import { ExportService } from '../services/ExportService';
+import { LocalStore } from '../services/LocalStore';
+
+interface TemplateRouteParams {
+  templateId: number;
+}
+
+@Entry
+@Component
+struct CoverEditor {
+  private previewSettings: RenderingContextSettings = new RenderingContextSettings(true);
+  private previewContext: CanvasRenderingContext2D = new CanvasRenderingContext2D(this.previewSettings);
+  private photoBitmap: ImageBitmap | undefined = undefined;
+  private previewWidth: number = 360;
+  private canvasReady: boolean = false;
+
+  @State templateId: number = 1;
+  @State photoUri: string = '';
+  @State brand: string = '';
+  @State title1: string = '';
+  @State title2: string = '';
+  @State kicker: string = '';
+  @State personName: string = '';
+  @State englishName: string = '';
+  @State episodeTitle: string = '';
+  @State episodePreset: string = EpisodePreset.UP;
+  @State customEpisode: string = '';
+  @State versionLabel: string = '';
+  @State customVersion: boolean = false;
+  @State photoGrayscale: boolean = false;
+  @State theme: string = CoverTheme.RED;
+  @State quoteLabel: string = '';
+  @State podcastBody: string = '';
+  @State podcastEnglish: string = '';
+  @State tags: string[] = [];
+  @State tagInput: string = '';
+  @State publishDate: string = todayText();
+  @State exportLabel: string = '1080P · PNG';
+  @State exportSettings: ExportSettings = {
+    resolution: '1080P',
+    width: 1920,
+    height: 1080,
+    format: 'PNG',
+    quality: 92,
+    webpSupported: false
+  };
+  @State titleTooLong: boolean = false;
+  @State exporting: boolean = false;
+
+  aboutToAppear(): void {
+    const hostContext: Context | undefined = this.getUIContext().getHostContext();
+    if (hostContext !== undefined) {
+      LocalStore.initialize(hostContext);
+    }
+    const params: TemplateRouteParams =
+      this.getUIContext().getRouter().getParams() as TemplateRouteParams;
+    if (params !== undefined && params.templateId !== undefined) {
+      this.templateId = params.templateId;
+    }
+    this.loadDraft();
+    this.refreshExportSettings();
+  }
+
+  onPageShow(): void {
+    this.refreshExportSettings();
+  }
+
+  onPageHide(): void {
+    this.saveDraft();
+  }
+
+  private definition(): TemplateDefinition {
+    return getTemplateDefinition(this.templateId);
+  }
+
+  private async loadDraft(): Promise<void> {
+    const draft: CoverDraft = await LocalStore.loadDraft(this.templateId);
+    this.photoUri = draft.photoUri;
+    this.brand = draft.brand;
+    this.title1 = draft.title1;
+    this.title2 = draft.title2;
+    this.kicker = draft.kicker;
+    this.personName = draft.personName;
+    this.englishName = draft.englishName;
+    this.episodeTitle = draft.episodeTitle;
+    this.episodePreset = draft.episodePreset;
+    this.customEpisode = draft.customEpisode;
+    this.versionLabel = draft.versionLabel;
+    if (this.definition().capabilities.supportsVersion) {
+      let isPreset: boolean = false;
+      for (let index: number = 0; index < VERSION_PRESETS.length - 1; index++) {
+        if (VERSION_PRESETS[index] === draft.versionLabel) {
+          isPreset = true;
+        }
+      }
+      this.customVersion = !isPreset;
+    }
+    this.photoGrayscale = draft.grayscale;
+    this.theme = draft.theme;
+    this.quoteLabel = draft.quoteLabel;
+    this.podcastBody = draft.podcastBody;
+    this.podcastEnglish = draft.podcastEnglish;
+    this.tags = draft.tags;
+    this.publishDate = draft.publishDate;
+    if (this.photoUri.length > 0) {
+      try {
+        this.photoBitmap = new ImageBitmap(this.photoUri);
+      } catch (error) {
+        this.photoUri = '';
+      }
+    }
+    this.requestPreview();
+  }
+
+  private async refreshExportSettings(): Promise<void> {
+    this.exportSettings = await LocalStore.loadExportSettings();
+    this.exportLabel = `${this.exportSettings.resolution} · ${this.exportSettings.format}`;
+  }
+
+  private draft(): CoverDraft {
+    return {
+      templateId: this.templateId,
+      photoUri: this.photoUri,
+      brand: this.brand,
+      title1: this.title1,
+      title2: this.title2,
+      kicker: this.kicker,
+      personName: this.personName,
+      englishName: this.englishName,
+      episodeTitle: this.episodeTitle,
+      episodePreset: this.episodePreset,
+      customEpisode: this.customEpisode,
+      versionLabel: this.versionLabel,
+      grayscale: this.photoGrayscale,
+      theme: this.theme,
+      quoteLabel: this.quoteLabel,
+      podcastBody: this.podcastBody,
+      podcastEnglish: this.podcastEnglish,
+      tags: this.tags,
+      publishDate: this.publishDate
+    };
+  }
+
+  private requestPreview(): void {
+    setTimeout(() => {
+      this.drawPreview();
+    }, 0);
+  }
+
+  private drawPreview(): void {
+    if (!this.canvasReady) {
+      return;
+    }
+    const result: RenderResult = CoverRenderer.render(this.previewContext, this.definition(),
+      this.draft(), this.photoBitmap, this.previewWidth / 1920);
+    this.titleTooLong = result.titleTooLong;
+  }
+
+  private async selectPhoto(): Promise<void> {
+    try {
+      const picker: photoAccessHelper.PhotoViewPicker = new photoAccessHelper.PhotoViewPicker();
+      const options: photoAccessHelper.PhotoSelectOptions = new photoAccessHelper.PhotoSelectOptions();
+      options.MIMEType = photoAccessHelper.PhotoViewMIMETypes.IMAGE_TYPE;
+      options.maxSelectNumber = 1;
+      const result: photoAccessHelper.PhotoSelectResult = await picker.select(options);
+      if (result.photoUris.length > 0) {
+        const hostContext: Context | undefined = this.getUIContext().getHostContext();
+        if (hostContext === undefined) {
+          throw new Error('无法访问应用目录');
+        }
+        const source: fileIo.File = fileIo.openSync(result.photoUris[0], fileIo.OpenMode.READ_ONLY);
+        const localPath: string = `${hostContext.filesDir}/cover-photo-${this.templateId}.img`;
+        fileIo.copyFileSync(source.fd, localPath);
+        fileIo.closeSync(source);
+        if (this.photoBitmap !== undefined) {
+          this.photoBitmap.close();
+        }
+        this.photoUri = localPath;
+        this.photoBitmap = new ImageBitmap(this.photoUri);
+        this.requestPreview();
+        this.showToast('已按 16:9 居中裁切');
+      }
+    } catch (error) {
+      this.showToast('未能读取所选图片');
+    }
+  }
+
+  private showToast(message: string): void {
+    this.getUIContext().getPromptAction().showToast({
+      message: message,
+      duration: 1800
+    });
+  }
+
+  private validateEpisode(): boolean {
+    if (!this.definition().capabilities.supportsEpisode) {
+      return true;
+    }
+    if (this.episodePreset !== EpisodePreset.CUSTOM) {
+      return true;
+    }
+    if (!isValidCustomEpisode(this.customEpisode)) {
+      this.showToast('分集限 1–2 位数字或一个字符');
+      return false;
+    }
+    return true;
+  }
+
+  private async saveDraft(): Promise<void> {
+    if (!this.validateEpisode()) {
+      return;
+    }
+    await LocalStore.saveDraft(this.draft());
+  }
+
+  private async copyAutomaticText(): Promise<void> {
+    const text: string = automaticCopy(this.draft(), this.definition());
+    const data: pasteboard.PasteData = pasteboard.createData(pasteboard.MIMETYPE_TEXT_PLAIN, text);
+    await pasteboard.getSystemPasteboard().setData(data);
+    this.showToast('文案已复制');
+  }
+
+  private async exportCover(): Promise<void> {
+    if (this.exporting) {
+      return;
+    }
+    if (this.definition().capabilities.requiresPhoto && this.photoUri.length === 0) {
+      this.showToast('请先上传图片');
+      return;
+    }
+    if (!this.validateEpisode()) {
+      return;
+    }
+    this.drawPreview();
+    if (this.titleTooLong) {
+      this.showToast('标题过长，请精简后再导出');
+      return;
+    }
+    if (this.exportSettings.format === 'WebP' && !this.exportSettings.webpSupported) {
+      this.showToast('当前设备暂不支持 WebP');
+      return;
+    }
+    this.exporting = true;
+    try {
+      await LocalStore.saveDraft(this.draft());
+      const hostContext: Context | undefined = this.getUIContext().getHostContext();
+      if (hostContext === undefined) {
+        throw new Error('无法访问应用目录');
+      }
+      await ExportService.exportToGallery(this.definition(), this.draft(),
+        this.exportSettings, this.photoBitmap, hostContext);
+      await LocalStore.markExported(this.draft());
+      this.showToast('封面已保存到相册');
+    } catch (error) {
+      const message: string = error instanceof Error ? error.message : '导出失败，请稍后重试';
+      this.showToast(message);
+    } finally {
+      this.exporting = false;
+    }
+  }
+
+  private addTag(): void {
+    const value: string = this.tagInput.trim();
+    if (value.length === 0) {
+      return;
+    }
+    if (this.tags.length >= 10) {
+      this.showToast('最多添加 10 个标签');
+      return;
+    }
+    for (let index: number = 0; index < this.tags.length; index++) {
+      if (this.tags[index] === value) {
+        this.showToast('这个标签已经添加');
+        return;
+      }
+    }
+    this.tags = this.tags.concat([value]);
+    this.tagInput = '';
+  }
+
+  @Builder
+  private header() {
+    Row() {
+      Text('‹')
+        .width(40)
+        .height(40)
+        .fontSize(32)
+        .fontColor($r('app.color.text_primary'))
+        .textAlign(TextAlign.Center)
+        .backgroundColor($r('app.color.control_background'))
+        .borderRadius(20)
+        .onClick(() => {
+          this.saveDraft();
+          this.getUIContext().getRouter().back();
+        })
+      Column({ space: 3 }) {
+        Text(this.definition().name)
+          .fontSize(18)
+          .fontWeight(FontWeight.Bold)
+          .fontColor($r('app.color.text_primary'))
+        Text('1920 × 1080 设计坐标')
+          .fontSize(10)
+          .fontColor($r('app.color.text_secondary'))
+      }
+      .alignItems(HorizontalAlign.Start)
+      .margin({ left: 12 })
+      Blank()
+      Text(`模板 ${this.definition().code}`)
+        .fontSize(11)
+        .fontColor(this.definition().accent)
+        .padding({ left: 10, right: 10, top: 6, bottom: 6 })
+        .backgroundColor($r('app.color.control_background'))
+        .borderRadius(14)
+    }
+    .width('100%')
+    .padding({ left: 14, right: 14, top: 12, bottom: 12 })
+    .backgroundColor($r('app.color.nav_background'))
+  }
+
+  @Builder
+  private sectionTitle(index: string, title: string, note: string) {
+    Row() {
+      Text(index)
+        .fontSize(10)
+        .fontWeight(FontWeight.Bold)
+        .fontColor($r('app.color.brand_primary'))
+        .width(26)
+      Column({ space: 2 }) {
+        Text(title)
+          .fontSize(16)
+          .fontWeight(FontWeight.Bold)
+          .fontColor($r('app.color.text_primary'))
+        if (note.length > 0) {
+          Text(note)
+            .fontSize(10)
+            .fontColor($r('app.color.text_secondary'))
+        }
+      }
+      .alignItems(HorizontalAlign.Start)
+    }
+    .width('100%')
+    .margin({ bottom: 12 })
+  }
+
+  @Builder
+  private field(label: string, value: string, placeholder: string, action: (value: string) => void) {
+    Column({ space: 6 }) {
+      Text(label)
+        .width('100%')
+        .fontSize(11)
+        .fontColor($r('app.color.text_secondary'))
+      TextInput({ text: value, placeholder: placeholder })
+        .width('100%')
+        .height(44)
+        .fontSize(13)
+        .fontColor($r('app.color.text_primary'))
+        .placeholderColor($r('app.color.text_muted'))
+        .backgroundColor($r('app.color.control_background'))
+        .borderRadius(9)
+        .padding({ left: 12, right: 12 })
+        .onChange((text: string) => {
+          action(text);
+          this.requestPreview();
+        })
+    }
+    .width('100%')
+  }
+
+  @Builder
+  private episodeChoice(label: string) {
+    Text(label)
+      .layoutWeight(1)
+      .height(38)
+      .fontSize(12)
+      .fontWeight(this.episodePreset === label ? FontWeight.Bold : FontWeight.Regular)
+      .fontColor(this.episodePreset === label ? '#FFFFFF' : $r('app.color.text_secondary'))
+      .textAlign(TextAlign.Center)
+      .backgroundColor(this.episodePreset === label ?
+        $r('app.color.brand_primary') : $r('app.color.control_background'))
+      .borderRadius(9)
+      .onClick(() => {
+        this.episodePreset = label;
+        this.requestPreview();
+      })
+  }
+
+  @Builder
+  private preview() {
+    Column({ space: 10 }) {
+      Canvas(this.previewContext)
+        .width('100%')
+        .aspectRatio(16 / 9)
+        .backgroundColor('#15191F')
+        .onReady(() => {
+          this.canvasReady = true;
+          this.drawPreview();
+        })
+        .onAreaChange((oldValue: Area, newValue: Area) => {
+          const width: number = Number(newValue.width);
+          if (width > 0) {
+            this.previewWidth = width;
+            this.requestPreview();
+          }
+        })
+
+      Row() {
+        Row({ space: 7 }) {
+          Row()
+            .width(6)
+            .height(6)
+            .backgroundColor(this.titleTooLong ? '#FF574D' : '#47D889')
+            .borderRadius(3)
+          Text(this.titleTooLong ? '标题过长，请精简内容' : '预览与导出共用同一渲染函数')
+            .fontSize(10)
+            .fontColor(this.titleTooLong ? '#FF7A72' : $r('app.color.text_secondary'))
+        }
+        Blank()
+        Text(this.exportLabel)
+          .fontSize(10)
+          .fontColor($r('app.color.text_secondary'))
+      }
+      .width('100%')
+    }
+    .width('100%')
+    .backgroundColor('#0E1116')
+  }
+
+  @Builder
+  private photoSection() {
+    Column() {
+      this.sectionTitle('01', '背景图片', '上传后自动进行 16:9 居中裁切')
+      Row() {
+        Column({ space: 5 }) {
+          Text(this.photoUri.length > 0 ? '✓' : '＋')
+            .fontSize(24)
+            .fontColor(this.photoUri.length > 0 ? '#47D889' : $r('app.color.brand_primary'))
+          Text(this.photoUri.length > 0 ? '更换主图' : '上传主图')
+            .fontSize(13)
+            .fontWeight(FontWeight.Medium)
+            .fontColor($r('app.color.text_primary'))
+          Text(this.photoUri.length > 0 ? '已加载 · 点击可替换' : '支持系统相册中的图片')
+            .fontSize(10)
+            .fontColor($r('app.color.text_secondary'))
+        }
+        .width('100%')
+      }
+      .height(105)
+      .justifyContent(FlexAlign.Center)
+      .border({ width: 1, color: $r('app.color.divider'), style: BorderStyle.Dashed })
+      .borderRadius(12)
+      .backgroundColor($r('app.color.control_background'))
+      .onClick(() => {
+        this.selectPhoto();
+      })
+    }
+    .width('100%')
+    .padding(16)
+    .backgroundColor($r('app.color.card_background'))
+    .borderRadius(16)
+  }
+
+  @Builder
+  private contentSection() {
+    Column({ space: 13 }) {
+      this.sectionTitle(this.definition().capabilities.requiresPhoto ? '02' : '01',
+        '封面内容', '字号、位置、颜色和阴影由模板自动确定')
+
+      this.field('品牌', this.brand, '输入品牌', (value: string) => { this.brand = value; })
+
+      if (this.definition().capabilities.supportsPersonFields) {
+        this.field('人物说明', this.kicker, '例如：中国改革的总工程师',
+          (value: string) => { this.kicker = value; })
+        this.field('人物主名', this.personName, '输入人物主名',
+          (value: string) => { this.personName = value; })
+        this.field('可选英文名', this.englishName, '例如：FEATURE STORY',
+          (value: string) => { this.englishName = value; })
+        this.field('分集标题', this.episodeTitle, '输入本集标题',
+          (value: string) => { this.episodeTitle = value; })
+      } else if (this.definition().capabilities.supportsPodcastFields) {
+        this.field('引言标签', this.quoteLabel, '例如：中国音乐版权业内人',
+          (value: string) => { this.quoteLabel = value; })
+        Column({ space: 6 }) {
+          Text('正文')
+            .width('100%')
+            .fontSize(11)
+            .fontColor($r('app.color.text_secondary'))
+          TextArea({ text: this.podcastBody, placeholder: '输入播客正文' })
+            .width('100%')
+            .height(102)
+            .fontSize(13)
+            .fontColor($r('app.color.text_primary'))
+            .placeholderColor($r('app.color.text_muted'))
+            .backgroundColor($r('app.color.control_background'))
+            .borderRadius(9)
+            .padding(12)
+            .onChange((value: string) => {
+              this.podcastBody = value;
+              this.requestPreview();
+            })
+        }
+        this.field('可选英文名', this.podcastEnglish, '例如：Yike Podcast',
+          (value: string) => { this.podcastEnglish = value; })
+      } else {
+        this.field('第一行', this.title1, '在这里输入第一行标题',
+          (value: string) => { this.title1 = value; })
+        this.field('第二行', this.title2, '在这里输入第二行标题',
+          (value: string) => { this.title2 = value; })
+      }
+    }
+    .width('100%')
+    .padding(16)
+    .backgroundColor($r('app.color.card_background'))
+    .borderRadius(16)
+  }
+
+  @Builder
+  private optionsSection() {
+    Column({ space: 13 }) {
+      this.sectionTitle('03', '模板选项', '只显示当前模板支持的选项')
+
+      if (this.definition().capabilities.supportsEpisode) {
+        Text('分集字符')
+          .width('100%')
+          .fontSize(11)
+          .fontColor($r('app.color.text_secondary'))
+        Row({ space: 7 }) {
+          this.episodeChoice(EpisodePreset.UP)
+          this.episodeChoice(EpisodePreset.MIDDLE)
+          this.episodeChoice(EpisodePreset.DOWN)
+          this.episodeChoice(EpisodePreset.CUSTOM)
+        }
+        .width('100%')
+        if (this.episodePreset === EpisodePreset.CUSTOM) {
+          this.field('自定义字符', this.customEpisode, '1–2 位数字或一个字符',
+            (value: string) => { this.customEpisode = value; })
+          if (this.customEpisode.length > 0 && !isValidCustomEpisode(this.customEpisode)) {
+            Text('“字”“9”“10”有效；“特别”“100”无效')
+              .width('100%')
+              .fontSize(10)
+              .fontColor('#FF746A')
+          }
+        }
+      }
+
+      if (this.definition().capabilities.supportsVersion) {
+        Text('版本标识')
+          .width('100%')
+          .fontSize(11)
+          .fontColor($r('app.color.text_secondary'))
+        Flex({ wrap: FlexWrap.Wrap }) {
+          ForEach(VERSION_PRESETS, (label: string) => {
+            Text(label)
+              .fontSize(11)
+              .fontColor((!this.customVersion && this.versionLabel === label) ||
+                (this.customVersion && label === '自定义') ? '#FFFFFF' : $r('app.color.text_secondary'))
+              .padding({ left: 10, right: 10, top: 7, bottom: 7 })
+              .backgroundColor((!this.customVersion && this.versionLabel === label) ||
+                (this.customVersion && label === '自定义') ?
+                $r('app.color.brand_primary') : $r('app.color.control_background'))
+              .borderRadius(9)
+              .margin({ right: 7, bottom: 7 })
+              .onClick(() => {
+                if (label === '自定义') {
+                  this.customVersion = true;
+                  this.versionLabel = '';
+                } else {
+                  this.customVersion = false;
+                  this.versionLabel = label;
+                }
+                this.requestPreview();
+              })
+          })
+        }
+        .width('100%')
+        if (this.customVersion) {
+          this.field('自定义版本标识', this.versionLabel, '输入版本标识',
+            (value: string) => { this.versionLabel = value; })
+        }
+        Text('金色只是视觉风格，不代表软件付费权限。')
+          .width('100%')
+          .fontSize(10)
+          .fontColor($r('app.color.text_secondary'))
+      }
+
+      if (this.definition().capabilities.supportsGrayscale) {
+        Row() {
+          Column({ space: 3 }) {
+            Text('主图黑白')
+              .fontSize(13)
+              .fontColor($r('app.color.text_primary'))
+            Text('仅影响上传的主图，不影响边框与文字')
+              .fontSize(10)
+              .fontColor($r('app.color.text_secondary'))
+          }
+          .alignItems(HorizontalAlign.Start)
+          Blank()
+          Toggle({ type: ToggleType.Switch, isOn: this.photoGrayscale })
+            .selectedColor($r('app.color.brand_primary'))
+            .onChange((isOn: boolean) => {
+              this.photoGrayscale = isOn;
+              this.requestPreview();
+            })
+        }
+        .width('100%')
+      }
+
+      if (this.definition().capabilities.supportsTheme) {
+        Text('主题')
+          .width('100%')
+          .fontSize(11)
+          .fontColor($r('app.color.text_secondary'))
+        Row({ space: 8 }) {
+          Text('红色')
+            .layoutWeight(1)
+            .height(38)
+            .fontSize(12)
+            .fontColor('#FFFFFF')
+            .textAlign(TextAlign.Center)
+            .backgroundColor(this.theme === CoverTheme.RED ? '#E30A15' :
+              $r('app.color.control_background'))
+            .borderRadius(9)
+            .onClick(() => {
+              this.theme = CoverTheme.RED;
+              this.requestPreview();
+            })
+          Text('青绿蓝')
+            .layoutWeight(1)
+            .height(38)
+            .fontSize(12)
+            .fontColor('#FFFFFF')
+            .textAlign(TextAlign.Center)
+            .backgroundColor(this.theme === CoverTheme.CYAN ? '#0B9EAF' :
+              $r('app.color.control_background'))
+            .borderRadius(9)
+            .onClick(() => {
+              this.theme = CoverTheme.CYAN;
+              this.requestPreview();
+            })
+        }
+        .width('100%')
+      }
+    }
+    .width('100%')
+    .padding(16)
+    .backgroundColor($r('app.color.card_background'))
+    .borderRadius(16)
+  }
+
+  @Builder
+  private metadataSection() {
+    Column({ space: 13 }) {
+      this.sectionTitle('04', '发布信息', '仅作为草稿元数据，不绘制到封面')
+      Row({ space: 8 }) {
+        TextInput({ text: this.tagInput, placeholder: '输入标签，如：小红书' })
+          .layoutWeight(1)
+          .height(42)
+          .fontSize(12)
+          .fontColor($r('app.color.text_primary'))
+          .backgroundColor($r('app.color.control_background'))
+          .borderRadius(9)
+          .onChange((value: string) => {
+            this.tagInput = value;
+          })
+        Button(`添加 ${this.tags.length}/10`, { type: ButtonType.Normal })
+          .height(42)
+          .fontSize(11)
+          .fontColor($r('app.color.text_primary'))
+          .backgroundColor($r('app.color.control_background'))
+          .borderRadius(9)
+          .onClick(() => {
+            this.addTag();
+          })
+      }
+      .width('100%')
+      if (this.tags.length > 0) {
+        Flex({ wrap: FlexWrap.Wrap }) {
+          ForEach(this.tags, (tag: string, index: number) => {
+            Text(`# ${tag}  ×`)
+              .fontSize(10)
+              .fontColor($r('app.color.text_secondary'))
+              .padding({ left: 9, right: 9, top: 6, bottom: 6 })
+              .backgroundColor($r('app.color.control_background'))
+              .borderRadius(12)
+              .margin({ right: 6, bottom: 6 })
+              .onClick(() => {
+                this.tags = this.tags.filter((value: string, itemIndex: number) => itemIndex !== index);
+              })
+          }, (tag: string, index: number) => `${tag}-${index}`)
+        }
+        .width('100%')
+      }
+      this.field('发布日期', this.publishDate, '年-月-日',
+        (value: string) => { this.publishDate = value; })
+      Column({ space: 8 }) {
+        Row() {
+          Text('自动整合结果')
+            .fontSize(11)
+            .fontColor($r('app.color.text_secondary'))
+          Blank()
+          Text('只读')
+            .fontSize(9)
+            .fontColor($r('app.color.text_muted'))
+        }
+        .width('100%')
+        Text(automaticCopy(this.draft(), this.definition()))
+          .width('100%')
+          .fontSize(12)
+          .fontColor($r('app.color.text_primary'))
+          .padding(12)
+          .backgroundColor($r('app.color.control_background'))
+          .borderRadius(9)
+        Button('一键复制', { type: ButtonType.Normal })
+          .width('100%')
+          .height(40)
+          .fontSize(12)
+          .fontColor('#FFFFFF')
+          .backgroundColor($r('app.color.brand_primary'))
+          .borderRadius(9)
+          .onClick(() => {
+            this.copyAutomaticText();
+          })
+      }
+      .width('100%')
+    }
+    .width('100%')
+    .padding(16)
+    .backgroundColor($r('app.color.card_background'))
+    .borderRadius(16)
+  }
+
+  @Builder
+  private exportSection() {
+    Column({ space: 13 }) {
+      this.sectionTitle('05', '导出封面', '按目标分辨率重新渲染')
+      Row() {
+        Column({ space: 3 }) {
+          Text(this.exportLabel)
+            .fontSize(16)
+            .fontWeight(FontWeight.Bold)
+            .fontColor($r('app.color.text_primary'))
+          Text('全局设置 · 预览与导出构图一致')
+            .fontSize(10)
+            .fontColor($r('app.color.text_secondary'))
+        }
+        .alignItems(HorizontalAlign.Start)
+        Blank()
+        Text('修改 ›')
+          .fontSize(12)
+          .fontColor($r('app.color.brand_primary'))
+          .padding({ left: 10, right: 10, top: 7, bottom: 7 })
+          .backgroundColor($r('app.color.brand_soft'))
+          .borderRadius(14)
+          .onClick(() => {
+            this.getUIContext().getRouter().pushUrl({
+              url: 'pages/ExportSettings'
+            });
+          })
+      }
+      .width('100%')
+      .padding(12)
+      .backgroundColor($r('app.color.control_background'))
+      .borderRadius(11)
+
+      Button(this.exporting ? '正在生成…' :
+        (this.definition().capabilities.requiresPhoto && this.photoUri.length === 0 ?
+          '请先上传图片' : '生成并保存到相册 →'), { type: ButtonType.Normal })
+        .width('100%')
+        .height(50)
+        .fontSize(14)
+        .fontWeight(FontWeight.Bold)
+        .fontColor('#FFFFFF')
+        .backgroundColor(this.definition().capabilities.requiresPhoto && this.photoUri.length === 0 ?
+          '#724037' : $r('app.color.brand_primary'))
+        .borderRadius(11)
+        .onClick(() => {
+          this.exportCover();
+        })
+    }
+    .width('100%')
+    .padding(16)
+    .backgroundColor($r('app.color.card_background'))
+    .borderRadius(16)
+  }
+
+  build() {
+    Column() {
+      this.header()
+      Scroll() {
+        Column({ space: 14 }) {
+          this.preview()
+          if (this.definition().capabilities.requiresPhoto) {
+            this.photoSection()
+          }
+          this.contentSection()
+          if (this.definition().capabilities.supportsEpisode ||
+            this.definition().capabilities.supportsVersion ||
+            this.definition().capabilities.supportsGrayscale ||
+            this.definition().capabilities.supportsTheme) {
+            this.optionsSection()
+          }
+          this.metadataSection()
+          this.exportSection()
+        }
+        .width('100%')
+        .padding({ left: 14, right: 14, bottom: 28 })
+      }
+      .scrollBar(BarState.Off)
+      .layoutWeight(1)
+    }
+    .width('100%')
+    .height('100%')
+    .backgroundColor($r('app.color.page_background'))
+  }
+}

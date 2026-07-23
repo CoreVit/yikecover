@@ -47,6 +47,14 @@
     {
       "name": "brand_soft",
       "value": "#33201D"
+    },
+    {
+      "name": "source_accent",
+      "value": "#68C9AC"
+    },
+    {
+      "name": "source_soft",
+      "value": "#18312C"
     }
   ]
 }
