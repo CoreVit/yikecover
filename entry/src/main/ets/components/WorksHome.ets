@@ -330,7 +330,8 @@ export struct WorksHome {
       .padding({ left: 18, right: 18, top: 18 })
     }
     .align(Alignment.TopStart)
-    .layoutWeight(1)
+    .width('100%')
+    .height('100%')
     .scrollBar(BarState.Off)
     .backgroundColor($r('app.color.page_background'))
   }

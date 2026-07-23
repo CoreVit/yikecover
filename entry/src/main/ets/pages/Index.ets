@@ -18,15 +18,27 @@ struct Index {
 
   @Builder
   createTabContent() {
-    CreateHome()
+    Column() {
+      CreateHome()
+    }
+    .width('100%')
+    .height('100%')
+    .alignItems(HorizontalAlign.Start)
+    .justifyContent(FlexAlign.Start)
   }
 
   @Builder
   worksTabContent() {
-    WorksHome({
-      currentTab: $currentTab,
-      refreshToken: this.worksRefreshToken
-    })
+    Column() {
+      WorksHome({
+        currentTab: $currentTab,
+        refreshToken: this.worksRefreshToken
+      })
+    }
+    .width('100%')
+    .height('100%')
+    .alignItems(HorizontalAlign.Start)
+    .justifyContent(FlexAlign.Start)
   }
 
   build() {
@@ -65,6 +77,8 @@ struct Index {
           }
         }
       })
+      .width('100%')
+      .height('100%')
     }
     .width('100%')
     .height('100%')
