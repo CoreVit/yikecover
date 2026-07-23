@@ -19,9 +19,11 @@ function foodTabWidth(ctx: CanvasRenderer, brand: string): number {
 }
 
 function drawFoodBorder(ctx: CanvasRenderer, brand: string): void {
-  const inset: number = 34;
-  const radius: number = 66;
-  const shelfY: number = 146;
+  const inset: number = 32;
+  const radius: number = 64;
+  const shelfRadius: number = 8;
+  const circleControl: number = radius * 0.55228475;
+  const shelfY: number = 144;
   const right: number = DESIGN_WIDTH - inset;
   const bottom: number = DESIGN_HEIGHT - inset;
   const topJoin: number =
@@ -36,17 +38,21 @@ function drawFoodBorder(ctx: CanvasRenderer, brand: string): void {
   ctx.strokeStyle = outline;
   ctx.lineWidth = 8;
   ctx.beginPath();
-  ctx.moveTo(inset, shelfY);
+  ctx.moveTo(inset, shelfY - shelfRadius);
+  ctx.quadraticCurveTo(inset, shelfY, inset + shelfRadius, shelfY);
   ctx.lineTo(shelfEnd, shelfY);
-  ctx.bezierCurveTo(shelfEnd + 62, shelfY,
-    topJoin - 40, inset, topJoin, inset);
+  ctx.bezierCurveTo(shelfEnd + 42, shelfY,
+    topJoin - 30, inset, topJoin, inset);
   ctx.lineTo(right - radius, inset);
-  ctx.quadraticCurveTo(right, inset, right, inset + radius);
+  ctx.bezierCurveTo(right - radius + circleControl, inset,
+    right, inset + radius - circleControl, right, inset + radius);
   ctx.lineTo(right, bottom - radius);
-  ctx.quadraticCurveTo(right, bottom, right - radius, bottom);
+  ctx.bezierCurveTo(right, bottom - radius + circleControl,
+    right - radius + circleControl, bottom, right - radius, bottom);
   ctx.lineTo(inset + radius, bottom);
-  ctx.quadraticCurveTo(inset, bottom, inset, bottom - radius);
-  ctx.lineTo(inset, shelfY);
+  ctx.bezierCurveTo(inset + radius - circleControl, bottom,
+    inset, bottom - radius + circleControl, inset, bottom - radius);
+  ctx.lineTo(inset, shelfY - shelfRadius);
   ctx.closePath();
   ctx.stroke();
 }
