@@ -4,6 +4,7 @@
     "pages/About",
     "pages/TemplateLibrary",
     "pages/CoverEditor",
-    "pages/ExportSettings"
+    "pages/ExportSettings",
+    "pages/HistoryRecords"
   ]
 }

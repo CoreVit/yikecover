@@ -1,5 +1,6 @@
 import preferences from '@ohos.data.preferences';
 import image from '@ohos.multimedia.image';
+import fileIo from '@ohos.file.fs';
 import { CoverDraft, ExportSettings, HistoryRecord, createDefaultDraft, getTemplateDefinition } from '../model/CoverModels';
 
 const SETTINGS_STORE: string = 'yikecover_settings';
@@ -23,6 +24,18 @@ function recordTitle(draft: CoverDraft): string {
     return draft.quoteLabel;
   }
   return draft.title1;
+}
+
+function deleteGeneratedFiles(directory: string, prefix: string): void {
+  const names: string[] = fileIo.listFileSync(directory);
+  for (let index: number = 0; index < names.length; index++) {
+    if (names[index].startsWith(prefix)) {
+      const path: string = `${directory}/${names[index]}`;
+      if (fileIo.statSync(path).isFile()) {
+        fileIo.unlinkSync(path);
+      }
+    }
+  }
 }
 
 export class LocalStore {
@@ -143,7 +156,13 @@ export class LocalStore {
   static async markExported(draft: CoverDraft): Promise<void> {
     const store: preferences.Preferences = await preferences.getPreferences(context(), CONTENT_STORE);
     const definition = getTemplateDefinition(draft.templateId);
-    const records: HistoryRecord[] = await LocalStore.loadHistory();
+    store.putSync(`draft_${draft.templateId}`, JSON.stringify(draft));
+    store.putSync(`brand_${draft.templateId}`, draft.brand);
+    store.putSync(`version_${draft.templateId}`, draft.versionLabel);
+    store.putSync(`theme_${draft.templateId}`, draft.theme);
+    const history: HistoryRecord[] = await LocalStore.loadHistory();
+    const records: HistoryRecord[] = history.filter((item: HistoryRecord) =>
+      item.id !== `draft-${draft.templateId}`);
     records.unshift({
       id: `export-${Date.now()}`,
       templateId: draft.templateId,
@@ -165,5 +184,20 @@ export class LocalStore {
     } catch (error) {
       return [];
     }
+  }
+
+  static async clearAllLocalData(): Promise<void> {
+    const appContext: Context = context();
+    deleteGeneratedFiles(appContext.filesDir, 'cover-photo-');
+    deleteGeneratedFiles(appContext.cacheDir, '一刻封面-');
+
+    const settings: preferences.Preferences =
+      await preferences.getPreferences(appContext, SETTINGS_STORE);
+    const content: preferences.Preferences =
+      await preferences.getPreferences(appContext, CONTENT_STORE);
+    settings.clearSync();
+    content.clearSync();
+    await settings.flush();
+    await content.flush();
   }
 }

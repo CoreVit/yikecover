@@ -27,6 +27,9 @@ interface TemplateRouteParams {
 @Component
 struct CoverEditor {
   private photoBitmap: ImageBitmap | undefined = undefined;
+  private savedDraftJson: string = '';
+  private sessionModified: boolean = false;
+  private leaving: boolean = false;
 
   @State templateId: number = 1;
   @State photoUri: string = '';
@@ -82,7 +85,12 @@ struct CoverEditor {
   }
 
   onPageHide(): void {
-    this.saveDraft();
+    this.saveDraftIfChanged();
+  }
+
+  onBackPress(): boolean {
+    this.leaveEditor();
+    return true;
   }
 
   private definition(): TemplateDefinition {
@@ -126,6 +134,7 @@ struct CoverEditor {
       }
     }
     this.requestPreview();
+    this.savedDraftJson = JSON.stringify(this.draft());
   }
 
   private async refreshExportSettings(): Promise<void> {
@@ -222,11 +231,37 @@ struct CoverEditor {
     return true;
   }
 
-  private async saveDraft(): Promise<void> {
-    if (!this.validateEpisode()) {
+  private hasDraftChanges(): boolean {
+    return this.savedDraftJson.length > 0 &&
+      this.savedDraftJson !== JSON.stringify(this.draft());
+  }
+
+  private async saveDraftIfChanged(): Promise<boolean> {
+    if (!this.hasDraftChanges()) {
+      return false;
+    }
+    const draft: CoverDraft = this.draft();
+    await LocalStore.saveDraft(draft);
+    this.savedDraftJson = JSON.stringify(draft);
+    this.sessionModified = true;
+    return true;
+  }
+
+  private async leaveEditor(): Promise<void> {
+    if (this.leaving) {
       return;
     }
-    await LocalStore.saveDraft(this.draft());
+    this.leaving = true;
+    try {
+      const changed: boolean = await this.saveDraftIfChanged();
+      if (changed || this.sessionModified) {
+        this.showToast('已保存到草稿');
+      }
+      this.getUIContext().getRouter().back();
+    } catch (error) {
+      this.leaving = false;
+      this.showToast('草稿保存失败，请重试');
+    }
   }
 
   private async copyAutomaticText(): Promise<void> {
@@ -257,7 +292,6 @@ struct CoverEditor {
     }
     this.exporting = true;
     try {
-      await LocalStore.saveDraft(this.draft());
       const hostContext: Context | undefined = this.getUIContext().getHostContext();
       if (hostContext === undefined) {
         throw new Error('无法访问应用目录');
@@ -265,6 +299,8 @@ struct CoverEditor {
       await ExportService.exportToGallery(this.definition(), this.draft(),
         this.exportSettings, this.photoBitmap, hostContext);
       await LocalStore.markExported(this.draft());
+      this.savedDraftJson = JSON.stringify(this.draft());
+      this.sessionModified = false;
       this.showToast('封面已保存到相册');
     } catch (error) {
       const message: string = error instanceof Error ? error.message : '导出失败，请稍后重试';
@@ -332,8 +368,7 @@ struct CoverEditor {
         .backgroundColor($r('app.color.control_background'))
         .borderRadius(20)
         .onClick(() => {
-          this.saveDraft();
-          this.getUIContext().getRouter().back();
+          this.leaveEditor();
         })
       Column({ space: 3 }) {
         Text(this.definition().name)

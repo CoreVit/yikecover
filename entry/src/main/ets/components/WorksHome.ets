@@ -21,7 +21,7 @@ const SETTINGS: SettingEntry[] = [
   {
     id: 2,
     title: '历史记录',
-    description: '管理草稿与已导出作品'
+    description: '管理记录与清除本机数据'
   },
   {
     id: 3,
@@ -165,6 +165,10 @@ export struct WorksHome {
       if (item.id === 1) {
         this.getUIContext().getRouter().pushUrl({
           url: 'pages/ExportSettings'
+        });
+      } else if (item.id === 2) {
+        this.getUIContext().getRouter().pushUrl({
+          url: 'pages/HistoryRecords'
         });
       } else if (item.id === 4) {
         this.getUIContext().getRouter().pushUrl({

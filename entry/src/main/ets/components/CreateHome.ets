@@ -1,5 +1,10 @@
 import { CoverPreview } from './CoverPreview';
-import { createDefaultDraft, getTemplateDefinition } from '../model/CoverModels';
+import {
+  TEMPLATE_DEFINITIONS,
+  TemplateDefinition,
+  createDefaultDraft,
+  getTemplateDefinition
+} from '../model/CoverModels';
 
 interface TemplateShortcut {
   id: number;
@@ -19,28 +24,47 @@ const TEMPLATE_SHORTCUTS: TemplateShortcut[] = [
 
 @Component
 export struct CreateHome {
+  @State currentHeroIndex: number = 0;
+
   private previewJson(templateId: number): string {
     return JSON.stringify(createDefaultDraft(getTemplateDefinition(templateId)));
   }
 
+  private currentHeroTemplate(): TemplateDefinition {
+    return TEMPLATE_DEFINITIONS[this.currentHeroIndex];
+  }
+
+  private openTemplate(templateId: number): void {
+    this.getUIContext().getRouter().pushUrl({
+      url: 'pages/CoverEditor',
+      params: {
+        templateId: templateId
+      }
+    });
+  }
+
   @Builder
-  private heroCover(templateId: number) {
-    Stack() {
+  private heroCover(item: TemplateDefinition) {
+    Column() {
       CoverPreview({
-        templateId: templateId,
-        draftJson: this.previewJson(templateId)
+        templateId: item.id,
+        draftJson: this.previewJson(item.id)
       })
-        .width('100%')
+      .width('100%')
+      .aspectRatio(16 / 9)
+      .borderRadius(13)
+      .clip(true)
+      .shadow({
+        radius: 16,
+        color: '#44000000',
+        offsetX: 0,
+        offsetY: 8
+      })
     }
-    .width(220)
-    .height(124)
-    .borderRadius(12)
-    .clip(true)
-    .shadow({
-      radius: 18,
-      color: '#66000000',
-      offsetX: 0,
-      offsetY: 10
+    .width('100%')
+    .padding({ left: 4, right: 4, top: 6, bottom: 24 })
+    .onClick(() => {
+      this.openTemplate(item.id);
     })
   }
 
@@ -72,12 +96,7 @@ export struct CreateHome {
     }
     .width(146)
     .onClick(() => {
-      this.getUIContext().getRouter().pushUrl({
-        url: 'pages/CoverEditor',
-        params: {
-          templateId: item.id
-        }
-      });
+      this.openTemplate(item.id);
     })
   }
 
@@ -115,40 +134,66 @@ export struct CreateHome {
         .alignItems(VerticalAlign.Top)
 
         Column() {
-          Stack({ alignContent: Alignment.Center }) {
-            Row() {
-              this.heroCover(4)
-            }
-            .rotate({ angle: -7 })
-            .translate({ x: -34, y: 9 })
-            .opacity(0.58)
-
-            Row() {
-              this.heroCover(2)
-            }
-            .rotate({ angle: 5 })
-            .translate({ x: 34, y: 3 })
-            .opacity(0.78)
-
-            Row() {
-              this.heroCover(1)
-            }
+          Swiper() {
+            ForEach(TEMPLATE_DEFINITIONS, (item: TemplateDefinition) => {
+              this.heroCover(item)
+            }, (item: TemplateDefinition) => item.id.toString())
           }
+          .index(this.currentHeroIndex)
+          .loop(true)
+          .autoPlay(false)
+          .duration(360)
+          .curve(Curve.Friction)
+          .itemSpace(10)
+          .prevMargin(22)
+          .nextMargin(22)
+          .indicator(
+            new DotIndicator()
+              .itemWidth(5)
+              .itemHeight(5)
+              .selectedItemWidth(16)
+              .selectedItemHeight(5)
+              .color($r('app.color.divider'))
+              .selectedColor($r('app.color.brand_primary'))
+              .bottom(2)
+          )
+          .onChange((index: number) => {
+            this.currentHeroIndex = index;
+          })
           .width('100%')
-          .height(180)
+          .height(216)
+
+          Row({ space: 6 }) {
+            Text(this.currentHeroTemplate().code)
+              .fontSize(10)
+              .fontWeight(FontWeight.Bold)
+              .fontColor(this.currentHeroTemplate().accent)
+            Text(this.currentHeroTemplate().name)
+              .fontSize(12)
+              .fontWeight(FontWeight.Medium)
+              .fontColor($r('app.color.text_primary'))
+            Text(this.currentHeroTemplate().subtitle)
+              .fontSize(12)
+              .fontColor($r('app.color.text_secondary'))
+              .maxLines(1)
+              .textOverflow({ overflow: TextOverflow.Ellipsis })
+          }
+          .justifyContent(FlexAlign.Center)
+          .width('100%')
+          .height(22)
 
           Text('选择一个模板，开始做封面')
             .fontSize(20)
             .fontWeight(FontWeight.Bold)
             .fontColor($r('app.color.text_primary'))
-            .margin({ top: 2 })
+            .margin({ top: 5 })
 
           Text('选定版式后，只需替换图片和内容')
             .fontSize(13)
             .fontColor($r('app.color.text_secondary'))
             .margin({ top: 7 })
 
-          Button('选择模板', { type: ButtonType.Normal })
+          Button(`使用${this.currentHeroTemplate().name}`, { type: ButtonType.Normal })
             .width('100%')
             .height(48)
             .fontSize(15)
@@ -158,9 +203,7 @@ export struct CreateHome {
             .borderRadius(12)
             .margin({ top: 20 })
             .onClick(() => {
-              this.getUIContext().getRouter().pushUrl({
-                url: 'pages/TemplateLibrary'
-              });
+              this.openTemplate(this.currentHeroTemplate().id);
             })
         }
         .width('100%')

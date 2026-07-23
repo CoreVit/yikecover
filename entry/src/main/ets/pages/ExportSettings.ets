@@ -10,20 +10,30 @@ struct ExportSettingsPage {
   @State webpSupported: boolean = false;
   @State probing: boolean = true;
   @State savedHint: string = '';
+  private saveTask: Promise<void> = Promise.resolve();
+  private saveFailed: boolean = false;
 
-  async aboutToAppear(): Promise<void> {
+  aboutToAppear(): void {
     const hostContext: Context | undefined = this.getUIContext().getHostContext();
     if (hostContext !== undefined) {
       LocalStore.initialize(hostContext);
     }
+    this.restoreSettings();
+  }
+
+  private async restoreSettings(): Promise<void> {
     const settings: ExportSettings = await LocalStore.loadExportSettings();
     this.resolution = settings.resolution;
     this.format = settings.format;
     this.quality = settings.quality;
+    if (!this.probing) {
+      this.webpSupported = settings.webpSupported;
+      return;
+    }
     this.webpSupported = await LocalStore.probeWebpSupport();
     if (!this.webpSupported && this.format === 'WebP') {
       this.format = 'PNG';
-      await this.save();
+      await this.queueSave();
     }
     this.probing = false;
   }
@@ -48,9 +58,31 @@ struct ExportSettingsPage {
     };
   }
 
-  private async save(): Promise<void> {
-    await LocalStore.saveExportSettings(this.buildSettings());
-    this.savedHint = '已保存为全局导出设置';
+  private async persistSettings(settings: ExportSettings): Promise<void> {
+    try {
+      await LocalStore.saveExportSettings(settings);
+      this.saveFailed = false;
+      this.savedHint = '已保存为全局导出设置';
+    } catch (error) {
+      this.saveFailed = true;
+      this.savedHint = '保存失败，请重试';
+    }
+  }
+
+  private queueSave(): Promise<void> {
+    const settings: ExportSettings = this.buildSettings();
+    this.saveTask = this.saveTask.then(() => {
+      return this.persistSettings(settings);
+    });
+    return this.saveTask;
+  }
+
+  private async goBack(): Promise<void> {
+    await this.queueSave();
+    if (this.saveFailed) {
+      return;
+    }
+    this.getUIContext().getRouter().back();
   }
 
   private selectChoice(group: string, value: string, enabled: boolean): void {
@@ -58,11 +90,17 @@ struct ExportSettingsPage {
       return;
     }
     if (group === 'resolution') {
+      if (this.resolution === value) {
+        return;
+      }
       this.resolution = value;
     } else {
+      if (this.format === value) {
+        return;
+      }
       this.format = value;
     }
-    this.save();
+    this.queueSave();
   }
 
   @Builder
@@ -113,7 +151,7 @@ struct ExportSettingsPage {
           .backgroundColor($r('app.color.control_background'))
           .borderRadius(20)
           .onClick(() => {
-            this.getUIContext().getRouter().back();
+            this.goBack();
           })
         Column({ space: 3 }) {
           Text('导出设置')
@@ -201,7 +239,7 @@ struct ExportSettingsPage {
                 .trackColor($r('app.color.control_background'))
                 .onChange((value: number) => {
                   this.quality = value;
-                  this.save();
+                  this.queueSave();
                 })
               Text('建议 90–95；默认 92。质量越高，文件通常越大。')
                 .width('100%')
