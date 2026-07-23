@@ -118,10 +118,11 @@ struct ExportSettingsPage {
           .fontColor($r('app.color.text_secondary'))
       }
       .alignItems(HorizontalAlign.Start)
-      Blank()
+      .layoutWeight(1)
       Radio({ value: value, group: group })
         .checked(selected)
         .enabled(enabled)
+        .hitTestBehavior(HitTestMode.None)
         .radioStyle({
           checkedBackgroundColor: $r('app.color.brand_primary'),
           uncheckedBorderColor: $r('app.color.divider'),

@@ -61,8 +61,12 @@ struct Index {
     Column() {
       AtomicServiceTabs({
         tabContents: [
-          this.createTabContent,
-          this.worksTabContent
+          () => {
+            this.createTabContent()
+          },
+          () => {
+            this.worksTabContent()
+          }
         ],
         tabBarOptionsArray: [
           new TabBarOptions(
