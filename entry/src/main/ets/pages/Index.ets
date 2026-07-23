@@ -1,3 +1,8 @@
+import {
+  AtomicServiceTabs,
+  TabBarOptions,
+  TabBarPosition
+} from '@kit.ArkUI';
 import { CreateHome } from '../components/CreateHome';
 import { WorksHome } from '../components/WorksHome';
 
@@ -12,54 +17,54 @@ struct Index {
   }
 
   @Builder
-  private tabItem(label: string, index: number) {
-    Column({ space: 4 }) {
-      if (index === 0) {
-        SymbolGlyph($r('sys.symbol.plus'))
-          .fontSize(24)
-          .fontColor([this.currentTab === index ?
-            $r('app.color.brand_primary') : $r('app.color.text_muted')])
-      } else {
-        SymbolGlyph($r('sys.symbol.rectangle_on_rectangle'))
-          .fontSize(24)
-          .fontColor([this.currentTab === index ?
-            $r('app.color.brand_primary') : $r('app.color.text_muted')])
-      }
-      Text(label)
-        .fontSize(11)
-        .fontWeight(this.currentTab === index ? FontWeight.Medium : FontWeight.Regular)
-        .fontColor(this.currentTab === index ?
-          $r('app.color.brand_primary') : $r('app.color.text_muted'))
-    }
-    .justifyContent(FlexAlign.Center)
-    .layoutWeight(1)
-    .height('100%')
-    .onClick(() => {
-      this.currentTab = index;
+  createTabContent() {
+    CreateHome()
+  }
+
+  @Builder
+  worksTabContent() {
+    WorksHome({
+      currentTab: $currentTab,
+      refreshToken: this.worksRefreshToken
     })
   }
 
   build() {
     Column() {
-      if (this.currentTab === 0) {
-        CreateHome()
-      } else {
-        WorksHome({
-          currentTab: $currentTab,
-          refreshToken: this.worksRefreshToken
-        })
-      }
-
-      Row() {
-        this.tabItem('制作', 0)
-        this.tabItem('作品', 1)
-      }
-      .width('100%')
-      .height(70)
-      .padding({ left: 48, right: 48, top: 5, bottom: 7 })
-      .backgroundColor($r('app.color.nav_background'))
-      .borderWidth({ top: 1 })
-      .borderColor($r('app.color.divider'))
+      AtomicServiceTabs({
+        tabContents: [
+          () => {
+            this.createTabContent()
+          },
+          () => {
+            this.worksTabContent()
+          }
+        ],
+        tabBarOptionsArray: [
+          new TabBarOptions(
+            $r('sys.symbol.plus'),
+            '制作',
+            $r('app.color.text_muted'),
+            $r('app.color.brand_primary')
+          ),
+          new TabBarOptions(
+            $r('sys.symbol.rectangle_on_rectangle'),
+            '作品',
+            $r('app.color.text_muted'),
+            $r('app.color.brand_primary')
+          )
+        ],
+        tabBarPosition: TabBarPosition.BOTTOM,
+        barBackgroundColor: $r('app.color.nav_background'),
+        barOverlap: false,
+        index: this.currentTab,
+        onChange: (index: number): void => {
+          this.currentTab = index;
+          if (index === 1) {
+            this.worksRefreshToken += 1;
+          }
+        }
+      })
     }
     .width('100%')
     .height('100%')
