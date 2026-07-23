@@ -12,8 +12,9 @@ import {
 } from './RenderSupport';
 
 const INSET: number = 24;
-const RADIUS: number = 78;
+const RADIUS: number = 64;
 const BRAND_SIZE: number = 96;
+const CIRCLE_CONTROL: number = RADIUS * 0.55228475;
 
 function tabWidth(ctx: CanvasRenderer, brand: string): number {
   const size: number = fitSingleText(ctx, brand, 760,
@@ -31,16 +32,24 @@ function createEpisodeOpening(ctx: CanvasRenderer, brand: string): void {
   ctx.beginPath();
   ctx.moveTo(bottomJoin, bottom);
   ctx.lineTo(INSET + RADIUS, bottom);
-  ctx.quadraticCurveTo(INSET, bottom, INSET, bottom - RADIUS);
+  ctx.bezierCurveTo(INSET + RADIUS - CIRCLE_CONTROL, bottom,
+    INSET, bottom - RADIUS + CIRCLE_CONTROL, INSET, bottom - RADIUS);
   ctx.lineTo(INSET, 192);
   ctx.quadraticCurveTo(INSET, 136, 82, 136);
   ctx.lineTo(notchEnd - 116, 136);
   ctx.quadraticCurveTo(notchEnd - 54, 136, notchEnd - 32, 80);
   ctx.quadraticCurveTo(notchEnd - 12, INSET, notchEnd, INSET);
-  ctx.lineTo(right - RADIUS, INSET);
-  ctx.quadraticCurveTo(right, INSET, right, INSET + RADIUS);
+
+  // The episode corner is part of the photo opening itself. It enters and
+  // leaves the diagonal with tangent-continuous curves instead of covering a
+  // rounded rectangle with a straight triangular patch.
+  ctx.lineTo(1668, INSET);
+  ctx.bezierCurveTo(1700, INSET, 1718, 38, 1742, 62);
+  ctx.lineTo(1862, 182);
+  ctx.bezierCurveTo(1884, 204, right, 228, right, 260);
   ctx.lineTo(right, bottom - RADIUS);
-  ctx.quadraticCurveTo(right, bottom, right - RADIUS, bottom);
+  ctx.bezierCurveTo(right, bottom - RADIUS + CIRCLE_CONTROL,
+    right - RADIUS + CIRCLE_CONTROL, bottom, right - RADIUS, bottom);
   ctx.lineTo(bottomJoin, bottom);
   ctx.closePath();
 }
@@ -101,20 +110,6 @@ function drawEpisodeBrand(ctx: CanvasRenderer, brand: string): void {
 }
 
 function drawEpisodeCorner(ctx: CanvasRenderer, episode: string): void {
-  const innerRight: number = DESIGN_WIDTH - INSET;
-  ctx.fillStyle = '#EB0000';
-  ctx.beginPath();
-  ctx.moveTo(1628, 0);
-  ctx.lineTo(DESIGN_WIDTH, 0);
-  ctx.lineTo(DESIGN_WIDTH, 286);
-  ctx.lineTo(innerRight, 260);
-  ctx.quadraticCurveTo(innerRight, 210, innerRight - 38, 172);
-  ctx.lineTo(1780, 84);
-  ctx.quadraticCurveTo(1722, 26, 1658, INSET);
-  ctx.lineTo(1644, INSET);
-  ctx.closePath();
-  ctx.fill();
-
   if (episode.length === 0) {
     return;
   }
