@@ -19,12 +19,36 @@ export const PHOTO_TITLE_MAX_WIDTH: number =
 
 export function setCanvasFont(ctx: CanvasRenderer, size: number,
   options?: FontOptions): void {
-  const style: string = options?.italic === true ? 'italic' : 'normal';
-  const weight: string = options?.bold === true ? 'bold' : 'normal';
+  const roundedSize: number = Math.max(1, Math.round(size));
   const family: string = options?.family ?? 'sans-serif';
-  // HarmonyOS Canvas follows: font-style font-weight font-size font-family.
-  // Numeric weights are not consistently parsed on device and fall back to 14px.
-  ctx.font = `${style} ${weight} ${Math.round(size)}px ${family}`;
+  const sizeToken: string = `${roundedSize}px`;
+  let candidate: string = `${sizeToken} ${family}`;
+  if (options?.bold === true) {
+    candidate += ' bold';
+  }
+  if (options?.italic === true) {
+    candidate += ' italic';
+  }
+
+  // HarmonyOS device implementations reliably parse the size-first form used
+  // by the official Canvas examples. An unsupported shorthand is ignored and
+  // leaves Canvas at its 14px default, so verify the applied size explicitly.
+  ctx.font = candidate;
+  if (ctx.font.indexOf(sizeToken) >= 0) {
+    return;
+  }
+
+  // Some devices reject the italic suffix while accepting the weight suffix.
+  if (options?.bold === true && options?.italic === true) {
+    ctx.font = `${sizeToken} ${family} bold`;
+    if (ctx.font.indexOf(sizeToken) >= 0) {
+      return;
+    }
+  }
+
+  // Size is more important than synthetic weight/style: this final form is the
+  // documented baseline and prevents every template from falling back to 14px.
+  ctx.font = `${sizeToken} ${family}`;
 }
 
 export function roundedRect(ctx: CanvasRenderer, x: number, y: number,
