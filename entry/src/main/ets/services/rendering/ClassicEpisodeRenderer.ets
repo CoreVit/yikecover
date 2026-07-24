@@ -5,7 +5,10 @@ import {
   resolvedEpisode
 } from '../../model/CoverModels';
 import {
+  CORNER_LABEL_FONT_SIZE,
+  CORNER_LABEL_MIN_FONT_SIZE,
   drawCoverPhoto,
+  drawEpisodeCornerLabel,
   drawGradientText,
   fitSingleText,
   fitTextPair,
@@ -19,13 +22,12 @@ import {
 
 const INSET: number = 24;
 const RADIUS: number = 64;
-// Brand and episode marks are supporting information, not headline text.
-const BRAND_SIZE: number = 88;
 const CIRCLE_CONTROL: number = RADIUS * 0.55228475;
 
 function tabWidth(ctx: CanvasRenderer, brand: string): number {
   const size: number = fitSingleText(ctx, brand, 760,
-    BRAND_SIZE, 54, { bold: true, italic: true });
+    CORNER_LABEL_FONT_SIZE, CORNER_LABEL_MIN_FONT_SIZE,
+    { bold: true, italic: true });
   setCanvasFont(ctx, size, { bold: true, italic: true });
   return Math.min(920, Math.max(370, ctx.measureText(brand).width + 126));
 }
@@ -98,7 +100,8 @@ function drawEpisodeBackground(ctx: CanvasRenderer, draft: CoverDraft,
 function drawEpisodeBrand(ctx: CanvasRenderer, brand: string): void {
   const width: number = tabWidth(ctx, brand);
   const size: number = fitSingleText(ctx, brand, width - 126,
-    BRAND_SIZE, 54, { bold: true, italic: true });
+    CORNER_LABEL_FONT_SIZE, CORNER_LABEL_MIN_FONT_SIZE,
+    { bold: true, italic: true });
   ctx.fillStyle = '#FFFFFF';
   setCanvasFont(ctx, size, { bold: true, italic: true });
   ctx.textAlign = 'left';
@@ -108,18 +111,7 @@ function drawEpisodeBrand(ctx: CanvasRenderer, brand: string): void {
 }
 
 function drawEpisodeCorner(ctx: CanvasRenderer, episode: string): void {
-  if (episode.length === 0) {
-    return;
-  }
-  ctx.save();
-  ctx.translate(1842, 82);
-  ctx.rotate(Math.PI / 4);
-  ctx.fillStyle = '#FFFFFF';
-  setCanvasFont(ctx, 78, { bold: true });
-  ctx.textAlign = 'center';
-  ctx.textBaseline = 'middle';
-  ctx.fillText(episode, 0, 0);
-  ctx.restore();
+  drawEpisodeCornerLabel(ctx, episode, '#FFFFFF');
 }
 
 function drawEpisodeContent(ctx: CanvasRenderer,

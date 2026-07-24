@@ -4,6 +4,8 @@ import {
   DESIGN_WIDTH
 } from '../../model/CoverModels';
 import {
+  CORNER_LABEL_FONT_SIZE,
+  CORNER_LABEL_MIN_FONT_SIZE,
   drawCoverPhoto,
   fitSingleText,
   fitTextPair,
@@ -16,7 +18,8 @@ import {
 } from './RenderSupport';
 
 function foodTabWidth(ctx: CanvasRenderer, brand: string): number {
-  const size: number = fitSingleText(ctx, brand, 660, 92, 52,
+  const size: number = fitSingleText(ctx, brand, 660,
+    CORNER_LABEL_FONT_SIZE, CORNER_LABEL_MIN_FONT_SIZE,
     { bold: true, italic: true });
   setCanvasFont(ctx, size, { bold: true, italic: true });
   return Math.min(820, Math.max(410, ctx.measureText(brand).width + 140));
@@ -70,7 +73,8 @@ function drawFoodBorder(ctx: CanvasRenderer, brand: string): void {
 function drawFoodBrand(ctx: CanvasRenderer, brand: string): void {
   const width: number = foodTabWidth(ctx, brand);
   const size: number = fitSingleText(ctx, brand, width - 140,
-    92, 52, { bold: true, italic: true });
+    CORNER_LABEL_FONT_SIZE, CORNER_LABEL_MIN_FONT_SIZE,
+    { bold: true, italic: true });
   ctx.fillStyle = '#F00B11';
   setCanvasFont(ctx, size, { bold: true, italic: true });
   ctx.textAlign = 'left';

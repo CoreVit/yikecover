@@ -4,6 +4,8 @@ import {
   DESIGN_WIDTH
 } from '../../model/CoverModels';
 import {
+  CORNER_LABEL_FONT_SIZE,
+  CORNER_LABEL_MIN_FONT_SIZE,
   drawCoverPhoto,
   drawGradientText,
   fitSingleText,
@@ -18,12 +20,9 @@ import {
 
 const INSET: number = 24;
 const RADIUS: number = 78;
-// The corner brand is a secondary identifier. Keep it below the visual
-// weight of the two-line headline, matching the reference covers.
-const BRAND_SIZE: number = 88;
-
 function brandTabWidth(ctx: CanvasRenderer, brand: string): number {
-  const size: number = fitSingleText(ctx, brand, 760, BRAND_SIZE, 54,
+  const size: number = fitSingleText(ctx, brand, 760,
+    CORNER_LABEL_FONT_SIZE, CORNER_LABEL_MIN_FONT_SIZE,
     { bold: true, italic: true });
   setCanvasFont(ctx, size, { bold: true, italic: true });
   return Math.min(920, Math.max(370, ctx.measureText(brand).width + 126));
@@ -84,7 +83,8 @@ function drawFrameAndPhoto(ctx: CanvasRenderer, draft: CoverDraft,
 function drawBrandTab(ctx: CanvasRenderer, brand: string): void {
   const width: number = brandTabWidth(ctx, brand);
   const size: number = fitSingleText(ctx, brand, width - 126,
-    BRAND_SIZE, 54, { bold: true, italic: true });
+    CORNER_LABEL_FONT_SIZE, CORNER_LABEL_MIN_FONT_SIZE,
+    { bold: true, italic: true });
   ctx.fillStyle = '#FFFFFF';
   setCanvasFont(ctx, size, { bold: true, italic: true });
   ctx.textAlign = 'left';

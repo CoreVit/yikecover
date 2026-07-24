@@ -16,6 +16,9 @@ export const PHOTO_TITLE_FIRST_BASELINE: number = 858;
 export const PHOTO_TITLE_SECOND_BASELINE: number = 992;
 export const PHOTO_TITLE_MAX_WIDTH: number =
   DESIGN_WIDTH - PHOTO_TITLE_LEFT * 2;
+export const CORNER_LABEL_FONT_SIZE: number = 68;
+export const CORNER_LABEL_MIN_FONT_SIZE: number = 44;
+export const CORNER_LABEL_ROTATION: number = Math.PI / 4;
 
 export function setCanvasFont(ctx: CanvasRenderer, size: number,
   options?: FontOptions): void {
@@ -27,6 +30,22 @@ export function setCanvasFont(ctx: CanvasRenderer, size: number,
   // design coordinates stay in one coordinate system on every screen density.
   // HarmonyOS 6.1 exposes this property as write-only; never read it back.
   ctx.font = `${style} ${weight} ${roundedSize}px ${family}`;
+}
+
+export function drawEpisodeCornerLabel(ctx: CanvasRenderer, episode: string,
+  color: string, centerX: number = 1842, centerY: number = 82): void {
+  if (episode.length === 0) {
+    return;
+  }
+  ctx.save();
+  ctx.translate(centerX, centerY);
+  ctx.rotate(CORNER_LABEL_ROTATION);
+  ctx.fillStyle = color;
+  setCanvasFont(ctx, CORNER_LABEL_FONT_SIZE, { bold: true });
+  ctx.textAlign = 'center';
+  ctx.textBaseline = 'middle';
+  ctx.fillText(episode, 0, 0);
+  ctx.restore();
 }
 
 export function roundedRect(ctx: CanvasRenderer, x: number, y: number,

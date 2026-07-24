@@ -4,6 +4,8 @@ import {
   DESIGN_WIDTH
 } from '../../model/CoverModels';
 import {
+  CORNER_LABEL_FONT_SIZE,
+  CORNER_LABEL_MIN_FONT_SIZE,
   drawCoverPhoto,
   drawGradientText,
   fitSingleText,
@@ -18,11 +20,10 @@ import {
 
 const INSET: number = 24;
 const RADIUS: number = 78;
-const BRAND_SIZE: number = 92;
-
 function memberTabWidth(ctx: CanvasRenderer, brand: string): number {
   const size: number = fitSingleText(ctx, brand, 760,
-    BRAND_SIZE, 54, { bold: true, italic: true });
+    CORNER_LABEL_FONT_SIZE, CORNER_LABEL_MIN_FONT_SIZE,
+    { bold: true, italic: true });
   setCanvasFont(ctx, size, { bold: true, italic: true });
   return Math.min(930, Math.max(380, ctx.measureText(brand).width + 132));
 }
@@ -100,7 +101,8 @@ function drawMemberFrame(ctx: CanvasRenderer, draft: CoverDraft,
 function drawMemberHeader(ctx: CanvasRenderer, draft: CoverDraft): void {
   const width: number = memberTabWidth(ctx, draft.brand);
   const brandSize: number = fitSingleText(ctx, draft.brand, width - 132,
-    BRAND_SIZE, 54, { bold: true, italic: true });
+    CORNER_LABEL_FONT_SIZE, CORNER_LABEL_MIN_FONT_SIZE,
+    { bold: true, italic: true });
 
   ctx.fillStyle = '#9A570C';
   setCanvasFont(ctx, brandSize, { bold: true, italic: true });

@@ -5,6 +5,9 @@ import {
   resolvedEpisode
 } from '../../model/CoverModels';
 import {
+  CORNER_LABEL_FONT_SIZE,
+  CORNER_LABEL_MIN_FONT_SIZE,
+  drawEpisodeCornerLabel,
   fitSingleText,
   roundedRect,
   setCanvasFont,
@@ -62,7 +65,8 @@ function drawGoldPodcastHeader(ctx: CanvasRenderer,
 
   ctx.fillStyle = BACKGROUND;
   const brandSize: number = fitSingleText(ctx, draft.brand, 340,
-    82, 44, { bold: true, italic: true });
+    CORNER_LABEL_FONT_SIZE, CORNER_LABEL_MIN_FONT_SIZE,
+    { bold: true, italic: true });
   setCanvasFont(ctx, brandSize, { bold: true, italic: true });
   ctx.textBaseline = 'middle';
   ctx.fillText(draft.brand, 58, 66);
@@ -82,11 +86,7 @@ function drawGoldPodcastHeader(ctx: CanvasRenderer,
   ctx.closePath();
   ctx.fill();
 
-  ctx.fillStyle = BACKGROUND;
-  setCanvasFont(ctx, 86, { bold: true });
-  ctx.textAlign = 'right';
-  ctx.fillText(resolvedEpisode(draft), 1860, 112);
-  ctx.textAlign = 'left';
+  drawEpisodeCornerLabel(ctx, resolvedEpisode(draft), BACKGROUND);
 }
 
 function drawGoldPodcastLogo(ctx: CanvasRenderer,

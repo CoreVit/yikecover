@@ -5,7 +5,10 @@ import {
   resolvedEpisode
 } from '../../model/CoverModels';
 import {
+  CORNER_LABEL_FONT_SIZE,
+  CORNER_LABEL_MIN_FONT_SIZE,
   drawCoverPhoto,
+  drawEpisodeCornerLabel,
   drawGradientText,
   fitSingleText,
   fitTextPair,
@@ -37,7 +40,8 @@ function drawGoldHeader(ctx: CanvasRenderer, draft: CoverDraft): void {
 
   ctx.fillStyle = '#8B4E08';
   const brandSize: number = fitSingleText(ctx, draft.brand, 610,
-    82, 48, { bold: true, italic: true });
+    CORNER_LABEL_FONT_SIZE, CORNER_LABEL_MIN_FONT_SIZE,
+    { bold: true, italic: true });
   setCanvasFont(ctx, brandSize, { bold: true, italic: true });
   ctx.textBaseline = 'middle';
   ctx.fillText(draft.brand, 42, 66);
@@ -61,14 +65,7 @@ function drawGoldCorner(ctx: CanvasRenderer, episode: string): void {
   ctx.closePath();
   ctx.fill();
 
-  if (episode.length === 0) {
-    return;
-  }
-  ctx.fillStyle = '#86500A';
-  setCanvasFont(ctx, 96, { bold: true });
-  ctx.textAlign = 'right';
-  ctx.fillText(episode, 1860, 126);
-  ctx.textAlign = 'left';
+  drawEpisodeCornerLabel(ctx, episode, '#86500A');
 }
 
 function drawGoldTitleContrast(ctx: CanvasRenderer): void {

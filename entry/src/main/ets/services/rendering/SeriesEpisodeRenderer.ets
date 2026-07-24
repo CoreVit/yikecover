@@ -6,7 +6,10 @@ import {
   resolvedEpisode
 } from '../../model/CoverModels';
 import {
+  CORNER_LABEL_FONT_SIZE,
+  CORNER_LABEL_MIN_FONT_SIZE,
   drawCoverPhoto,
+  drawEpisodeCornerLabel,
   drawGradientText,
   fitSingleText,
   fitTextPair,
@@ -59,7 +62,8 @@ function drawSeriesHeader(ctx: CanvasRenderer, draft: CoverDraft,
 
   ctx.fillStyle = palette.foreground;
   const brandSize: number = fitSingleText(ctx, draft.brand, 620,
-    84, 48, { bold: true, italic: true });
+    CORNER_LABEL_FONT_SIZE, CORNER_LABEL_MIN_FONT_SIZE,
+    { bold: true, italic: true });
   setCanvasFont(ctx, brandSize, { bold: true, italic: true });
   ctx.textBaseline = 'middle';
   ctx.fillText(draft.brand, 42, 66);
@@ -76,14 +80,7 @@ function drawSeriesCorner(ctx: CanvasRenderer, episode: string,
   ctx.closePath();
   ctx.fill();
 
-  if (episode.length === 0) {
-    return;
-  }
-  ctx.fillStyle = palette.foreground;
-  setCanvasFont(ctx, 96, { bold: true });
-  ctx.textAlign = 'right';
-  ctx.fillText(episode, 1860, 126);
-  ctx.textAlign = 'left';
+  drawEpisodeCornerLabel(ctx, episode, palette.foreground);
 }
 
 function drawSeriesShade(ctx: CanvasRenderer): void {

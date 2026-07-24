@@ -4,6 +4,8 @@ import {
   DESIGN_WIDTH
 } from '../../model/CoverModels';
 import {
+  CORNER_LABEL_FONT_SIZE,
+  CORNER_LABEL_MIN_FONT_SIZE,
   drawCoverPhoto,
   fitSingleText,
   fitTextPair,
@@ -16,7 +18,8 @@ import {
 } from './RenderSupport';
 
 function exclusiveTabWidth(ctx: CanvasRenderer, brand: string): number {
-  const size: number = fitSingleText(ctx, brand, 680, 88, 50,
+  const size: number = fitSingleText(ctx, brand, 680,
+    CORNER_LABEL_FONT_SIZE, CORNER_LABEL_MIN_FONT_SIZE,
     { bold: true, italic: true });
   setCanvasFont(ctx, size, { bold: true, italic: true });
   return Math.min(830, Math.max(330, ctx.measureText(brand).width + 122));
@@ -25,7 +28,8 @@ function exclusiveTabWidth(ctx: CanvasRenderer, brand: string): number {
 function drawExclusiveBrand(ctx: CanvasRenderer, brand: string): void {
   const width: number = exclusiveTabWidth(ctx, brand);
   const size: number = fitSingleText(ctx, brand, width - 122,
-    88, 50, { bold: true, italic: true });
+    CORNER_LABEL_FONT_SIZE, CORNER_LABEL_MIN_FONT_SIZE,
+    { bold: true, italic: true });
   ctx.fillStyle = '#EB0000';
   ctx.beginPath();
   ctx.moveTo(0, 0);
