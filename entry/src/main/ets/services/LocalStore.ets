@@ -1,6 +1,7 @@
 import preferences from '@ohos.data.preferences';
 import image from '@ohos.multimedia.image';
 import fileIo from '@ohos.file.fs';
+import { LengthMetricsUnit } from '@kit.ArkUI';
 import { CoverDraft, ExportSettings, HistoryRecord, createDefaultDraft, getTemplateDefinition } from '../model/CoverModels';
 import { SupportRecord } from '../model/SupportModels';
 
@@ -80,7 +81,8 @@ export class LocalStore {
 
   static async probeWebpSupport(): Promise<boolean> {
     try {
-      const canvas: OffscreenCanvas = new OffscreenCanvas(2, 2);
+      const canvas: OffscreenCanvas = new OffscreenCanvas(2, 2,
+        LengthMetricsUnit.PX);
       const canvasContext: OffscreenCanvasRenderingContext2D = canvas.getContext('2d');
       canvasContext.fillStyle = '#FF4F3F';
       canvasContext.fillRect(0, 0, 2, 2);

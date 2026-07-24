@@ -2,6 +2,7 @@ import fileIo from '@ohos.file.fs';
 import fileUri from '@ohos.file.fileuri';
 import photoAccessHelper from '@ohos.file.photoAccessHelper';
 import image from '@ohos.multimedia.image';
+import { LengthMetricsUnit } from '@kit.ArkUI';
 import { CoverDraft, ExportSettings, TemplateDefinition, DESIGN_WIDTH } from '../model/CoverModels';
 import { CoverRenderer } from './CoverRenderer';
 
@@ -68,7 +69,8 @@ export class ExportService {
     settings: ExportSettings, appContext: Context, onReadyToSave: () => void): Promise<string> {
     let canvas: OffscreenCanvas;
     try {
-      canvas = new OffscreenCanvas(settings.width, settings.height);
+      canvas = new OffscreenCanvas(settings.width, settings.height,
+        LengthMetricsUnit.PX);
     } catch (error) {
       if (settings.resolution === '4K') {
         throw new Error('4K 渲染失败，请在导出设置中切换为 1080P');

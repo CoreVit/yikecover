@@ -18,7 +18,9 @@ import {
 
 const INSET: number = 24;
 const RADIUS: number = 78;
-const BRAND_SIZE: number = 96;
+// The corner brand is a secondary identifier. Keep it below the visual
+// weight of the two-line headline, matching the reference covers.
+const BRAND_SIZE: number = 88;
 
 function brandTabWidth(ctx: CanvasRenderer, brand: string): number {
   const size: number = fitSingleText(ctx, brand, 760, BRAND_SIZE, 54,
@@ -94,7 +96,7 @@ function drawBrandTab(ctx: CanvasRenderer, brand: string): void {
 function drawTitles(ctx: CanvasRenderer, draft: CoverDraft): boolean {
   const maxWidth: number = PHOTO_TITLE_MAX_WIDTH;
   const size: number = fitTextPair(ctx, draft.title1, draft.title2,
-    maxWidth, 108, 70, { bold: true, italic: true });
+    maxWidth, 96, 64, { bold: true, italic: true });
   setCanvasFont(ctx, size, { bold: true, italic: true });
   const tooLong: boolean =
     isTextTooWide(ctx, draft.title1, maxWidth) ||

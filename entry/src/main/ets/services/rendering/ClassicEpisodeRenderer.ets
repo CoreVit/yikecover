@@ -19,7 +19,8 @@ import {
 
 const INSET: number = 24;
 const RADIUS: number = 64;
-const BRAND_SIZE: number = 96;
+// Brand and episode marks are supporting information, not headline text.
+const BRAND_SIZE: number = 88;
 const CIRCLE_CONTROL: number = RADIUS * 0.55228475;
 
 function tabWidth(ctx: CanvasRenderer, brand: string): number {
@@ -114,7 +115,7 @@ function drawEpisodeCorner(ctx: CanvasRenderer, episode: string): void {
   ctx.translate(1842, 82);
   ctx.rotate(Math.PI / 4);
   ctx.fillStyle = '#FFFFFF';
-  setCanvasFont(ctx, 86, { bold: true });
+  setCanvasFont(ctx, 78, { bold: true });
   ctx.textAlign = 'center';
   ctx.textBaseline = 'middle';
   ctx.fillText(episode, 0, 0);
@@ -125,7 +126,7 @@ function drawEpisodeContent(ctx: CanvasRenderer,
   draft: CoverDraft): boolean {
   const maxWidth: number = PHOTO_TITLE_MAX_WIDTH;
   const size: number = fitTextPair(ctx, draft.title1, draft.title2,
-    maxWidth, 108, 70, { bold: true, italic: true });
+    maxWidth, 96, 64, { bold: true, italic: true });
   setCanvasFont(ctx, size, { bold: true, italic: true });
   const tooLong: boolean =
     isTextTooWide(ctx, draft.title1, maxWidth) ||

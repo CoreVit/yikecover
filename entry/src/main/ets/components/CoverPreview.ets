@@ -1,5 +1,6 @@
 import image from '@ohos.multimedia.image';
 import fileIo from '@ohos.file.fs';
+import { LengthMetricsUnit } from '@kit.ArkUI';
 import {
   CoverDraft,
   DESIGN_WIDTH,
@@ -12,7 +13,7 @@ import { CoverRenderer, RenderResult } from '../services/CoverRenderer';
 export struct CoverPreview {
   private contextSettings: RenderingContextSettings = new RenderingContextSettings(true);
   private context: CanvasRenderingContext2D =
-    new CanvasRenderingContext2D(this.contextSettings);
+    new CanvasRenderingContext2D(this.contextSettings, LengthMetricsUnit.PX);
   private bitmap: ImageBitmap | undefined = undefined;
   private pixelMap: PixelMap | undefined = undefined;
   private bitmapUri: string = '';

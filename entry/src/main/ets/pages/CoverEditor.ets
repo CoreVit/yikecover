@@ -1,6 +1,7 @@
 import photoAccessHelper from '@ohos.file.photoAccessHelper';
 import fileIo from '@ohos.file.fs';
 import pasteboard from '@ohos.pasteboard';
+import { LengthMetricsUnit } from '@kit.ArkUI';
 import {
   CoverDraft,
   CoverTheme,
@@ -168,7 +169,8 @@ struct CoverEditor {
   }
 
   private validateRender(): boolean {
-    const canvas: OffscreenCanvas = new OffscreenCanvas(1920, 1080);
+    const canvas: OffscreenCanvas = new OffscreenCanvas(1920, 1080,
+      LengthMetricsUnit.PX);
     const context: OffscreenCanvasRenderingContext2D = canvas.getContext('2d');
     const result: RenderResult = CoverRenderer.render(context, this.definition(),
       this.draft(), undefined, 1);
