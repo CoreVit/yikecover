@@ -6,8 +6,14 @@ import {
 } from '../../model/CoverModels';
 import {
   drawCoverPhoto,
+  drawGradientText,
   fitSingleText,
+  fitTextPair,
   isTextTooWide,
+  PHOTO_TITLE_FIRST_BASELINE,
+  PHOTO_TITLE_LEFT,
+  PHOTO_TITLE_MAX_WIDTH,
+  PHOTO_TITLE_SECOND_BASELINE,
   setCanvasFont
 } from './RenderSupport';
 
@@ -115,49 +121,31 @@ function drawEpisodeCorner(ctx: CanvasRenderer, episode: string): void {
   ctx.restore();
 }
 
-function drawEpisodeContent(ctx: CanvasRenderer, draft: CoverDraft,
-  episode: string): boolean {
-  ctx.fillStyle = '#FFFFFF';
+function drawEpisodeContent(ctx: CanvasRenderer,
+  draft: CoverDraft): boolean {
+  const maxWidth: number = PHOTO_TITLE_MAX_WIDTH;
+  const size: number = fitTextPair(ctx, draft.title1, draft.title2,
+    maxWidth, 108, 70, { bold: true, italic: true });
+  setCanvasFont(ctx, size, { bold: true, italic: true });
+  const tooLong: boolean =
+    isTextTooWide(ctx, draft.title1, maxWidth) ||
+    isTextTooWide(ctx, draft.title2, maxWidth);
+
   ctx.textAlign = 'left';
-  setCanvasFont(ctx, 48);
-  ctx.fillText(draft.kicker, 120, 340);
-
-  let nameSize: number = 176;
-  setCanvasFont(ctx, nameSize, { bold: true, family: 'serif' });
-  while (ctx.measureText(draft.personName).width > 800 && nameSize > 104) {
-    nameSize -= 2;
-    setCanvasFont(ctx, nameSize, { bold: true, family: 'serif' });
-  }
-  const personTooLong: boolean =
-    isTextTooWide(ctx, draft.personName, 800);
-  ctx.fillText(draft.personName, 108, 560);
-
-  if (draft.englishName.length > 0) {
-    ctx.fillStyle = '#D90824';
-    setCanvasFont(ctx, 64);
-    ctx.globalAlpha = 0.92;
-    ctx.fillText(draft.englishName, 106, 638);
-    ctx.globalAlpha = 1;
-  }
-
-  ctx.fillStyle = '#D90824';
-  setCanvasFont(ctx, 38, { bold: true });
-  ctx.letterSpacing = '17px';
-  ctx.fillText('★★★★★', 220, 712);
-  ctx.letterSpacing = '0px';
-
-  const title: string = episode.length > 0 ?
-    `${draft.episodeTitle}（${episode}）` : draft.episodeTitle;
-  ctx.fillStyle = '#FFFFFF';
-  setCanvasFont(ctx, 82, { bold: true });
+  ctx.textBaseline = 'alphabetic';
   ctx.shadowColor = '#A8000000';
-  ctx.shadowBlur = 10;
+  ctx.shadowBlur = 12;
+  ctx.shadowOffsetX = 4;
   ctx.shadowOffsetY = 4;
-  ctx.fillText(title, 136, 888);
+  drawGradientText(ctx, draft.title1, PHOTO_TITLE_LEFT,
+    PHOTO_TITLE_FIRST_BASELINE, maxWidth, '#FADF3B', '#F5B924');
+  drawGradientText(ctx, draft.title2, PHOTO_TITLE_LEFT,
+    PHOTO_TITLE_SECOND_BASELINE, maxWidth, '#FFFFFF', '#D7DCE1');
   ctx.shadowColor = '#00000000';
   ctx.shadowBlur = 0;
+  ctx.shadowOffsetX = 0;
   ctx.shadowOffsetY = 0;
-  return personTooLong || isTextTooWide(ctx, title, 860);
+  return tooLong;
 }
 
 export function renderClassicEpisode(ctx: CanvasRenderer, draft: CoverDraft,
@@ -166,5 +154,5 @@ export function renderClassicEpisode(ctx: CanvasRenderer, draft: CoverDraft,
   drawEpisodeBackground(ctx, draft, bitmap);
   drawEpisodeBrand(ctx, draft.brand);
   drawEpisodeCorner(ctx, episode);
-  return drawEpisodeContent(ctx, draft, episode);
+  return drawEpisodeContent(ctx, draft);
 }

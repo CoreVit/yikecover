@@ -8,6 +8,10 @@ import {
   fitSingleText,
   fitTextPair,
   isTextTooWide,
+  PHOTO_TITLE_FIRST_BASELINE,
+  PHOTO_TITLE_LEFT,
+  PHOTO_TITLE_MAX_WIDTH,
+  PHOTO_TITLE_SECOND_BASELINE,
   setCanvasFont
 } from './RenderSupport';
 
@@ -49,17 +53,9 @@ function drawExclusiveShade(ctx: CanvasRenderer): void {
   ctx.fillRect(0, 650, DESIGN_WIDTH, DESIGN_HEIGHT - 650);
 }
 
-function drawMagnifier(ctx: CanvasRenderer): void {
-  ctx.strokeStyle = '#FFFFFF';
-  ctx.lineWidth = 14;
-  ctx.beginPath();
-  ctx.arc(1470, 350, 260, 0, Math.PI * 2);
-  ctx.stroke();
-}
-
 function drawExclusiveTitles(ctx: CanvasRenderer,
   draft: CoverDraft): boolean {
-  const maxWidth: number = 1450;
+  const maxWidth: number = PHOTO_TITLE_MAX_WIDTH;
   const size: number = fitTextPair(ctx, draft.title1, draft.title2,
     maxWidth, 104, 66, { bold: true, italic: true });
   setCanvasFont(ctx, size, { bold: true, italic: true });
@@ -67,14 +63,14 @@ function drawExclusiveTitles(ctx: CanvasRenderer,
     isTextTooWide(ctx, draft.title1, maxWidth) ||
     isTextTooWide(ctx, draft.title2, maxWidth);
 
-  ctx.fillStyle = '#F6DD1A';
-  ctx.fillRect(94, 708, 11, 266);
   ctx.fillStyle = '#FFFFFF';
   ctx.shadowColor = '#A8000000';
   ctx.shadowBlur = 10;
   ctx.shadowOffsetY = 4;
-  ctx.fillText(draft.title1, 140, 836);
-  ctx.fillText(draft.title2, 140, 968);
+  ctx.fillText(draft.title1, PHOTO_TITLE_LEFT,
+    PHOTO_TITLE_FIRST_BASELINE);
+  ctx.fillText(draft.title2, PHOTO_TITLE_LEFT,
+    PHOTO_TITLE_SECOND_BASELINE);
   ctx.shadowColor = '#00000000';
   ctx.shadowBlur = 0;
   ctx.shadowOffsetY = 0;
@@ -86,6 +82,5 @@ export function renderExclusive(ctx: CanvasRenderer, draft: CoverDraft,
   drawCoverPhoto(ctx, bitmap, false);
   drawExclusiveShade(ctx);
   drawExclusiveBrand(ctx, draft.brand);
-  drawMagnifier(ctx);
   return drawExclusiveTitles(ctx, draft);
 }

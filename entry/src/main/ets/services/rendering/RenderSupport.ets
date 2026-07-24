@@ -9,6 +9,14 @@ export interface FontOptions {
   family?: string;
 }
 
+// Photo templates 01–07 share one editorial title block. Keeping these
+// coordinates in design space prevents individual renderers from drifting.
+export const PHOTO_TITLE_LEFT: number = 72;
+export const PHOTO_TITLE_FIRST_BASELINE: number = 858;
+export const PHOTO_TITLE_SECOND_BASELINE: number = 992;
+export const PHOTO_TITLE_MAX_WIDTH: number =
+  DESIGN_WIDTH - PHOTO_TITLE_LEFT * 2;
+
 export function setCanvasFont(ctx: CanvasRenderer, size: number,
   options?: FontOptions): void {
   const style: string = options?.italic === true ? 'italic' : 'normal';

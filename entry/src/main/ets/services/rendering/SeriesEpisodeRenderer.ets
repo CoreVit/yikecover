@@ -11,6 +11,10 @@ import {
   fitSingleText,
   fitTextPair,
   isTextTooWide,
+  PHOTO_TITLE_FIRST_BASELINE,
+  PHOTO_TITLE_LEFT,
+  PHOTO_TITLE_MAX_WIDTH,
+  PHOTO_TITLE_SECOND_BASELINE,
   setCanvasFont
 } from './RenderSupport';
 
@@ -94,7 +98,7 @@ function drawSeriesShade(ctx: CanvasRenderer): void {
 
 function drawSeriesTitles(ctx: CanvasRenderer,
   draft: CoverDraft): boolean {
-  const maxWidth: number = 1760;
+  const maxWidth: number = PHOTO_TITLE_MAX_WIDTH;
   const size: number = fitTextPair(ctx, draft.title1, draft.title2,
     maxWidth, 110, 70, { bold: true, italic: true });
   setCanvasFont(ctx, size, { bold: true, italic: true });
@@ -105,9 +109,11 @@ function drawSeriesTitles(ctx: CanvasRenderer,
   ctx.shadowColor = '#A8000000';
   ctx.shadowBlur = 11;
   ctx.shadowOffsetY = 4;
-  drawGradientText(ctx, draft.title1, 74, 858, maxWidth,
+  drawGradientText(ctx, draft.title1, PHOTO_TITLE_LEFT,
+    PHOTO_TITLE_FIRST_BASELINE, maxWidth,
     '#FFF43B', '#F2C426');
-  drawGradientText(ctx, draft.title2, 74, 992, maxWidth,
+  drawGradientText(ctx, draft.title2, PHOTO_TITLE_LEFT,
+    PHOTO_TITLE_SECOND_BASELINE, maxWidth,
     '#FFFFFF', '#D6DBE0');
   ctx.shadowColor = '#00000000';
   ctx.shadowBlur = 0;

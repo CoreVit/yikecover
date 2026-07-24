@@ -9,6 +9,10 @@ import {
   fitSingleText,
   fitTextPair,
   isTextTooWide,
+  PHOTO_TITLE_FIRST_BASELINE,
+  PHOTO_TITLE_LEFT,
+  PHOTO_TITLE_MAX_WIDTH,
+  PHOTO_TITLE_SECOND_BASELINE,
   setCanvasFont
 } from './RenderSupport';
 
@@ -88,7 +92,7 @@ function drawBrandTab(ctx: CanvasRenderer, brand: string): void {
 }
 
 function drawTitles(ctx: CanvasRenderer, draft: CoverDraft): boolean {
-  const maxWidth: number = 1760;
+  const maxWidth: number = PHOTO_TITLE_MAX_WIDTH;
   const size: number = fitTextPair(ctx, draft.title1, draft.title2,
     maxWidth, 108, 70, { bold: true, italic: true });
   setCanvasFont(ctx, size, { bold: true, italic: true });
@@ -102,9 +106,11 @@ function drawTitles(ctx: CanvasRenderer, draft: CoverDraft): boolean {
   ctx.shadowBlur = 12;
   ctx.shadowOffsetX = 4;
   ctx.shadowOffsetY = 5;
-  drawGradientText(ctx, draft.title1, 72, 882, maxWidth,
+  drawGradientText(ctx, draft.title1, PHOTO_TITLE_LEFT,
+    PHOTO_TITLE_FIRST_BASELINE, maxWidth,
     '#FADF3B', '#F5B924');
-  drawGradientText(ctx, draft.title2, 72, 1005, maxWidth,
+  drawGradientText(ctx, draft.title2, PHOTO_TITLE_LEFT,
+    PHOTO_TITLE_SECOND_BASELINE, maxWidth,
     '#FFFFFF', '#D7DCE1');
   ctx.shadowColor = '#00000000';
   ctx.shadowBlur = 0;

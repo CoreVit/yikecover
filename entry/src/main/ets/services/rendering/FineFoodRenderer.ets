@@ -8,6 +8,10 @@ import {
   fitSingleText,
   fitTextPair,
   isTextTooWide,
+  PHOTO_TITLE_FIRST_BASELINE,
+  PHOTO_TITLE_LEFT,
+  PHOTO_TITLE_MAX_WIDTH,
+  PHOTO_TITLE_SECOND_BASELINE,
   setCanvasFont
 } from './RenderSupport';
 
@@ -76,7 +80,7 @@ function drawFoodBrand(ctx: CanvasRenderer, brand: string): void {
 }
 
 function drawFoodTitles(ctx: CanvasRenderer, draft: CoverDraft): boolean {
-  const maxWidth: number = 1600;
+  const maxWidth: number = PHOTO_TITLE_MAX_WIDTH;
   const size: number = fitTextPair(ctx, draft.title1, draft.title2,
     maxWidth, 108, 68, { bold: true, family: 'serif' });
   setCanvasFont(ctx, size, { bold: true, family: 'serif' });
@@ -89,8 +93,10 @@ function drawFoodTitles(ctx: CanvasRenderer, draft: CoverDraft): boolean {
   ctx.shadowBlur = 8;
   ctx.shadowOffsetX = 3;
   ctx.shadowOffsetY = 4;
-  ctx.fillText(draft.title1, 96, 840);
-  ctx.fillText(draft.title2, 96, 982);
+  ctx.fillText(draft.title1, PHOTO_TITLE_LEFT,
+    PHOTO_TITLE_FIRST_BASELINE);
+  ctx.fillText(draft.title2, PHOTO_TITLE_LEFT,
+    PHOTO_TITLE_SECOND_BASELINE);
   ctx.shadowColor = '#00000000';
   ctx.shadowBlur = 0;
   ctx.shadowOffsetX = 0;

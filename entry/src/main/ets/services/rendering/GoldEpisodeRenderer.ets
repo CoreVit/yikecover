@@ -10,6 +10,10 @@ import {
   fitSingleText,
   fitTextPair,
   isTextTooWide,
+  PHOTO_TITLE_FIRST_BASELINE,
+  PHOTO_TITLE_LEFT,
+  PHOTO_TITLE_MAX_WIDTH,
+  PHOTO_TITLE_SECOND_BASELINE,
   setCanvasFont
 } from './RenderSupport';
 
@@ -77,7 +81,7 @@ function drawGoldTitleContrast(ctx: CanvasRenderer): void {
 }
 
 function drawGoldTitles(ctx: CanvasRenderer, draft: CoverDraft): boolean {
-  const maxWidth: number = 1500;
+  const maxWidth: number = PHOTO_TITLE_MAX_WIDTH;
   const size: number = fitTextPair(ctx, draft.title1, draft.title2,
     maxWidth, 116, 72, { bold: true, italic: true });
   setCanvasFont(ctx, size, { bold: true, italic: true });
@@ -88,9 +92,11 @@ function drawGoldTitles(ctx: CanvasRenderer, draft: CoverDraft): boolean {
   ctx.shadowColor = '#A8000000';
   ctx.shadowBlur = 10;
   ctx.shadowOffsetY = 4;
-  drawGradientText(ctx, draft.title1, 74, 842, maxWidth,
+  drawGradientText(ctx, draft.title1, PHOTO_TITLE_LEFT,
+    PHOTO_TITLE_FIRST_BASELINE, maxWidth,
     '#FFF2A4', '#E3B746');
-  drawGradientText(ctx, draft.title2, 74, 986, maxWidth,
+  drawGradientText(ctx, draft.title2, PHOTO_TITLE_LEFT,
+    PHOTO_TITLE_SECOND_BASELINE, maxWidth,
     '#F8DE79', '#B77311');
   ctx.shadowColor = '#00000000';
   ctx.shadowBlur = 0;
