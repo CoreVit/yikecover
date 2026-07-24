@@ -6,8 +6,7 @@
     "mainElement": "EntryAbility",
     "deviceTypes": [
       "phone",
-      "tablet",
-      "car"
+      "tablet"
     ],
     "deliveryWithInstall": true,
     "installationFree": true,
