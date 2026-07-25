@@ -17,12 +17,19 @@ import {
   setCanvasFont
 } from './RenderSupport';
 
+const FOOD_BRAND_LEFT: number = 62;
+const FOOD_BRAND_RIGHT_GAP: number = 28;
+const FOOD_SHELF_CURVE_WIDTH: number = 112;
+
 function foodTabWidth(ctx: CanvasRenderer, brand: string): number {
   const size: number = fitSingleText(ctx, brand, 660,
     CORNER_LABEL_FONT_SIZE, CORNER_LABEL_MIN_FONT_SIZE,
     { bold: true, italic: true });
   setCanvasFont(ctx, size, { bold: true, italic: true });
-  return Math.min(820, Math.max(410, ctx.measureText(brand).width + 140));
+  const brandRight: number =
+    FOOD_BRAND_LEFT + ctx.measureText(brand).width;
+  return Math.min(920, Math.max(470,
+    brandRight + FOOD_BRAND_RIGHT_GAP + FOOD_SHELF_CURVE_WIDTH));
 }
 
 function drawFoodBorder(ctx: CanvasRenderer, brand: string): void {
@@ -37,7 +44,7 @@ function drawFoodBorder(ctx: CanvasRenderer, brand: string): void {
   const bottomJoin: number = DESIGN_WIDTH / 2;
   const topJoin: number =
     Math.min(foodTabWidth(ctx, brand), right - radius - 120);
-  const shelfEnd: number = topJoin - 112;
+  const shelfEnd: number = topJoin - FOOD_SHELF_CURVE_WIDTH;
   const outline: CanvasGradient =
     ctx.createLinearGradient(0, inset, 0, bottom);
   outline.addColorStop(0, '#EF0010');
@@ -79,7 +86,7 @@ function drawFoodBrand(ctx: CanvasRenderer, brand: string): void {
   setCanvasFont(ctx, size, { bold: true, italic: true });
   ctx.textAlign = 'left';
   ctx.textBaseline = 'middle';
-  ctx.fillText(brand, 62, 72);
+  ctx.fillText(brand, FOOD_BRAND_LEFT, 72);
   ctx.textBaseline = 'alphabetic';
 }
 
