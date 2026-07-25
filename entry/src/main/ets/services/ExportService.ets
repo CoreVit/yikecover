@@ -65,6 +65,38 @@ export class ExportService {
     return '系统未返回具体原因';
   }
 
+  private static writeGalleryAsset(sourcePath: string, assetUri: string,
+    expectedSize: number): void {
+    let sourceFile: fileIo.File | undefined = undefined;
+    let assetFile: fileIo.File | undefined = undefined;
+    try {
+      sourceFile = fileIo.openSync(sourcePath, fileIo.OpenMode.READ_ONLY);
+      assetFile = fileIo.openSync(assetUri,
+        fileIo.OpenMode.WRITE_ONLY | fileIo.OpenMode.TRUNC |
+        fileIo.OpenMode.SYNC);
+      fileIo.copyFileSync(sourceFile.fd, assetFile.fd);
+      fileIo.fsyncSync(assetFile.fd);
+
+      const savedSize: number = fileIo.statSync(assetFile.fd).size;
+      if (savedSize <= 0 || savedSize !== expectedSize) {
+        throw new Error(`相册文件写入不完整（${savedSize}/${expectedSize} 字节）`);
+      }
+    } finally {
+      if (assetFile !== undefined) {
+        try {
+          fileIo.closeSync(assetFile);
+        } catch (closeError) {
+        }
+      }
+      if (sourceFile !== undefined) {
+        try {
+          fileIo.closeSync(sourceFile);
+        } catch (closeError) {
+        }
+      }
+    }
+  }
+
   static async exportToGallery(definition: TemplateDefinition, draft: CoverDraft,
     settings: ExportSettings, appContext: Context, onReadyToSave: () => void): Promise<string> {
     let canvas: OffscreenCanvas;
@@ -85,6 +117,7 @@ export class ExportService {
     let extension: string = 'png';
     let mime: string = 'image/png';
     let generated: boolean = false;
+    let generatedSize: number = 0;
 
     try {
       if (definition.capabilities.requiresPhoto) {
@@ -111,6 +144,10 @@ export class ExportService {
         format: mime,
         quality: settings.format === 'PNG' ? 100 : settings.quality
       });
+      generatedSize = buffer.byteLength;
+      if (generatedSize <= 0) {
+        throw new Error('图片编码结果为空');
+      }
       path = `${appContext.cacheDir}/一刻封面-${Date.now()}.${extension}`;
       outputFile = fileIo.openSync(path,
         fileIo.OpenMode.CREATE | fileIo.OpenMode.WRITE_ONLY |
@@ -166,6 +203,10 @@ export class ExportService {
       if (assetUri.length === 0) {
         throw new Error('系统未返回相册文件');
       }
+      // The system dialog creates and authorizes the media asset, but the
+      // returned asset can still be empty. Finish the write synchronously and
+      // verify its exact size before reporting success or deleting the source.
+      ExportService.writeGalleryAsset(path, assetUri, generatedSize);
       return assetUri;
     } catch (error) {
       throw new Error(`相册保存未完成：${ExportService.errorDetail(error)}`);
