@@ -10,6 +10,7 @@ struct ExportSettingsPage {
   @State quality: number = 92;
   @State webpSupported: boolean = false;
   @State probing: boolean = true;
+  @State settingsReady: boolean = false;
   @State savedHint: string = '';
   private saveTask: Promise<void> = Promise.resolve();
   private saveFailed: boolean = false;
@@ -23,10 +24,12 @@ struct ExportSettingsPage {
   }
 
   private async restoreSettings(): Promise<void> {
+    this.settingsReady = false;
     const settings: ExportSettings = await LocalStore.loadExportSettings();
     this.resolution = settings.resolution;
     this.format = settings.format;
     this.quality = settings.quality;
+    this.settingsReady = true;
     if (!this.probing) {
       this.webpSupported = settings.webpSupported;
       return;
@@ -63,7 +66,9 @@ struct ExportSettingsPage {
     try {
       await LocalStore.saveExportSettings(settings);
       this.saveFailed = false;
-      this.savedHint = '已保存为全局导出设置';
+      if (this.resolution === settings.resolution && this.format === settings.format) {
+        this.savedHint = `已保存：${settings.resolution} · ${settings.format}`;
+      }
     } catch (error) {
       this.saveFailed = true;
       this.savedHint = '保存失败，请重试';
@@ -87,7 +92,7 @@ struct ExportSettingsPage {
   }
 
   private selectChoice(group: string, value: string, enabled: boolean): void {
-    if (!enabled) {
+    if (!this.settingsReady || !enabled) {
       return;
     }
     if (group === 'resolution') {
@@ -112,7 +117,8 @@ struct ExportSettingsPage {
         Text(label)
           .fontSize(15)
           .fontWeight(FontWeight.Medium)
-          .fontColor(enabled ? $r('app.color.text_primary') : $r('app.color.text_muted'))
+          .fontColor(enabled && this.settingsReady ?
+            $r('app.color.text_primary') : $r('app.color.text_muted'))
         Text(description)
           .fontSize(10)
           .fontColor($r('app.color.text_secondary'))
@@ -121,8 +127,7 @@ struct ExportSettingsPage {
       .layoutWeight(1)
       Radio({ value: value, group: group })
         .checked(selected)
-        .enabled(enabled)
-        .hitTestBehavior(HitTestMode.None)
+        .enabled(enabled && this.settingsReady)
         .radioStyle({
           checkedBackgroundColor: $r('app.color.brand_primary'),
           uncheckedBorderColor: $r('app.color.divider'),
@@ -136,7 +141,7 @@ struct ExportSettingsPage {
     }
     .width('100%')
     .padding({ top: 13, bottom: 13 })
-    .opacity(enabled ? 1 : 0.46)
+    .opacity(enabled && this.settingsReady ? 1 : 0.46)
     .onClick(() => {
       this.selectChoice(group, value, enabled);
     })
