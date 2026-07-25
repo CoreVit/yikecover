@@ -16,6 +16,8 @@ export const PHOTO_TITLE_FIRST_BASELINE: number = 858;
 export const PHOTO_TITLE_SECOND_BASELINE: number = 992;
 export const PHOTO_TITLE_MAX_WIDTH: number =
   DESIGN_WIDTH - PHOTO_TITLE_LEFT * 2;
+export const PHOTO_TITLE_PREFERRED_FONT_SIZE: number = 96;
+export const PHOTO_TITLE_MIN_FONT_SIZE: number = 64;
 export const CORNER_LABEL_FONT_SIZE: number = 68;
 export const CORNER_LABEL_MIN_FONT_SIZE: number = 44;
 export const CORNER_LABEL_ROTATION: number = Math.PI / 4;
@@ -302,6 +304,19 @@ export function fitTextPair(ctx: CanvasRenderer, first: string, second: string,
   }
   setCanvasFont(ctx, minimum, options);
   return minimum;
+}
+
+export function fitPhotoTitlePair(ctx: CanvasRenderer, first: string,
+  second: string): number {
+  return fitTextPair(ctx, first, second, PHOTO_TITLE_MAX_WIDTH,
+    PHOTO_TITLE_PREFERRED_FONT_SIZE, PHOTO_TITLE_MIN_FONT_SIZE,
+    { bold: true, italic: true });
+}
+
+export function setPhotoTitleFont(ctx: CanvasRenderer, size: number): void {
+  setCanvasFont(ctx, size, { bold: true, italic: true });
+  ctx.textAlign = 'left';
+  ctx.textBaseline = 'alphabetic';
 }
 
 export function fitSingleText(ctx: CanvasRenderer, text: string,

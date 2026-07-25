@@ -2,7 +2,15 @@ import preferences from '@ohos.data.preferences';
 import image from '@ohos.multimedia.image';
 import fileIo from '@ohos.file.fs';
 import { LengthMetricsUnit } from '@kit.ArkUI';
-import { CoverDraft, ExportSettings, HistoryRecord, createDefaultDraft, getTemplateDefinition } from '../model/CoverModels';
+import {
+  CoverDraft,
+  DEFAULT_PHOTO_TITLE_FIRST,
+  DEFAULT_PHOTO_TITLE_SECOND,
+  ExportSettings,
+  HistoryRecord,
+  createDefaultDraft,
+  getTemplateDefinition
+} from '../model/CoverModels';
 import { SupportRecord } from '../model/SupportModels';
 
 const SETTINGS_STORE: string = 'yikecover_settings';
@@ -26,6 +34,18 @@ function recordTitle(draft: CoverDraft): string {
     return draft.quoteLabel;
   }
   return draft.title1;
+}
+
+function migrateDefaultPhotoTitles(draft: CoverDraft): CoverDraft {
+  if (draft.templateId >= 1 && draft.templateId <= 7) {
+    if (draft.title1 === '在这里输入第一行标题') {
+      draft.title1 = DEFAULT_PHOTO_TITLE_FIRST;
+    }
+    if (draft.title2 === '在这里输入第二行标题') {
+      draft.title2 = DEFAULT_PHOTO_TITLE_SECOND;
+    }
+  }
+  return draft;
 }
 
 function deleteGeneratedFiles(directory: string, prefix: string): void {
@@ -110,7 +130,7 @@ export class LocalStore {
     const raw: string = store.getSync(`draft_${templateId}`, '') as string;
     if (raw.length > 0) {
       try {
-        return JSON.parse(raw) as CoverDraft;
+        return migrateDefaultPhotoTitles(JSON.parse(raw) as CoverDraft);
       } catch (error) {
       }
     }

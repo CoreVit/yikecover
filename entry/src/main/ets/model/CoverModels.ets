@@ -1,5 +1,9 @@
 export const DESIGN_WIDTH: number = 1920;
 export const DESIGN_HEIGHT: number = 1080;
+export const DEFAULT_PHOTO_TITLE_FIRST: string =
+  '在这里输入第一行标题，';
+export const DEFAULT_PHOTO_TITLE_SECOND: string =
+  '在这里输入第二行标题？';
 
 export enum TemplateSkeleton {
   FRAME = 0,
@@ -107,8 +111,8 @@ export const TEMPLATE_DEFINITIONS: TemplateDefinition[] = [
     skeleton: TemplateSkeleton.FRAME,
     capabilities: capabilities(true, false, false, false, false, false, false),
     defaultBrand: '一刻封面',
-    defaultTitle1: '在这里输入第一行标题',
-    defaultTitle2: '在这里输入第二行标题'
+    defaultTitle1: DEFAULT_PHOTO_TITLE_FIRST,
+    defaultTitle2: DEFAULT_PHOTO_TITLE_SECOND
   },
   {
     id: 2,
@@ -119,8 +123,8 @@ export const TEMPLATE_DEFINITIONS: TemplateDefinition[] = [
     skeleton: TemplateSkeleton.FRAME,
     capabilities: capabilities(true, true, false, false, false, false, false),
     defaultBrand: '一刻封面',
-    defaultTitle1: '在这里输入第一行标题',
-    defaultTitle2: '在这里输入第二行标题'
+    defaultTitle1: DEFAULT_PHOTO_TITLE_FIRST,
+    defaultTitle2: DEFAULT_PHOTO_TITLE_SECOND
   },
   {
     id: 3,
@@ -131,8 +135,8 @@ export const TEMPLATE_DEFINITIONS: TemplateDefinition[] = [
     skeleton: TemplateSkeleton.FRAME,
     capabilities: capabilities(true, false, true, true, false, false, false),
     defaultBrand: '一刻封面',
-    defaultTitle1: '在这里输入第一行标题',
-    defaultTitle2: '在这里输入第二行标题'
+    defaultTitle1: DEFAULT_PHOTO_TITLE_FIRST,
+    defaultTitle2: DEFAULT_PHOTO_TITLE_SECOND
   },
   {
     id: 4,
@@ -143,8 +147,8 @@ export const TEMPLATE_DEFINITIONS: TemplateDefinition[] = [
     skeleton: TemplateSkeleton.PHOTO_OVERLAY,
     capabilities: capabilities(true, false, false, false, false, false, false),
     defaultBrand: '吃点好的',
-    defaultTitle1: '在这里输入第一行标题',
-    defaultTitle2: '在这里输入第二行标题'
+    defaultTitle1: DEFAULT_PHOTO_TITLE_FIRST,
+    defaultTitle2: DEFAULT_PHOTO_TITLE_SECOND
   },
   {
     id: 5,
@@ -155,8 +159,8 @@ export const TEMPLATE_DEFINITIONS: TemplateDefinition[] = [
     skeleton: TemplateSkeleton.PHOTO_OVERLAY,
     capabilities: capabilities(true, false, false, false, false, false, false),
     defaultBrand: '独家现场',
-    defaultTitle1: '在这里输入第一行标题',
-    defaultTitle2: '在这里输入第二行标题'
+    defaultTitle1: DEFAULT_PHOTO_TITLE_FIRST,
+    defaultTitle2: DEFAULT_PHOTO_TITLE_SECOND
   },
   {
     id: 6,
@@ -167,8 +171,8 @@ export const TEMPLATE_DEFINITIONS: TemplateDefinition[] = [
     skeleton: TemplateSkeleton.PHOTO_OVERLAY,
     capabilities: capabilities(true, true, false, false, true, false, false),
     defaultBrand: '系列特别节目',
-    defaultTitle1: '在这里输入第一行标题',
-    defaultTitle2: '在这里输入第二行标题'
+    defaultTitle1: DEFAULT_PHOTO_TITLE_FIRST,
+    defaultTitle2: DEFAULT_PHOTO_TITLE_SECOND
   },
   {
     id: 7,
@@ -179,8 +183,8 @@ export const TEMPLATE_DEFINITIONS: TemplateDefinition[] = [
     skeleton: TemplateSkeleton.PHOTO_OVERLAY,
     capabilities: capabilities(true, true, true, false, false, false, false),
     defaultBrand: '特别节目',
-    defaultTitle1: '在这里输入第一行标题',
-    defaultTitle2: '在这里输入第二行标题'
+    defaultTitle1: DEFAULT_PHOTO_TITLE_FIRST,
+    defaultTitle2: DEFAULT_PHOTO_TITLE_SECOND
   },
   {
     id: 8,

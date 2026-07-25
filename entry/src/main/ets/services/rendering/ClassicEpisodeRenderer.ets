@@ -10,13 +10,14 @@ import {
   drawCoverPhoto,
   drawEpisodeCornerLabel,
   drawGradientText,
+  fitPhotoTitlePair,
   fitSingleText,
-  fitTextPair,
   isTextTooWide,
   PHOTO_TITLE_FIRST_BASELINE,
   PHOTO_TITLE_LEFT,
   PHOTO_TITLE_MAX_WIDTH,
   PHOTO_TITLE_SECOND_BASELINE,
+  setPhotoTitleFont,
   setCanvasFont
 } from './RenderSupport';
 
@@ -117,15 +118,13 @@ function drawEpisodeCorner(ctx: CanvasRenderer, episode: string): void {
 function drawEpisodeContent(ctx: CanvasRenderer,
   draft: CoverDraft): boolean {
   const maxWidth: number = PHOTO_TITLE_MAX_WIDTH;
-  const size: number = fitTextPair(ctx, draft.title1, draft.title2,
-    maxWidth, 96, 64, { bold: true, italic: true });
-  setCanvasFont(ctx, size, { bold: true, italic: true });
+  const size: number =
+    fitPhotoTitlePair(ctx, draft.title1, draft.title2);
+  setPhotoTitleFont(ctx, size);
   const tooLong: boolean =
     isTextTooWide(ctx, draft.title1, maxWidth) ||
     isTextTooWide(ctx, draft.title2, maxWidth);
 
-  ctx.textAlign = 'left';
-  ctx.textBaseline = 'alphabetic';
   ctx.shadowColor = '#A8000000';
   ctx.shadowBlur = 12;
   ctx.shadowOffsetX = 4;
