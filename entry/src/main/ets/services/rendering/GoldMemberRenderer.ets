@@ -21,6 +21,24 @@ import {
 
 const INSET: number = 24;
 const RADIUS: number = 78;
+
+function memberMetalGradient(ctx: CanvasRenderer): CanvasGradient {
+  const frame: CanvasGradient = ctx.createConicGradient(
+    0, DESIGN_WIDTH / 2, DESIGN_HEIGHT / 2);
+  // The reference frame behaves like a continuous metal ribbon:
+  // dark at the upper-right and bottom-center, bright at the other turns.
+  frame.addColorStop(0, '#BE7E1D');
+  frame.addColorStop(0.08, '#ECBB42');
+  frame.addColorStop(0.25, '#984C00');
+  frame.addColorStop(0.42, '#CB9F56');
+  frame.addColorStop(0.5, '#FBF3AB');
+  frame.addColorStop(0.58, '#FFF6AB');
+  frame.addColorStop(0.75, '#E0C27A');
+  frame.addColorStop(0.92, '#A15C11');
+  frame.addColorStop(1, '#BE7E1D');
+  return frame;
+}
+
 function memberTabWidth(ctx: CanvasRenderer, brand: string): number {
   const size: number = fitSingleText(ctx, brand, 760,
     CORNER_LABEL_FONT_SIZE, CORNER_LABEL_MIN_FONT_SIZE,
@@ -55,31 +73,16 @@ function createMemberOpening(ctx: CanvasRenderer, brand: string): void {
 
 function drawMemberFrame(ctx: CanvasRenderer, draft: CoverDraft,
   bitmap: ImageBitmap | undefined): void {
-  const frame: CanvasGradient =
-    ctx.createLinearGradient(0, 0, DESIGN_WIDTH, 0);
-  frame.addColorStop(0, '#FEF3A4');
-  frame.addColorStop(0.28, '#F8E69A');
-  frame.addColorStop(0.52, '#E1C57C');
-  frame.addColorStop(0.76, '#A1590D');
-  frame.addColorStop(1, '#984C00');
-  ctx.fillStyle = frame;
-  ctx.fillRect(0, 0, DESIGN_WIDTH, DESIGN_HEIGHT);
-
-  const lowerWarmth: CanvasGradient =
-    ctx.createLinearGradient(0, 0, 0, DESIGN_HEIGHT);
-  lowerWarmth.addColorStop(0, '#00F2C246');
-  lowerWarmth.addColorStop(0.58, '#0CF2C246');
-  lowerWarmth.addColorStop(1, '#78F2C246');
-  ctx.fillStyle = lowerWarmth;
+  ctx.fillStyle = memberMetalGradient(ctx);
   ctx.fillRect(0, 0, DESIGN_WIDTH, DESIGN_HEIGHT);
 
   const metalHighlight: CanvasGradient =
-    ctx.createLinearGradient(0, 0, DESIGN_WIDTH, DESIGN_HEIGHT);
-  metalHighlight.addColorStop(0, '#32FFFFFF');
-  metalHighlight.addColorStop(0.24, '#08FFFFFF');
-  metalHighlight.addColorStop(0.48, '#28FFFFFF');
-  metalHighlight.addColorStop(0.7, '#00FFFFFF');
-  metalHighlight.addColorStop(1, '#16FFF2B2');
+    ctx.createLinearGradient(0, 0, DESIGN_WIDTH, 0);
+  metalHighlight.addColorStop(0, '#24FFFFFF');
+  metalHighlight.addColorStop(0.24, '#12FFFFFF');
+  metalHighlight.addColorStop(0.5, '#00FFFFFF');
+  metalHighlight.addColorStop(0.76, '#08FFF2B2');
+  metalHighlight.addColorStop(1, '#18FFF2B2');
   ctx.fillStyle = metalHighlight;
   ctx.fillRect(0, 0, DESIGN_WIDTH, DESIGN_HEIGHT);
 
