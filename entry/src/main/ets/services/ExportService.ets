@@ -72,10 +72,8 @@ export class ExportService {
     try {
       sourceFile = fileIo.openSync(sourcePath, fileIo.OpenMode.READ_ONLY);
       assetFile = fileIo.openSync(assetUri,
-        fileIo.OpenMode.WRITE_ONLY | fileIo.OpenMode.TRUNC |
-        fileIo.OpenMode.SYNC);
+        fileIo.OpenMode.WRITE_ONLY | fileIo.OpenMode.TRUNC);
       fileIo.copyFileSync(sourceFile.fd, assetFile.fd);
-      fileIo.fsyncSync(assetFile.fd);
 
       const savedSize: number = fileIo.statSync(assetFile.fd).size;
       if (savedSize <= 0 || savedSize !== expectedSize) {
