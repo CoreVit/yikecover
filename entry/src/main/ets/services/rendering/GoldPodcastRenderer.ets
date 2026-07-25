@@ -5,6 +5,7 @@ import {
   resolvedEpisode
 } from '../../model/CoverModels';
 import {
+  BRAND_LABEL_CENTER_Y,
   CORNER_LABEL_FONT_SIZE,
   CORNER_LABEL_MIN_FONT_SIZE,
   drawEpisodeCornerLabel,
@@ -69,7 +70,7 @@ function drawGoldPodcastHeader(ctx: CanvasRenderer,
     { bold: true, italic: true });
   setCanvasFont(ctx, brandSize, { bold: true, italic: true });
   ctx.textBaseline = 'middle';
-  ctx.fillText(draft.brand, 58, 66);
+  ctx.fillText(draft.brand, 58, BRAND_LABEL_CENTER_Y);
   ctx.textBaseline = 'alphabetic';
 
   if (draft.versionLabel.length > 0) {

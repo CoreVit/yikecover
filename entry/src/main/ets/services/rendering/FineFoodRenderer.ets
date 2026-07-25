@@ -4,6 +4,7 @@ import {
   DESIGN_WIDTH
 } from '../../model/CoverModels';
 import {
+  BRAND_LABEL_CENTER_Y,
   CORNER_LABEL_FONT_SIZE,
   CORNER_LABEL_MIN_FONT_SIZE,
   drawCoverPhoto,
@@ -87,7 +88,7 @@ function drawFoodBrand(ctx: CanvasRenderer, brand: string): void {
   setCanvasFont(ctx, size, { bold: true, italic: true });
   ctx.textAlign = 'left';
   ctx.textBaseline = 'middle';
-  ctx.fillText(brand, FOOD_BRAND_LEFT, 72);
+  ctx.fillText(brand, FOOD_BRAND_LEFT, BRAND_LABEL_CENTER_Y);
   ctx.textBaseline = 'alphabetic';
 }
 

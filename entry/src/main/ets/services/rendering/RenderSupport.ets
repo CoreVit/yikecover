@@ -20,6 +20,7 @@ export const PHOTO_TITLE_PREFERRED_FONT_SIZE: number = 96;
 export const PHOTO_TITLE_MIN_FONT_SIZE: number = 64;
 export const CORNER_LABEL_FONT_SIZE: number = 68;
 export const CORNER_LABEL_MIN_FONT_SIZE: number = 44;
+export const BRAND_LABEL_CENTER_Y: number = 72;
 export const CORNER_LABEL_ROTATION: number = Math.PI / 4;
 
 export function setCanvasFont(ctx: CanvasRenderer, size: number,

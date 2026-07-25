@@ -4,6 +4,7 @@ import {
   DESIGN_WIDTH
 } from '../../model/CoverModels';
 import {
+  BRAND_LABEL_CENTER_Y,
   CORNER_LABEL_FONT_SIZE,
   CORNER_LABEL_MIN_FONT_SIZE,
   drawCoverPhoto,
@@ -90,7 +91,7 @@ function drawBrandTab(ctx: CanvasRenderer, brand: string): void {
   setCanvasFont(ctx, size, { bold: true, italic: true });
   ctx.textAlign = 'left';
   ctx.textBaseline = 'middle';
-  ctx.fillText(brand, 58, 64);
+  ctx.fillText(brand, 58, BRAND_LABEL_CENTER_Y);
   ctx.textBaseline = 'alphabetic';
 }
 

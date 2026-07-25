@@ -5,6 +5,7 @@ import {
   resolvedEpisode
 } from '../../model/CoverModels';
 import {
+  BRAND_LABEL_CENTER_Y,
   CORNER_LABEL_FONT_SIZE,
   CORNER_LABEL_MIN_FONT_SIZE,
   drawCoverPhoto,
@@ -45,7 +46,7 @@ function drawGoldHeader(ctx: CanvasRenderer, draft: CoverDraft): void {
     { bold: true, italic: true });
   setCanvasFont(ctx, brandSize, { bold: true, italic: true });
   ctx.textBaseline = 'middle';
-  ctx.fillText(draft.brand, 42, 66);
+  ctx.fillText(draft.brand, 42, BRAND_LABEL_CENTER_Y);
 
   if (draft.versionLabel.length > 0) {
     ctx.fillStyle = '#F4D572';
