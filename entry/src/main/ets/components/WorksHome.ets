@@ -12,6 +12,8 @@ interface SettingEntry {
   description: string;
 }
 
+const PAGE_CONTENT_MAX_WIDTH: number = 1000;
+
 const SETTINGS: SettingEntry[] = [
   {
     id: 1,
@@ -328,7 +330,7 @@ export struct WorksHome {
         .margin({ bottom: 28 })
         }
         .width('100%')
-        .constraintSize({ maxWidth: 960 })
+        .constraintSize({ maxWidth: PAGE_CONTENT_MAX_WIDTH })
         .padding({ left: 18, right: 18, top: 18 })
       }
       .width('100%')
