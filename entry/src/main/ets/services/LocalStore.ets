@@ -1,7 +1,5 @@
 import preferences from '@ohos.data.preferences';
-import image from '@ohos.multimedia.image';
 import fileIo from '@ohos.file.fs';
-import { LengthMetricsUnit } from '@kit.ArkUI';
 import {
   CoverDraft,
   DEFAULT_PHOTO_TITLE_FIRST,
@@ -60,6 +58,27 @@ function deleteGeneratedFiles(directory: string, prefix: string): void {
   }
 }
 
+function normalizedResolution(value: string): string {
+  if (value === '720P' || value === '4K') {
+    return value;
+  }
+  return '1080P';
+}
+
+function normalizedFormat(value: string): string {
+  if (value === 'JPEG' || value === 'WebP') {
+    return value;
+  }
+  return 'PNG';
+}
+
+function normalizedQuality(value: number): number {
+  if (!Number.isFinite(value)) {
+    return 92;
+  }
+  return Math.min(100, Math.max(60, Math.round(value)));
+}
+
 export class LocalStore {
   static initialize(hostContext: Context): void {
     applicationContext = hostContext;
@@ -67,10 +86,12 @@ export class LocalStore {
 
   static async loadExportSettings(): Promise<ExportSettings> {
     const store: preferences.Preferences = await preferences.getPreferences(context(), SETTINGS_STORE);
-    const resolution: string = store.getSync('resolution', '1080P') as string;
-    const format: string = store.getSync('format', 'PNG') as string;
-    const quality: number = store.getSync('quality', 92) as number;
-    const webpSupported: boolean = store.getSync('webpSupported', false) as boolean;
+    const resolution: string = normalizedResolution(
+      store.getSync('resolution', '1080P') as string);
+    const format: string = normalizedFormat(
+      store.getSync('format', 'PNG') as string);
+    const quality: number = normalizedQuality(
+      store.getSync('quality', 92) as number);
     let width: number = 1920;
     let height: number = 1080;
     if (resolution === '720P') {
@@ -85,79 +106,16 @@ export class LocalStore {
       width: width,
       height: height,
       format: format,
-      quality: quality,
-      webpSupported: webpSupported
+      quality: quality
     };
   }
 
   static async saveExportSettings(settings: ExportSettings): Promise<void> {
     const store: preferences.Preferences = await preferences.getPreferences(context(), SETTINGS_STORE);
-    store.putSync('resolution', settings.resolution);
-    store.putSync('format', settings.format);
-    store.putSync('quality', settings.quality);
-    store.putSync('webpSupported', settings.webpSupported);
+    store.putSync('resolution', normalizedResolution(settings.resolution));
+    store.putSync('format', normalizedFormat(settings.format));
+    store.putSync('quality', normalizedQuality(settings.quality));
     await store.flush();
-  }
-
-  private static async tryEncodeWebp(pixelMap: PixelMap): Promise<boolean> {
-    try {
-      const packer: image.ImagePacker = image.createImagePacker();
-      const encoded: ArrayBuffer = await packer.packToData(pixelMap, {
-        format: 'image/webp',
-        quality: 80
-      });
-      return encoded.byteLength > 0;
-    } catch (_error) {
-      return false;
-    }
-  }
-
-  private static waitForWebpProbeTimeout(fallback: boolean): Promise<boolean> {
-    return new Promise<boolean>((resolve: (value: boolean) => void): void => {
-      setTimeout((): void => {
-        resolve(fallback);
-      }, 5000);
-    });
-  }
-
-  static async probeWebpSupport(): Promise<boolean> {
-    let store: preferences.Preferences | undefined = undefined;
-    try {
-      store = await preferences.getPreferences(context(), SETTINGS_STORE);
-      const cachedSupported: boolean =
-        store.getSync('webpSupported', false) as boolean;
-      const probeCompleted: boolean =
-        store.getSync('webpProbeCompleted', cachedSupported) as boolean;
-      if (probeCompleted) {
-        return cachedSupported;
-      }
-
-      const canvas: OffscreenCanvas = new OffscreenCanvas(2, 2,
-        LengthMetricsUnit.PX);
-      const canvasContext: OffscreenCanvasRenderingContext2D = canvas.getContext('2d');
-      canvasContext.fillStyle = '#FF4F3F';
-      canvasContext.fillRect(0, 0, 2, 2);
-      const pixelMap: PixelMap = canvasContext.getPixelMap(0, 0, 2, 2);
-      const supported: boolean = await Promise.race([
-        LocalStore.tryEncodeWebp(pixelMap),
-        LocalStore.waitForWebpProbeTimeout(cachedSupported)
-      ]);
-
-      store.putSync('webpSupported', supported);
-      store.putSync('webpProbeCompleted', true);
-      await store.flush();
-      return supported;
-    } catch (_error) {
-      if (store !== undefined) {
-        try {
-          store.putSync('webpSupported', false);
-          store.putSync('webpProbeCompleted', true);
-          await store.flush();
-        } catch (_storeError) {
-        }
-      }
-      return false;
-    }
   }
 
   static async loadDraft(templateId: number): Promise<CoverDraft> {

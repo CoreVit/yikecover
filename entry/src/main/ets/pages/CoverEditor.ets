@@ -59,8 +59,7 @@ struct CoverEditor {
     width: 1920,
     height: 1080,
     format: 'PNG',
-    quality: 92,
-    webpSupported: false
+    quality: 92
   };
   @State titleTooLong: boolean = false;
   @State exporting: boolean = false;
@@ -286,10 +285,6 @@ struct CoverEditor {
       return;
     }
     if (!this.validateEpisode()) {
-      return;
-    }
-    if (this.exportSettings.format === 'WebP' && !this.exportSettings.webpSupported) {
-      this.showToast('当前设备暂不支持 WebP');
       return;
     }
     this.exporting = true;

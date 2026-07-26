@@ -11,7 +11,46 @@ interface DecodedPhoto {
   pixelMap: PixelMap;
 }
 
+interface ExportFormat {
+  mime: string;
+  extension: string;
+}
+
 export class ExportService {
+  private static exportFormat(format: string): ExportFormat {
+    if (format === 'JPEG') {
+      return { mime: 'image/jpeg', extension: 'jpg' };
+    }
+    if (format === 'WebP') {
+      return { mime: 'image/webp', extension: 'webp' };
+    }
+    return { mime: 'image/png', extension: 'png' };
+  }
+
+  private static validateEncodedBuffer(buffer: ArrayBuffer, format: string): void {
+    const bytes: Uint8Array = new Uint8Array(buffer);
+    let valid: boolean = false;
+    if (format === 'JPEG') {
+      valid = bytes.length >= 3 &&
+        bytes[0] === 0xFF && bytes[1] === 0xD8 && bytes[2] === 0xFF;
+    } else if (format === 'WebP') {
+      valid = bytes.length >= 12 &&
+        bytes[0] === 0x52 && bytes[1] === 0x49 &&
+        bytes[2] === 0x46 && bytes[3] === 0x46 &&
+        bytes[8] === 0x57 && bytes[9] === 0x45 &&
+        bytes[10] === 0x42 && bytes[11] === 0x50;
+    } else {
+      valid = bytes.length >= 8 &&
+        bytes[0] === 0x89 && bytes[1] === 0x50 &&
+        bytes[2] === 0x4E && bytes[3] === 0x47 &&
+        bytes[4] === 0x0D && bytes[5] === 0x0A &&
+        bytes[6] === 0x1A && bytes[7] === 0x0A;
+    }
+    if (!valid) {
+      throw new Error(`${format} 编码结果格式不正确`);
+    }
+  }
+
   private static writeAll(fd: number, buffer: ArrayBuffer): void {
     let written: number = fileIo.writeSync(fd, buffer);
     while (written < buffer.byteLength) {
@@ -112,8 +151,10 @@ export class ExportService {
     let outputPixelMap: PixelMap | undefined = undefined;
     let outputFile: fileIo.File | undefined = undefined;
     let path: string = '';
-    let extension: string = 'png';
-    let mime: string = 'image/png';
+    const exportFormat: ExportFormat =
+      ExportService.exportFormat(settings.format);
+    const extension: string = exportFormat.extension;
+    const mime: string = exportFormat.mime;
     let generated: boolean = false;
     let generatedSize: number = 0;
 
@@ -130,14 +171,6 @@ export class ExportService {
         settings.width / DESIGN_WIDTH);
       outputPixelMap = ctx.getPixelMap(0, 0, settings.width, settings.height);
       const packer: image.ImagePacker = image.createImagePacker();
-      if (settings.format === 'JPEG') {
-        mime = 'image/jpeg';
-        extension = 'jpg';
-      } else if (settings.format === 'WebP') {
-        mime = 'image/webp';
-        extension = 'webp';
-      }
-
       const buffer: ArrayBuffer = await packer.packToData(outputPixelMap, {
         format: mime,
         quality: settings.format === 'PNG' ? 100 : settings.quality
@@ -146,11 +179,16 @@ export class ExportService {
       if (generatedSize <= 0) {
         throw new Error('图片编码结果为空');
       }
+      ExportService.validateEncodedBuffer(buffer, settings.format);
       path = `${appContext.cacheDir}/一刻封面-${Date.now()}.${extension}`;
       outputFile = fileIo.openSync(path,
         fileIo.OpenMode.CREATE | fileIo.OpenMode.WRITE_ONLY |
         fileIo.OpenMode.TRUNC);
       ExportService.writeAll(outputFile.fd, buffer);
+      const tempSize: number = fileIo.statSync(outputFile.fd).size;
+      if (tempSize !== generatedSize) {
+        throw new Error(`临时图片写入不完整（${tempSize}/${generatedSize} 字节）`);
+      }
       generated = true;
     } catch (error) {
       if (settings.resolution === '4K') {

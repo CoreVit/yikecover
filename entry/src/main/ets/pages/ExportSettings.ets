@@ -8,11 +8,11 @@ struct ExportSettingsPage {
   @State resolution: string = '1080P';
   @State format: string = 'PNG';
   @State quality: number = 92;
-  @State webpSupported: boolean = false;
-  @State probing: boolean = true;
   @State settingsReady: boolean = false;
   @State savedHint: string = '';
+  private pendingSettings: ExportSettings | undefined = undefined;
   private saveTask: Promise<void> = Promise.resolve();
+  private savingSettings: boolean = false;
   private saveFailed: boolean = false;
 
   aboutToAppear(): void {
@@ -29,20 +29,8 @@ struct ExportSettingsPage {
     this.resolution = settings.resolution;
     this.format = settings.format;
     this.quality = settings.quality;
-    this.webpSupported = settings.webpSupported;
+    this.savedHint = `已保存：${settings.resolution} · ${settings.format}`;
     this.settingsReady = true;
-    if (!this.probing) {
-      return;
-    }
-    try {
-      this.webpSupported = await LocalStore.probeWebpSupport();
-    } finally {
-      this.probing = false;
-    }
-    if (!this.webpSupported && this.format === 'WebP') {
-      this.format = 'PNG';
-      await this.queueSave();
-    }
   }
 
   private buildSettings(): ExportSettings {
@@ -60,8 +48,7 @@ struct ExportSettingsPage {
       width: width,
       height: height,
       format: this.format,
-      quality: this.quality,
-      webpSupported: this.webpSupported
+      quality: this.quality
     };
   }
 
@@ -78,12 +65,23 @@ struct ExportSettingsPage {
     }
   }
 
+  private async saveLatestSettings(): Promise<void> {
+    while (this.pendingSettings !== undefined) {
+      const settings: ExportSettings = this.pendingSettings;
+      this.pendingSettings = undefined;
+      await this.persistSettings(settings);
+    }
+    this.savingSettings = false;
+  }
+
   private queueSave(): Promise<void> {
-    const settings: ExportSettings = this.buildSettings();
-    this.savedHint = `正在保存：${settings.resolution} · ${settings.format}`;
-    this.saveTask = this.saveTask.then(() => {
-      return this.persistSettings(settings);
-    });
+    this.pendingSettings = this.buildSettings();
+    this.savedHint =
+      `正在保存：${this.pendingSettings.resolution} · ${this.pendingSettings.format}`;
+    if (!this.savingSettings) {
+      this.savingSettings = true;
+      this.saveTask = this.saveLatestSettings();
+    }
     return this.saveTask;
   }
 
@@ -191,9 +189,8 @@ struct ExportSettingsPage {
       this.choice('JPEG', '文件较小，不支持透明',
         true, 'format', 'JPEG')
       Divider().color($r('app.color.divider'))
-      this.choice('WebP', this.probing ? '正在检查设备编码支持…' :
-        (this.webpSupported ? '压缩效率较高，部分目标兼容性有限' : '当前设备暂不支持 · 待开发'),
-        this.webpSupported && !this.probing,
+      this.choice('WebP', '压缩效率较高，部分目标兼容性有限',
+        true,
         'format', 'WebP')
     }
     .width('100%')

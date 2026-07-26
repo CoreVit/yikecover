@@ -53,7 +53,6 @@ export interface ExportSettings {
   height: number;
   format: string;
   quality: number;
-  webpSupported: boolean;
 }
 
 export interface CoverDraft {
