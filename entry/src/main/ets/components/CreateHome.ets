@@ -15,6 +15,8 @@ const HERO_MAX_DRAG: number = 190;
 const HERO_SWITCH_THRESHOLD: number = 54;
 const HERO_VELOCITY_THRESHOLD: number = 680;
 const HERO_PREVIEW_MAX_WIDTH: number = 360;
+const HERO_STAGE_LANDSCAPE_HEIGHT: number = 205;
+const HERO_STAGE_PORTRAIT_HEIGHT: number = 238;
 const PAGE_CONTENT_MAX_WIDTH: number = 1000;
 
 const TEMPLATE_SHORTCUTS: TemplateShortcut[] = [
@@ -33,7 +35,24 @@ const TEMPLATE_SHORTCUTS: TemplateShortcut[] = [
 export struct CreateHome {
   @State currentHeroIndex: number = 0;
   @State heroDragOffset: number = 0;
+  @State pageWidth: number = 0;
+  @State pageHeight: number = 1;
   private heroSettling: boolean = false;
+
+  private lengthValue(value: Length): number {
+    if (typeof value === 'number') {
+      return value;
+    }
+    if (typeof value === 'string') {
+      return parseFloat(value);
+    }
+    return 0;
+  }
+
+  private heroStageHeight(): number {
+    return this.pageHeight > this.pageWidth ?
+      HERO_STAGE_PORTRAIT_HEIGHT : HERO_STAGE_LANDSCAPE_HEIGHT;
+  }
 
   private previewJson(templateId: number): string {
     return JSON.stringify(createDefaultDraft(getTemplateDefinition(templateId)));
@@ -235,7 +254,10 @@ export struct CreateHome {
         .alignItems(VerticalAlign.Top)
 
         Column() {
-          Stack({ alignContent: Alignment.Center }) {
+          Stack({
+            alignContent: this.pageHeight > this.pageWidth ?
+              Alignment.Top : Alignment.Center
+          }) {
             ForEach(TEMPLATE_DEFINITIONS, (item: TemplateDefinition, index: number) => {
               if (Math.abs(this.relativeHeroIndex(index)) <= 2) {
                 this.heroCover(item, index)
@@ -243,7 +265,7 @@ export struct CreateHome {
             }, (item: TemplateDefinition) => item.id.toString())
           }
           .width('100%')
-          .height(205)
+          .height(this.heroStageHeight())
           .clip(false)
           .gesture(
             PanGesture({
@@ -422,5 +444,9 @@ export struct CreateHome {
     .height('100%')
     .scrollBar(BarState.Off)
     .backgroundColor($r('app.color.page_background'))
+    .onAreaChange((_oldValue: Area, newValue: Area) => {
+      this.pageWidth = this.lengthValue(newValue.width);
+      this.pageHeight = this.lengthValue(newValue.height);
+    })
   }
 }
