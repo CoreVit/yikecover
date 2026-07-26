@@ -229,21 +229,6 @@ export struct CreateHome {
               .fontColor($r('app.color.text_secondary'))
           }
           .alignItems(HorizontalAlign.Start)
-
-          Blank()
-
-          Text('模板库')
-            .fontSize(13)
-            .fontWeight(FontWeight.Medium)
-            .fontColor($r('app.color.brand_primary'))
-            .padding({ left: 14, right: 14, top: 8, bottom: 8 })
-            .backgroundColor($r('app.color.brand_soft'))
-            .borderRadius(18)
-            .onClick(() => {
-              this.getUIContext().getRouter().pushUrl({
-                url: 'pages/TemplateLibrary'
-              });
-            })
         }
         .width('100%')
         .alignItems(VerticalAlign.Top)

@@ -249,15 +249,6 @@ export struct WorksHome {
               .fontColor($r('app.color.text_secondary'))
           }
           .alignItems(HorizontalAlign.Start)
-
-          Blank()
-
-          Text('设置')
-            .fontSize(13)
-            .fontColor($r('app.color.text_secondary'))
-            .padding({ left: 14, right: 14, top: 8, bottom: 8 })
-            .backgroundColor($r('app.color.control_background'))
-            .borderRadius(18)
         }
         .width('100%')
         .alignItems(VerticalAlign.Top)
