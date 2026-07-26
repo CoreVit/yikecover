@@ -178,6 +178,10 @@ export struct WorksHome {
         this.getUIContext().getRouter().pushUrl({
           url: 'pages/HistoryRecords'
         });
+      } else if (item.id === 3) {
+        this.getUIContext().getRouter().pushUrl({
+          url: 'pages/UseHelp'
+        });
       } else if (item.id === 4) {
         this.getUIContext().getRouter().pushUrl({
           url: 'pages/SupportDeveloper'
