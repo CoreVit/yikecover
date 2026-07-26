@@ -77,6 +77,7 @@ struct ExportSettingsPage {
 
   private queueSave(): Promise<void> {
     const settings: ExportSettings = this.buildSettings();
+    this.savedHint = `正在保存：${settings.resolution} · ${settings.format}`;
     this.saveTask = this.saveTask.then(() => {
       return this.persistSettings(settings);
     });
@@ -110,7 +111,7 @@ struct ExportSettingsPage {
   }
 
   @Builder
-  private choice(label: string, description: string, selected: boolean, enabled: boolean,
+  private choice(label: string, description: string, enabled: boolean,
     group: string, value: string) {
     Row() {
       Column({ space: 3 }) {
@@ -126,7 +127,8 @@ struct ExportSettingsPage {
       .alignItems(HorizontalAlign.Start)
       .layoutWeight(1)
       Radio({ value: value, group: group })
-        .checked(selected)
+        .checked(group === 'resolution' ?
+          this.resolution === value : this.format === value)
         .enabled(enabled && this.settingsReady)
         .radioStyle({
           checkedBackgroundColor: $r('app.color.brand_primary'),
@@ -181,13 +183,13 @@ struct ExportSettingsPage {
               .fontColor($r('app.color.text_primary'))
               .margin({ bottom: 5 })
             this.choice('720P · 1280 × 720', '体积较小，适合快速分享',
-              this.resolution === '720P', true, 'resolution', '720P')
+              true, 'resolution', '720P')
             Divider().color($r('app.color.divider'))
             this.choice('1080P · 1920 × 1080', '推荐 · 与设计坐标一一对应',
-              this.resolution === '1080P', true, 'resolution', '1080P')
+              true, 'resolution', '1080P')
             Divider().color($r('app.color.divider'))
             this.choice('4K · 3840 × 2160', '更清晰，对设备内存要求较高',
-              this.resolution === '4K', true, 'resolution', '4K')
+              true, 'resolution', '4K')
           }
           .width('100%')
           .padding(16)
@@ -202,14 +204,14 @@ struct ExportSettingsPage {
               .fontColor($r('app.color.text_primary'))
               .margin({ bottom: 5 })
             this.choice('PNG', '无损，文字边缘最清晰，文件较大',
-              this.format === 'PNG', true, 'format', 'PNG')
+              true, 'format', 'PNG')
             Divider().color($r('app.color.divider'))
             this.choice('JPEG', '文件较小，不支持透明',
-              this.format === 'JPEG', true, 'format', 'JPEG')
+              true, 'format', 'JPEG')
             Divider().color($r('app.color.divider'))
             this.choice('WebP', this.probing ? '正在进行设备编码测试…' :
               (this.webpSupported ? '压缩效率较高，部分目标兼容性有限' : '当前设备暂不支持 · 待开发'),
-              this.format === 'WebP', this.webpSupported && !this.probing,
+              this.webpSupported && !this.probing,
               'format', 'WebP')
           }
           .width('100%')
