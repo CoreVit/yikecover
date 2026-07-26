@@ -217,7 +217,8 @@ export struct CreateHome {
 
   build() {
     Scroll() {
-      Column() {
+      Row() {
+        Column() {
         Row() {
           Column({ space: 4 }) {
             Text('一刻封面')
@@ -407,13 +408,16 @@ export struct CreateHome {
         .backgroundColor($r('app.color.card_background'))
         .borderRadius(14)
         .margin({ top: 28, bottom: 28 })
+        }
+        .width('100%')
+        .constraintSize({ maxWidth: PAGE_CONTENT_MAX_WIDTH })
+        .padding({ left: 18, right: 18, top: 18 })
       }
       .width('100%')
-      .constraintSize({ maxWidth: PAGE_CONTENT_MAX_WIDTH })
-      .alignSelf(ItemAlign.Center)
-      .padding({ left: 18, right: 18, top: 18 })
+      .justifyContent(FlexAlign.Center)
+      .alignItems(VerticalAlign.Top)
     }
-    .align(Alignment.Top)
+    .align(Alignment.TopStart)
     .width('100%')
     .height('100%')
     .scrollBar(BarState.Off)

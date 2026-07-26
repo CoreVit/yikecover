@@ -237,7 +237,8 @@ export struct WorksHome {
 
   build() {
     Scroll() {
-      Column() {
+      Row() {
+        Column() {
         Row() {
           Column({ space: 4 }) {
             Text('作品')
@@ -325,13 +326,16 @@ export struct WorksHome {
         .backgroundColor($r('app.color.card_background'))
         .borderRadius(16)
         .margin({ bottom: 28 })
+        }
+        .width('100%')
+        .constraintSize({ maxWidth: 960 })
+        .padding({ left: 18, right: 18, top: 18 })
       }
       .width('100%')
-      .constraintSize({ maxWidth: 960 })
-      .alignSelf(ItemAlign.Center)
-      .padding({ left: 18, right: 18, top: 18 })
+      .justifyContent(FlexAlign.Center)
+      .alignItems(VerticalAlign.Top)
     }
-    .align(Alignment.Top)
+    .align(Alignment.TopStart)
     .width('100%')
     .height('100%')
     .scrollBar(BarState.Off)
