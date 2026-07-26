@@ -6,22 +6,22 @@ import { SupportPaymentService } from '../services/SupportPaymentService';
 
 interface SupportTier {
   amount: number;
-  title: string;
+  emphasized: boolean;
 }
 
 const REPOSITORY_URL: string = 'https://github.com/CoreVit/yikecover';
 const SUPPORT_TIERS: SupportTier[] = [
-  { amount: 1, title: '一点心意' },
-  { amount: 6, title: '请喝饮料' },
-  { amount: 18, title: '大力支持' }
+  { amount: 2, emphasized: false },
+  { amount: 7, emphasized: true },
+  { amount: 18, emphasized: false },
+  { amount: 30, emphasized: false },
+  { amount: 68, emphasized: false }
 ];
 
 @Entry
 @Component
 struct SupportDeveloper {
-  @State selectedAmount: number = 6;
-  @State customMode: boolean = false;
-  @State customAmountText: string = '';
+  @State selectedAmount: number = 7;
   @State confirming: boolean = false;
   @State paying: boolean = false;
   @State resultStatus: SupportPaymentStatus | undefined = undefined;
@@ -41,41 +41,20 @@ struct SupportDeveloper {
   }
 
   private amount(): number {
-    if (!this.customMode) {
-      return this.selectedAmount;
-    }
-    const value: number = Number(this.customAmountText);
-    if (!Number.isFinite(value)) {
-      return 0;
-    }
-    return Math.floor(value);
+    return this.selectedAmount;
   }
 
   private amountValid(): boolean {
-    const value: number = this.amount();
-    return value >= 1 && value <= 200;
+    return SUPPORT_TIERS.some((tier: SupportTier) =>
+      tier.amount === this.selectedAmount);
   }
 
   private tierName(): string {
-    const value: number = this.amount();
-    for (let index: number = 0; index < SUPPORT_TIERS.length; index++) {
-      if (SUPPORT_TIERS[index].amount === value) {
-        return SUPPORT_TIERS[index].title;
-      }
-    }
-    return '随心支持';
+    return '自愿赞助';
   }
 
   private selectTier(tier: SupportTier): void {
     this.selectedAmount = tier.amount;
-    this.customMode = false;
-    this.customAmountText = '';
-    this.confirming = false;
-    this.resultStatus = undefined;
-  }
-
-  private selectCustom(): void {
-    this.customMode = true;
     this.confirming = false;
     this.resultStatus = undefined;
   }
@@ -83,7 +62,7 @@ struct SupportDeveloper {
   private continueToConfirmation(): void {
     if (!this.amountValid()) {
       this.getUIContext().getPromptAction().showToast({
-        message: '请输入 1～200 元的整数金额',
+        message: '请选择赞助金额',
         duration: 1800
       });
       return;
@@ -202,32 +181,27 @@ struct SupportDeveloper {
 
   @Builder
   private tierCard(tier: SupportTier) {
-    Column({ space: 6 }) {
-      Text(tier.title)
-        .fontSize(12)
-        .fontWeight(FontWeight.Medium)
-        .fontColor($r('app.color.text_primary'))
-        .maxLines(1)
+    Column({ space: 5 }) {
       Text(`¥${tier.amount}`)
-        .fontSize(21)
-        .fontWeight(FontWeight.Bold)
-        .fontColor(this.selectedAmount === tier.amount && !this.customMode ?
+        .fontSize(tier.emphasized ? 22 : 19)
+        .fontWeight(tier.emphasized ? FontWeight.Bold : FontWeight.Medium)
+        .fontColor(this.selectedAmount === tier.amount ?
           $r('app.color.brand_primary') : $r('app.color.text_primary'))
-      Text(this.selectedAmount === tier.amount && !this.customMode ? '已选择' : ' ')
+      Text(this.selectedAmount === tier.amount ? '已选择' : ' ')
         .fontSize(9)
         .fontColor($r('app.color.brand_primary'))
     }
     .layoutWeight(1)
-    .height(96)
+    .height(78)
     .justifyContent(FlexAlign.Center)
-    .backgroundColor(this.selectedAmount === tier.amount && !this.customMode ?
+    .backgroundColor(this.selectedAmount === tier.amount ?
       $r('app.color.brand_soft') : $r('app.color.card_background'))
     .border({
-      width: this.selectedAmount === tier.amount && !this.customMode ? 2 : 1,
-      color: this.selectedAmount === tier.amount && !this.customMode ?
+      width: this.selectedAmount === tier.amount ? 2 : 1,
+      color: this.selectedAmount === tier.amount ?
         $r('app.color.brand_primary') : $r('app.color.divider')
     })
-    .borderRadius(14)
+    .borderRadius(12)
     .onClick(() => {
       this.selectTier(tier);
     })
@@ -238,7 +212,7 @@ struct SupportDeveloper {
     Column() {
       this.thankYouMark()
 
-      Text('如果一刻封面对你有帮助，\n可以请独立开发者喝杯饮料。')
+      Text('所有功能永久免费，\n也不会新增广告')
         .width('100%')
         .fontSize(22)
         .fontWeight(FontWeight.Bold)
@@ -247,15 +221,23 @@ struct SupportDeveloper {
         .textAlign(TextAlign.Center)
         .margin({ top: 5 })
 
-      Text('所有功能都可以继续免费使用。支持完全自愿，不会解锁额外功能。')
+      Text('本服务所有功能均可免费使用。赞助不会解锁额外功能，仅用于支持后续开发与维护。')
+        .width('100%')
+        .fontSize(13)
+        .fontColor($r('app.color.text_secondary'))
+        .lineHeight(21)
+        .textAlign(TextAlign.Center)
+        .margin({ top: 10 })
+
+      Text('如果一刻封面对你有帮助，也欢迎支持个人开发者吃点儿好的。')
         .width('100%')
         .fontSize(12)
         .fontColor($r('app.color.text_secondary'))
         .lineHeight(20)
         .textAlign(TextAlign.Center)
-        .margin({ top: 10 })
+        .margin({ top: 8 })
 
-      Row({ space: 9 }) {
+      Row({ space: 6 }) {
         ForEach(SUPPORT_TIERS, (tier: SupportTier) => {
           this.tierCard(tier)
         }, (tier: SupportTier) => tier.amount.toString())
@@ -263,68 +245,7 @@ struct SupportDeveloper {
       .width('100%')
       .margin({ top: 24 })
 
-      Column({ space: 10 }) {
-        Row() {
-          Column({ space: 3 }) {
-            Text('随心支持')
-              .fontSize(14)
-              .fontWeight(FontWeight.Medium)
-              .fontColor($r('app.color.text_primary'))
-            Text('输入 1～200 元的整数金额')
-              .fontSize(10)
-              .fontColor($r('app.color.text_secondary'))
-          }
-          .alignItems(HorizontalAlign.Start)
-
-          Blank()
-
-          Text(this.customMode ? '已选择' : '自定义金额')
-            .fontSize(12)
-            .fontWeight(FontWeight.Medium)
-            .fontColor(this.customMode ? '#FFFFFF' : $r('app.color.brand_primary'))
-            .padding({ left: 12, right: 12, top: 7, bottom: 7 })
-            .backgroundColor(this.customMode ?
-              $r('app.color.brand_primary') : $r('app.color.brand_soft'))
-            .borderRadius(15)
-        }
-        .width('100%')
-
-        if (this.customMode) {
-          Row({ space: 8 }) {
-            Text('¥')
-              .fontSize(20)
-              .fontWeight(FontWeight.Bold)
-              .fontColor($r('app.color.text_primary'))
-            TextInput({
-              text: this.customAmountText,
-              placeholder: '例如 30'
-            })
-              .layoutWeight(1)
-              .height(44)
-              .fontSize(16)
-              .fontColor($r('app.color.text_primary'))
-              .placeholderColor($r('app.color.text_muted'))
-              .backgroundColor($r('app.color.control_background'))
-              .borderRadius(10)
-              .type(InputType.Number)
-              .onChange((value: string) => {
-                this.customAmountText = value.replace(/[^0-9]/g, '').slice(0, 3);
-              })
-          }
-          .width('100%')
-        }
-      }
-      .width('100%')
-      .padding(15)
-      .backgroundColor(this.customMode ?
-        $r('app.color.brand_soft') : $r('app.color.card_background'))
-      .borderRadius(14)
-      .margin({ top: 12 })
-      .onClick(() => {
-        this.selectCustom();
-      })
-
-      Button(this.amountValid() ? `支持 ¥${this.amount()}` : '请输入支持金额',
+      Button(`赞助 ¥${this.amount()}`,
         { type: ButtonType.Normal })
         .width('100%')
         .height(48)
@@ -340,7 +261,7 @@ struct SupportDeveloper {
           this.continueToConfirmation();
         })
 
-      Text('无需登录 · 正式交易记录以支付平台为准')
+      Text('固定金额 · 无需登录 · 正式交易记录以支付平台为准')
         .width('100%')
         .fontSize(10)
         .fontColor($r('app.color.text_muted'))
@@ -365,7 +286,7 @@ struct SupportDeveloper {
             .fontSize(14)
             .fontWeight(FontWeight.Medium)
             .fontColor($r('app.color.text_primary'))
-          Text('一次性自愿支持')
+          Text('不会解锁额外功能')
             .fontSize(10)
             .fontColor($r('app.color.text_secondary'))
         }
@@ -393,7 +314,7 @@ struct SupportDeveloper {
       }
       .width('100%')
 
-      Text('支持完全自愿，不会解锁额外功能。支付完成后，正式交易记录由支付平台保存。')
+      Text('所有功能永久免费，也不会新增广告。赞助仅用于后续开发与维护，支付完成后的正式交易记录由支付平台保存。')
         .width('100%')
         .fontSize(11)
         .lineHeight(18)
@@ -412,7 +333,7 @@ struct SupportDeveloper {
             this.confirming = false;
           })
 
-        Button(this.paying ? '正在打开…' : `确认支持 ¥${this.amount()}`,
+        Button(this.paying ? '正在打开…' : `确认赞助 ¥${this.amount()}`,
           { type: ButtonType.Normal })
           .layoutWeight(1)
           .height(46)
@@ -439,12 +360,12 @@ struct SupportDeveloper {
     Column() {
       if (this.resultStatus === SupportPaymentStatus.SUCCESS) {
         this.thankYouMark()
-        Text('谢谢你的支持')
+        Text('谢谢你的赞助')
           .fontSize(24)
           .fontWeight(FontWeight.Bold)
           .fontColor($r('app.color.text_primary'))
           .margin({ top: 8 })
-        Text('你的这份心意我收到了。\n谢谢你愿意支持这件小而认真的事。')
+        Text('你的这份心意我收到了。\n也谢谢你支持个人开发者吃点儿好的。')
           .fontSize(13)
           .lineHeight(22)
           .fontColor($r('app.color.text_secondary'))
@@ -562,7 +483,7 @@ struct SupportDeveloper {
   @Builder
   private localRecords() {
     Column() {
-      Text('本机支持记录')
+          Text('本机赞助记录')
         .width('100%')
         .fontSize(18)
         .fontWeight(FontWeight.Bold)
@@ -570,7 +491,7 @@ struct SupportDeveloper {
         .margin({ bottom: 12 })
 
       if (this.records.length === 0) {
-        Text('支付成功后，本机会在这里保留一份简单记录。卸载应用或清除本机数据后，记录可能消失。')
+          Text('赞助成功后，本机会在这里保留一份简单记录。卸载应用或清除本机数据后，记录可能消失。')
           .width('100%')
           .fontSize(11)
           .lineHeight(19)
@@ -633,11 +554,11 @@ struct SupportDeveloper {
           }
         })
         Column({ space: 3 }) {
-          Text('支持一刻封面')
+          Text('赞助一刻封面')
             .fontSize(24)
             .fontWeight(FontWeight.Bold)
             .fontColor($r('app.color.text_primary'))
-          Text('一次性支持 · 无需登录')
+          Text('自愿赞助 · 无需登录')
             .fontSize(11)
             .fontColor($r('app.color.text_secondary'))
         }

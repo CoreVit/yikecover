@@ -271,7 +271,7 @@ struct About {
                   .fontSize(18)
                   .fontWeight(FontWeight.Bold)
                   .fontColor($r('app.color.text_primary'))
-                Text('如果一刻封面对你有帮助，可以请独立开发者喝杯饮料。')
+                Text('如果一刻封面对你有帮助，也欢迎支持个人开发者吃点儿好的。')
                   .fontSize(12)
                   .fontColor($r('app.color.text_secondary'))
                   .lineHeight(19)
@@ -279,7 +279,7 @@ struct About {
               .alignItems(HorizontalAlign.Start)
               .layoutWeight(1)
 
-              Text('¥6')
+              Text('¥7')
                 .fontSize(22)
                 .fontWeight(FontWeight.Bold)
                 .fontColor($r('app.color.brand_primary'))
@@ -288,12 +288,12 @@ struct About {
             .width('100%')
             .alignItems(VerticalAlign.Top)
 
-            Text('所有功能继续免费使用，支持完全自愿且无需登录。')
+            Text('所有功能永久免费，也不会新增广告；赞助不会解锁额外功能。')
               .width('100%')
               .fontSize(10)
               .fontColor($r('app.color.text_muted'))
 
-            Button('小小支持', { type: ButtonType.Normal })
+            Button('前往赞助', { type: ButtonType.Normal })
               .width('100%')
               .height(44)
               .fontSize(14)
