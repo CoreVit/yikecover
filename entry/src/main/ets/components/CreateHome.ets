@@ -413,7 +413,7 @@ export struct CreateHome {
       .alignSelf(ItemAlign.Center)
       .padding({ left: 18, right: 18, top: 18 })
     }
-    .align(Alignment.TopStart)
+    .align(Alignment.Top)
     .width('100%')
     .height('100%')
     .scrollBar(BarState.Off)
