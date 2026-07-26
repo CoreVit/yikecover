@@ -981,22 +981,38 @@ struct CoverEditor {
     Column() {
       this.header()
       Scroll() {
-        Column({ space: 14 }) {
-          this.preview()
-          if (this.definition().capabilities.requiresPhoto) {
-            this.photoSection()
+        GridRow({
+          columns: 12,
+          gutter: { x: 16, y: 14 },
+          breakpoints: {
+            value: ['320vp', '600vp', '840vp'],
+            reference: BreakpointsReference.ComponentSize
           }
-          this.contentSection()
-          if (this.definition().capabilities.supportsEpisode ||
-            this.definition().capabilities.supportsVersion ||
-            this.definition().capabilities.supportsGrayscale ||
-            this.definition().capabilities.supportsTheme) {
-            this.optionsSection()
+        }) {
+          GridCol({ span: { xs: 12, sm: 12, md: 12, lg: 5 } }) {
+            this.preview()
           }
-          this.metadataSection()
-          this.exportSection()
+          GridCol({ span: { xs: 12, sm: 12, md: 12, lg: 7 } }) {
+            Column({ space: 14 }) {
+              if (this.definition().capabilities.requiresPhoto) {
+                this.photoSection()
+              }
+              this.contentSection()
+              if (this.definition().capabilities.supportsEpisode ||
+                this.definition().capabilities.supportsVersion ||
+                this.definition().capabilities.supportsGrayscale ||
+                this.definition().capabilities.supportsTheme) {
+                this.optionsSection()
+              }
+              this.metadataSection()
+              this.exportSection()
+            }
+            .width('100%')
+          }
         }
         .width('100%')
+        .constraintSize({ maxWidth: 1180 })
+        .alignSelf(ItemAlign.Center)
         .padding({ left: 14, right: 14, bottom: 28 })
       }
       .align(Alignment.TopStart)

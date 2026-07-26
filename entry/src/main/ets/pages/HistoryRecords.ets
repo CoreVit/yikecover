@@ -249,6 +249,9 @@ struct HistoryRecords {
           .backgroundColor($r('app.color.card_background'))
           .borderRadius(16)
         }
+        .width('100%')
+        .constraintSize({ maxWidth: 960 })
+        .alignSelf(ItemAlign.Center)
         .padding({ left: 16, right: 16, top: 16, bottom: 28 })
       }
       .align(Alignment.TopStart)

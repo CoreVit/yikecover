@@ -45,7 +45,7 @@ struct TemplateLibrary {
       .alignItems(HorizontalAlign.Start)
       .width('100%')
     }
-    .layoutWeight(1)
+    .width('100%')
     .padding(10)
     .backgroundColor($r('app.color.card_background'))
     .borderRadius(16)
@@ -98,21 +98,25 @@ struct TemplateLibrary {
             .fontColor($r('app.color.text_secondary'))
             .padding({ top: 4, bottom: 4 })
 
-          ForEach([0, 2, 4, 6, 8], (start: number) => {
-            Row({ space: 12 }) {
-              this.templateCard(TEMPLATE_DEFINITIONS[start])
-              if (start + 1 < TEMPLATE_DEFINITIONS.length) {
-                this.templateCard(TEMPLATE_DEFINITIONS[start + 1])
-              } else {
-                Column()
-                  .layoutWeight(1)
-              }
+          GridRow({
+            columns: 12,
+            gutter: { x: 12, y: 12 },
+            breakpoints: {
+              value: ['320vp', '600vp', '840vp'],
+              reference: BreakpointsReference.ComponentSize
             }
-            .width('100%')
-            .alignItems(VerticalAlign.Top)
-          })
+          }) {
+            ForEach(TEMPLATE_DEFINITIONS, (item: TemplateDefinition) => {
+              GridCol({ span: { xs: 6, sm: 6, md: 4, lg: 4 } }) {
+                this.templateCard(item)
+              }
+            }, (item: TemplateDefinition) => item.id.toString())
+          }
+          .width('100%')
         }
         .width('100%')
+        .constraintSize({ maxWidth: 1120 })
+        .alignSelf(ItemAlign.Center)
         .padding({ left: 16, right: 16, top: 14, bottom: 28 })
       }
       .align(Alignment.TopStart)

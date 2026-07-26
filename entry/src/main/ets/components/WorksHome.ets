@@ -336,6 +336,8 @@ export struct WorksHome {
         .margin({ bottom: 28 })
       }
       .width('100%')
+      .constraintSize({ maxWidth: 960 })
+      .alignSelf(ItemAlign.Center)
       .padding({ left: 18, right: 18, top: 18 })
     }
     .align(Alignment.TopStart)

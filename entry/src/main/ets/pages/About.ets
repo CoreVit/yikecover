@@ -336,6 +336,8 @@ struct About {
             .margin({ top: 28, bottom: 30 })
         }
         .width('100%')
+        .constraintSize({ maxWidth: 960 })
+        .alignSelf(ItemAlign.Center)
         .padding({ left: 18, right: 18, top: 10 })
       }
       .align(Alignment.TopStart)

@@ -14,6 +14,8 @@ const HERO_SWIPE_DISTANCE: number = 150;
 const HERO_MAX_DRAG: number = 190;
 const HERO_SWITCH_THRESHOLD: number = 54;
 const HERO_VELOCITY_THRESHOLD: number = 680;
+const HERO_PREVIEW_MAX_WIDTH: number = 360;
+const PAGE_CONTENT_MAX_WIDTH: number = 1000;
 
 const TEMPLATE_SHORTCUTS: TemplateShortcut[] = [
   {
@@ -158,6 +160,7 @@ export struct CreateHome {
       })
     }
     .width('82%')
+    .constraintSize({ maxWidth: HERO_PREVIEW_MAX_WIDTH })
     .translate({
       x: this.heroTranslateX(index),
       y: this.heroTranslateY(index)
@@ -254,7 +257,7 @@ export struct CreateHome {
             }, (item: TemplateDefinition) => item.id.toString())
           }
           .width('100%')
-          .height(190)
+          .height(205)
           .clip(false)
           .gesture(
             PanGesture({
@@ -421,6 +424,8 @@ export struct CreateHome {
         .margin({ top: 28, bottom: 28 })
       }
       .width('100%')
+      .constraintSize({ maxWidth: PAGE_CONTENT_MAX_WIDTH })
+      .alignSelf(ItemAlign.Center)
       .padding({ left: 18, right: 18, top: 18 })
     }
     .align(Alignment.TopStart)

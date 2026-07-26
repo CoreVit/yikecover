@@ -149,6 +149,56 @@ struct ExportSettingsPage {
     })
   }
 
+  @Builder
+  private resolutionCard() {
+    Column() {
+      Text('导出分辨率')
+        .width('100%')
+        .fontSize(17)
+        .fontWeight(FontWeight.Bold)
+        .fontColor($r('app.color.text_primary'))
+        .margin({ bottom: 5 })
+      this.choice('720P · 1280 × 720', '体积较小，适合快速分享',
+        true, 'resolution', '720P')
+      Divider().color($r('app.color.divider'))
+      this.choice('1080P · 1920 × 1080', '推荐 · 与设计坐标一一对应',
+        true, 'resolution', '1080P')
+      Divider().color($r('app.color.divider'))
+      this.choice('4K · 3840 × 2160', '更清晰，对设备内存要求较高',
+        true, 'resolution', '4K')
+    }
+    .width('100%')
+    .padding(16)
+    .backgroundColor($r('app.color.card_background'))
+    .borderRadius(16)
+  }
+
+  @Builder
+  private formatCard() {
+    Column() {
+      Text('图片格式')
+        .width('100%')
+        .fontSize(17)
+        .fontWeight(FontWeight.Bold)
+        .fontColor($r('app.color.text_primary'))
+        .margin({ bottom: 5 })
+      this.choice('PNG', '无损，文字边缘最清晰，文件较大',
+        true, 'format', 'PNG')
+      Divider().color($r('app.color.divider'))
+      this.choice('JPEG', '文件较小，不支持透明',
+        true, 'format', 'JPEG')
+      Divider().color($r('app.color.divider'))
+      this.choice('WebP', this.probing ? '正在进行设备编码测试…' :
+        (this.webpSupported ? '压缩效率较高，部分目标兼容性有限' : '当前设备暂不支持 · 待开发'),
+        this.webpSupported && !this.probing,
+        'format', 'WebP')
+    }
+    .width('100%')
+    .padding(16)
+    .backgroundColor($r('app.color.card_background'))
+    .borderRadius(16)
+  }
+
   build() {
     Column() {
       Row() {
@@ -175,49 +225,22 @@ struct ExportSettingsPage {
 
       Scroll() {
         Column({ space: 16 }) {
-          Column() {
-            Text('导出分辨率')
-              .width('100%')
-              .fontSize(17)
-              .fontWeight(FontWeight.Bold)
-              .fontColor($r('app.color.text_primary'))
-              .margin({ bottom: 5 })
-            this.choice('720P · 1280 × 720', '体积较小，适合快速分享',
-              true, 'resolution', '720P')
-            Divider().color($r('app.color.divider'))
-            this.choice('1080P · 1920 × 1080', '推荐 · 与设计坐标一一对应',
-              true, 'resolution', '1080P')
-            Divider().color($r('app.color.divider'))
-            this.choice('4K · 3840 × 2160', '更清晰，对设备内存要求较高',
-              true, 'resolution', '4K')
+          GridRow({
+            columns: 12,
+            gutter: { x: 16, y: 16 },
+            breakpoints: {
+              value: ['320vp', '600vp', '840vp'],
+              reference: BreakpointsReference.ComponentSize
+            }
+          }) {
+            GridCol({ span: { xs: 12, sm: 12, md: 6, lg: 6 } }) {
+              this.resolutionCard()
+            }
+            GridCol({ span: { xs: 12, sm: 12, md: 6, lg: 6 } }) {
+              this.formatCard()
+            }
           }
           .width('100%')
-          .padding(16)
-          .backgroundColor($r('app.color.card_background'))
-          .borderRadius(16)
-
-          Column() {
-            Text('图片格式')
-              .width('100%')
-              .fontSize(17)
-              .fontWeight(FontWeight.Bold)
-              .fontColor($r('app.color.text_primary'))
-              .margin({ bottom: 5 })
-            this.choice('PNG', '无损，文字边缘最清晰，文件较大',
-              true, 'format', 'PNG')
-            Divider().color($r('app.color.divider'))
-            this.choice('JPEG', '文件较小，不支持透明',
-              true, 'format', 'JPEG')
-            Divider().color($r('app.color.divider'))
-            this.choice('WebP', this.probing ? '正在进行设备编码测试…' :
-              (this.webpSupported ? '压缩效率较高，部分目标兼容性有限' : '当前设备暂不支持 · 待开发'),
-              this.webpSupported && !this.probing,
-              'format', 'WebP')
-          }
-          .width('100%')
-          .padding(16)
-          .backgroundColor($r('app.color.card_background'))
-          .borderRadius(16)
 
           if (this.format !== 'PNG') {
             Column({ space: 10 }) {
@@ -267,6 +290,9 @@ struct ExportSettingsPage {
           .width('100%')
           .padding({ left: 4, bottom: 22 })
         }
+        .width('100%')
+        .constraintSize({ maxWidth: 1040 })
+        .alignSelf(ItemAlign.Center)
         .padding({ left: 16, right: 16, top: 16 })
       }
       .align(Alignment.TopStart)

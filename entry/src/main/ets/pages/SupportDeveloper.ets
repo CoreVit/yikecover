@@ -663,6 +663,8 @@ struct SupportDeveloper {
           }
         }
         .width('100%')
+        .constraintSize({ maxWidth: 960 })
+        .alignSelf(ItemAlign.Center)
         .padding({ left: 16, right: 16, top: 18 })
       }
       .align(Alignment.TopStart)
