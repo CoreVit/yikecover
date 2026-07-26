@@ -18,6 +18,9 @@ import {
 const BACKGROUND: string = '#17334A';
 const BACKGROUND_DARK: string = '#0C263B';
 const GOLD: string = '#E5CE83';
+const VERSION_LABEL_GAP: number = 28;
+const VERSION_LABEL_FONT_SIZE: number = 60;
+const VERSION_LABEL_MIN_FONT_SIZE: number = 42;
 
 function drawGoldPodcastBackground(ctx: CanvasRenderer): void {
   const background: CanvasGradient =
@@ -71,13 +74,20 @@ function drawGoldPodcastHeader(ctx: CanvasRenderer,
   setCanvasFont(ctx, brandSize, { bold: true, italic: true });
   ctx.textBaseline = 'middle';
   ctx.fillText(draft.brand, 58, BRAND_LABEL_CENTER_Y);
-  ctx.textBaseline = 'alphabetic';
 
   if (draft.versionLabel.length > 0) {
+    const brandWidth: number =
+      Math.max(1, ctx.measureText(draft.brand).width);
+    const versionLeft: number = 58 + brandWidth + VERSION_LABEL_GAP;
     ctx.fillStyle = GOLD;
-    setCanvasFont(ctx, 56, { bold: true, italic: true });
-    ctx.fillText(draft.versionLabel, 520, 88);
+    const versionSize: number = fitSingleText(ctx, draft.versionLabel,
+      1640 - versionLeft - 72, VERSION_LABEL_FONT_SIZE,
+      VERSION_LABEL_MIN_FONT_SIZE, { bold: true, italic: true });
+    setCanvasFont(ctx, versionSize, { bold: true, italic: true });
+    ctx.fillText(draft.versionLabel, versionLeft,
+      BRAND_LABEL_CENTER_Y);
   }
+  ctx.textBaseline = 'alphabetic';
 
   ctx.fillStyle = GOLD;
   ctx.beginPath();

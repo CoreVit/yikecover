@@ -22,6 +22,10 @@ import {
   setCanvasFont
 } from './RenderSupport';
 
+const VERSION_LABEL_GAP: number = 28;
+const VERSION_LABEL_FONT_SIZE: number = 60;
+const VERSION_LABEL_MIN_FONT_SIZE: number = 42;
+
 function goldBand(ctx: CanvasRenderer): CanvasGradient {
   const band: CanvasGradient = ctx.createLinearGradient(0, 0, 900, 0);
   band.addColorStop(0, '#FFF0A1');
@@ -49,11 +53,16 @@ function drawGoldHeader(ctx: CanvasRenderer, draft: CoverDraft): void {
   ctx.fillText(draft.brand, 42, BRAND_LABEL_CENTER_Y);
 
   if (draft.versionLabel.length > 0) {
+    const brandWidth: number =
+      Math.max(1, ctx.measureText(draft.brand).width);
+    const versionLeft: number = 42 + brandWidth + VERSION_LABEL_GAP;
     ctx.fillStyle = '#F4D572';
     const versionSize: number = fitSingleText(ctx, draft.versionLabel,
-      600, 54, 36, { bold: true, italic: true });
+      1640 - versionLeft - 72, VERSION_LABEL_FONT_SIZE,
+      VERSION_LABEL_MIN_FONT_SIZE, { bold: true, italic: true });
     setCanvasFont(ctx, versionSize, { bold: true, italic: true });
-    ctx.fillText(draft.versionLabel, 800, 66);
+    ctx.fillText(draft.versionLabel, versionLeft,
+      BRAND_LABEL_CENTER_Y);
   }
   ctx.textBaseline = 'alphabetic';
 }
