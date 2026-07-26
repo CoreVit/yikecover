@@ -22,6 +22,9 @@ import {
 
 const INSET: number = 24;
 const RADIUS: number = 78;
+const VERSION_LABEL_GAP: number = 28;
+const VERSION_LABEL_FONT_SIZE: number = 60;
+const VERSION_LABEL_MIN_FONT_SIZE: number = 42;
 
 function memberMetalGradient(ctx: CanvasRenderer): CanvasGradient {
   const frame: CanvasGradient = ctx.createConicGradient(
@@ -114,17 +117,20 @@ function drawMemberHeader(ctx: CanvasRenderer, draft: CoverDraft): void {
   ctx.textAlign = 'left';
   ctx.textBaseline = 'middle';
   ctx.fillText(draft.brand, 58, BRAND_LABEL_CENTER_Y);
-  ctx.textBaseline = 'alphabetic';
 
   if (draft.versionLabel.length > 0) {
+    const versionLeft: number = width + VERSION_LABEL_GAP;
     const versionSize: number = fitSingleText(ctx, draft.versionLabel,
-      DESIGN_WIDTH - width - 100, 48, 32, { bold: true, italic: true });
+      DESIGN_WIDTH - versionLeft - 72, VERSION_LABEL_FONT_SIZE,
+      VERSION_LABEL_MIN_FONT_SIZE, { bold: true, italic: true });
     setCanvasFont(ctx, versionSize, { bold: true, italic: true });
     const versionWidth: number =
       Math.max(1, ctx.measureText(draft.versionLabel).width);
-    drawGradientText(ctx, draft.versionLabel, width + 18, 82,
+    drawGradientText(ctx, draft.versionLabel, versionLeft,
+      BRAND_LABEL_CENTER_Y,
       versionWidth, '#FEF3A4', '#DFA83D');
   }
+  ctx.textBaseline = 'alphabetic';
 }
 
 function drawMemberTitles(ctx: CanvasRenderer, draft: CoverDraft): boolean {
