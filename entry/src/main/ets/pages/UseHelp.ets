@@ -133,7 +133,6 @@ struct UseHelp {
         .margin({ top: 8 })
     }
     .width('100%')
-    .height('100%')
     .alignItems(HorizontalAlign.Start)
     .padding(17)
     .backgroundColor($r('app.color.card_background'))
@@ -155,7 +154,6 @@ struct UseHelp {
         .fontColor($r('app.color.text_secondary'))
     }
     .width('100%')
-    .height('100%')
     .alignItems(HorizontalAlign.Start)
     .padding(16)
     .backgroundColor($r('app.color.card_background'))
