@@ -99,28 +99,63 @@ export class LocalStore {
     await store.flush();
   }
 
-  static async probeWebpSupport(): Promise<boolean> {
+  private static async tryEncodeWebp(pixelMap: PixelMap): Promise<boolean> {
     try {
+      const packer: image.ImagePacker = image.createImagePacker();
+      const encoded: ArrayBuffer = await packer.packToData(pixelMap, {
+        format: 'image/webp',
+        quality: 80
+      });
+      return encoded.byteLength > 0;
+    } catch (_error) {
+      return false;
+    }
+  }
+
+  private static waitForWebpProbeTimeout(fallback: boolean): Promise<boolean> {
+    return new Promise<boolean>((resolve: (value: boolean) => void): void => {
+      setTimeout((): void => {
+        resolve(fallback);
+      }, 5000);
+    });
+  }
+
+  static async probeWebpSupport(): Promise<boolean> {
+    let store: preferences.Preferences | undefined = undefined;
+    try {
+      store = await preferences.getPreferences(context(), SETTINGS_STORE);
+      const cachedSupported: boolean =
+        store.getSync('webpSupported', false) as boolean;
+      const probeCompleted: boolean =
+        store.getSync('webpProbeCompleted', cachedSupported) as boolean;
+      if (probeCompleted) {
+        return cachedSupported;
+      }
+
       const canvas: OffscreenCanvas = new OffscreenCanvas(2, 2,
         LengthMetricsUnit.PX);
       const canvasContext: OffscreenCanvasRenderingContext2D = canvas.getContext('2d');
       canvasContext.fillStyle = '#FF4F3F';
       canvasContext.fillRect(0, 0, 2, 2);
       const pixelMap: PixelMap = canvasContext.getPixelMap(0, 0, 2, 2);
-      const packer: image.ImagePacker = image.createImagePacker();
-      const encoded: ArrayBuffer = await packer.packToData(pixelMap, {
-        format: 'image/webp',
-        quality: 80
-      });
-      const supported: boolean = encoded.byteLength > 0;
-      const store: preferences.Preferences = await preferences.getPreferences(context(), SETTINGS_STORE);
+      const supported: boolean = await Promise.race([
+        LocalStore.tryEncodeWebp(pixelMap),
+        LocalStore.waitForWebpProbeTimeout(cachedSupported)
+      ]);
+
       store.putSync('webpSupported', supported);
+      store.putSync('webpProbeCompleted', true);
       await store.flush();
       return supported;
-    } catch (error) {
-      const store: preferences.Preferences = await preferences.getPreferences(context(), SETTINGS_STORE);
-      store.putSync('webpSupported', false);
-      await store.flush();
+    } catch (_error) {
+      if (store !== undefined) {
+        try {
+          store.putSync('webpSupported', false);
+          store.putSync('webpProbeCompleted', true);
+          await store.flush();
+        } catch (_storeError) {
+        }
+      }
       return false;
     }
   }

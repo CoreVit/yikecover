@@ -29,17 +29,20 @@ struct ExportSettingsPage {
     this.resolution = settings.resolution;
     this.format = settings.format;
     this.quality = settings.quality;
+    this.webpSupported = settings.webpSupported;
     this.settingsReady = true;
     if (!this.probing) {
-      this.webpSupported = settings.webpSupported;
       return;
     }
-    this.webpSupported = await LocalStore.probeWebpSupport();
+    try {
+      this.webpSupported = await LocalStore.probeWebpSupport();
+    } finally {
+      this.probing = false;
+    }
     if (!this.webpSupported && this.format === 'WebP') {
       this.format = 'PNG';
       await this.queueSave();
     }
-    this.probing = false;
   }
 
   private buildSettings(): ExportSettings {
@@ -188,7 +191,7 @@ struct ExportSettingsPage {
       this.choice('JPEG', '文件较小，不支持透明',
         true, 'format', 'JPEG')
       Divider().color($r('app.color.divider'))
-      this.choice('WebP', this.probing ? '正在进行设备编码测试…' :
+      this.choice('WebP', this.probing ? '正在检查设备编码支持…' :
         (this.webpSupported ? '压缩效率较高，部分目标兼容性有限' : '当前设备暂不支持 · 待开发'),
         this.webpSupported && !this.probing,
         'format', 'WebP')
