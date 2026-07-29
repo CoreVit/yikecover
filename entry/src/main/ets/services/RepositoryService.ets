@@ -7,7 +7,8 @@ export class RepositoryService {
   static async open(context: common.UIAbilityContext): Promise<boolean> {
     try {
       await context.openLink(RepositoryService.URL, {
-        appLinkingOnly: false
+        appLinkingOnly: false,
+        hideFailureTipDialog: true
       });
       return true;
     } catch (error) {
