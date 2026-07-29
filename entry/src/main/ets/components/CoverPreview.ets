@@ -166,5 +166,8 @@ export struct CoverPreview {
         this.canvasReady = true;
         this.requestDraw();
       })
+      .onAreaChange(() => {
+        this.requestDraw();
+      })
   }
 }
