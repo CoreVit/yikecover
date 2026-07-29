@@ -15,8 +15,10 @@ const HERO_MAX_DRAG: number = 190;
 const HERO_SWITCH_THRESHOLD: number = 54;
 const HERO_VELOCITY_THRESHOLD: number = 680;
 const HERO_PREVIEW_MAX_WIDTH: number = 360;
-const HERO_STAGE_LANDSCAPE_HEIGHT: number = 205;
-const HERO_STAGE_PORTRAIT_HEIGHT: number = 238;
+const HERO_PREVIEW_WIDTH_RATIO: number = 0.82;
+const HERO_STAGE_EXTRA_HEIGHT: number = 18;
+const PAGE_HORIZONTAL_PADDING: number = 36;
+const HERO_CARD_HORIZONTAL_PADDING: number = 36;
 const PAGE_CONTENT_MAX_WIDTH: number = 1000;
 
 const TEMPLATE_SHORTCUTS: TemplateShortcut[] = [
@@ -50,8 +52,13 @@ export struct CreateHome {
   }
 
   private heroStageHeight(): number {
-    return this.pageHeight > this.pageWidth ?
-      HERO_STAGE_PORTRAIT_HEIGHT : HERO_STAGE_LANDSCAPE_HEIGHT;
+    const contentWidth: number =
+      Math.min(this.pageWidth, PAGE_CONTENT_MAX_WIDTH) - PAGE_HORIZONTAL_PADDING;
+    const heroAvailableWidth: number =
+      Math.max(0, contentWidth - HERO_CARD_HORIZONTAL_PADDING);
+    const previewWidth: number =
+      Math.min(HERO_PREVIEW_MAX_WIDTH, heroAvailableWidth * HERO_PREVIEW_WIDTH_RATIO);
+    return Math.ceil(previewWidth * 9 / 16 + HERO_STAGE_EXTRA_HEIGHT);
   }
 
   private previewJson(templateId: number): string {
