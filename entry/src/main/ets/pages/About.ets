@@ -1,12 +1,27 @@
-import { common } from '@kit.AbilityKit';
+import { bundleManager, common } from '@kit.AbilityKit';
 import { BusinessError } from '@kit.BasicServicesKit';
 import { SystemBackButton } from '../components/SystemBackButton';
 
 const REPOSITORY_URL: string = 'https://github.com/CoreVit/yikecover';
 
+function currentVersionName(): string {
+  try {
+    const bundleInfo: bundleManager.BundleInfo =
+      bundleManager.getBundleInfoForSelfSync(
+        bundleManager.BundleFlag.GET_BUNDLE_INFO_DEFAULT);
+    if (bundleInfo.versionName.length > 0) {
+      return bundleInfo.versionName;
+    }
+  } catch (error) {
+  }
+  return '未知';
+}
+
 @Entry
 @Component
 struct About {
+  private readonly versionName: string = currentVersionName();
+
   private goBack(): void {
     this.getUIContext().getRouter().back();
   }
@@ -319,7 +334,7 @@ struct About {
             .margin({ top: 28, bottom: 12 })
 
           Column() {
-            this.detailRow('版本', '1.0.0', true)
+            this.detailRow('版本', this.versionName, true)
             this.detailRow('开发者', 'CoreVit', true)
             this.detailRow('运行平台', 'HarmonyOS', false)
           }
