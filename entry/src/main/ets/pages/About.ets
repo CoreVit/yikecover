@@ -1,4 +1,4 @@
-import { bundleManager, common } from '@kit.AbilityKit';
+import { bundleManager } from '@kit.AbilityKit';
 import { BusinessError } from '@kit.BasicServicesKit';
 import { SystemBackButton } from '../components/SystemBackButton';
 import { RepositoryService } from '../services/RepositoryService';
@@ -25,30 +25,23 @@ struct About {
     this.getUIContext().getRouter().back();
   }
 
-  private showOpenError(): void {
+  private showCopyError(): void {
     this.getUIContext().getPromptAction().openToast({
-      message: '暂时无法打开 GitHub'
+      message: '复制失败，请手动复制页面中的网址'
     }).catch((_error: BusinessError) => {
     });
   }
 
-  private openRepository(): void {
-    const context = this.getUIContext().getHostContext() as common.UIAbilityContext;
-    if (!context) {
-      this.showOpenError();
-      return;
-    }
-    RepositoryService.open(context)
-      .then((opened: boolean) => {
-        if (!opened) {
-          this.getUIContext().getPromptAction().openToast({
-            message: '无法直接跳转，地址已复制'
-          }).catch((_error: BusinessError) => {
-          });
-        }
+  private copyRepositoryUrl(): void {
+    RepositoryService.copyUrl()
+      .then(() => {
+        this.getUIContext().getPromptAction().openToast({
+          message: 'GitHub 地址已复制，请到浏览器粘贴打开'
+        }).catch((_error: BusinessError) => {
+        });
       })
       .catch((_error: Error) => {
-        this.showOpenError();
+        this.showCopyError();
       });
   }
 
@@ -238,7 +231,7 @@ struct About {
 
             Button({ type: ButtonType.Normal }) {
               Row({ space: 7 }) {
-                Text('查看 GitHub 源码')
+                Text('复制 GitHub 地址')
                   .fontSize(14)
                   .fontWeight(FontWeight.Bold)
                   .fontColor('#FFFFFF')
@@ -255,7 +248,7 @@ struct About {
               .borderRadius(12)
               .margin({ top: 18 })
               .onClick(() => {
-                this.openRepository();
+                this.copyRepositoryUrl();
               })
 
             Text('源码与使用说明以 GitHub 仓库中的最新内容为准。')

@@ -138,24 +138,17 @@ struct SupportDeveloper {
     }
   }
 
-  private openRepository(): void {
-    const context: common.UIAbilityContext =
-      this.getUIContext().getHostContext() as common.UIAbilityContext;
-    if (!context) {
-      return;
-    }
-    RepositoryService.open(context)
-      .then((opened: boolean) => {
-        if (!opened) {
-          this.getUIContext().getPromptAction().showToast({
-            message: '无法直接跳转，地址已复制',
-            duration: 2200
-          });
-        }
+  private copyRepositoryUrl(): void {
+    RepositoryService.copyUrl()
+      .then(() => {
+        this.getUIContext().getPromptAction().showToast({
+          message: 'GitHub 地址已复制，请到浏览器粘贴打开',
+          duration: 2200
+        });
       })
       .catch(() => {
         this.getUIContext().getPromptAction().showToast({
-          message: '暂时无法打开 GitHub',
+          message: '复制失败，请手动复制页面中的网址',
           duration: 1800
         });
       });
@@ -471,7 +464,7 @@ struct SupportDeveloper {
             .onClick(() => {
               this.getUIContext().getRouter().back();
             })
-          Button('查看 GitHub', { type: ButtonType.Normal })
+          Button('复制 GitHub 地址', { type: ButtonType.Normal })
             .layoutWeight(1)
             .height(46)
             .fontSize(14)
@@ -479,14 +472,14 @@ struct SupportDeveloper {
             .backgroundColor($r('app.color.source_soft'))
             .borderRadius(11)
             .onClick(() => {
-              this.openRepository();
+              this.copyRepositoryUrl();
             })
         }
         .width('100%')
         .margin({ top: 24 })
       } else {
         Button(this.resultStatus === SupportPaymentStatus.UNAVAILABLE ?
-          '查看 GitHub' : '返回支持页面', { type: ButtonType.Normal })
+          '复制 GitHub 地址' : '返回支持页面', { type: ButtonType.Normal })
           .width('100%')
           .height(46)
           .fontSize(14)
@@ -498,7 +491,7 @@ struct SupportDeveloper {
           .margin({ top: 24 })
           .onClick(() => {
             if (this.resultStatus === SupportPaymentStatus.UNAVAILABLE) {
-              this.openRepository();
+              this.copyRepositoryUrl();
             } else {
               this.resetResult();
             }
