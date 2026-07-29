@@ -215,6 +215,10 @@ export class LocalStore {
   static async saveSupportRecord(record: SupportRecord): Promise<void> {
     const store: preferences.Preferences = await preferences.getPreferences(context(), CONTENT_STORE);
     const records: SupportRecord[] = await LocalStore.loadSupportRecords();
+    if (records.some((item: SupportRecord) => item.id === record.id ||
+      (record.transactionId.length > 0 && item.transactionId === record.transactionId))) {
+      return;
+    }
     records.unshift(record);
     store.putSync('support_records', JSON.stringify(records.slice(0, 20)));
     await store.flush();

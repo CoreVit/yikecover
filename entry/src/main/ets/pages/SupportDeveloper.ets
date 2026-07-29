@@ -34,10 +34,43 @@ struct SupportDeveloper {
       LocalStore.initialize(hostContext);
     }
     this.loadRecords();
+    this.restorePendingPayments();
   }
 
   private async loadRecords(): Promise<void> {
     this.records = await LocalStore.loadSupportRecords();
+  }
+
+  private async restorePendingPayments(): Promise<void> {
+    const context: common.UIAbilityContext =
+      this.getUIContext().getHostContext() as common.UIAbilityContext;
+    if (!context) {
+      return;
+    }
+    const restored: SupportPaymentResult[] =
+      await SupportPaymentService.restorePendingPayments(context);
+    for (let index: number = 0; index < restored.length; index++) {
+      const result: SupportPaymentResult = restored[index];
+      if (result.status !== SupportPaymentStatus.SUCCESS ||
+        result.amount === undefined || result.amount <= 0) {
+        continue;
+      }
+      const record: SupportRecord = {
+        id: result.transactionId,
+        amount: result.amount,
+        tierName: this.tierName(),
+        paidAt: new Date().toLocaleString(),
+        transactionId: result.transactionId
+      };
+      await LocalStore.saveSupportRecord(record);
+    }
+    if (restored.length > 0) {
+      await this.loadRecords();
+      this.getUIContext().getPromptAction().showToast({
+        message: '已恢复未完成的支持记录',
+        duration: 2200
+      });
+    }
   }
 
   private amount(): number {

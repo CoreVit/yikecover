@@ -18,4 +18,5 @@ export interface SupportPaymentResult {
   status: SupportPaymentStatus;
   transactionId: string;
   message: string;
+  amount?: number;
 }
