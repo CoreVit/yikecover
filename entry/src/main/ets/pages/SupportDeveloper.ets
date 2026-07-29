@@ -2,6 +2,7 @@ import { common } from '@kit.AbilityKit';
 import { SystemBackButton } from '../components/SystemBackButton';
 import { SupportRecord, SupportPaymentResult, SupportPaymentStatus } from '../model/SupportModels';
 import { LocalStore } from '../services/LocalStore';
+import { RepositoryService } from '../services/RepositoryService';
 import { SupportPaymentService } from '../services/SupportPaymentService';
 
 interface SupportTier {
@@ -9,7 +10,6 @@ interface SupportTier {
   emphasized: boolean;
 }
 
-const REPOSITORY_URL: string = 'https://github.com/CoreVit/yikecover';
 const SUPPORT_TIERS: SupportTier[] = [
   { amount: 2, emphasized: false },
   { amount: 7, emphasized: true },
@@ -144,12 +144,21 @@ struct SupportDeveloper {
     if (!context) {
       return;
     }
-    context.openLink(REPOSITORY_URL).catch(() => {
-      this.getUIContext().getPromptAction().showToast({
-        message: '暂时无法打开 GitHub',
-        duration: 1800
+    RepositoryService.open(context)
+      .then((opened: boolean) => {
+        if (!opened) {
+          this.getUIContext().getPromptAction().showToast({
+            message: '无法直接跳转，地址已复制',
+            duration: 2200
+          });
+        }
+      })
+      .catch(() => {
+        this.getUIContext().getPromptAction().showToast({
+          message: '暂时无法打开 GitHub',
+          duration: 1800
+        });
       });
-    });
   }
 
   private resetResult(): void {

@@ -1,8 +1,7 @@
 import { bundleManager, common } from '@kit.AbilityKit';
 import { BusinessError } from '@kit.BasicServicesKit';
 import { SystemBackButton } from '../components/SystemBackButton';
-
-const REPOSITORY_URL: string = 'https://github.com/CoreVit/yikecover';
+import { RepositoryService } from '../services/RepositoryService';
 
 function currentVersionName(): string {
   try {
@@ -39,9 +38,18 @@ struct About {
       this.showOpenError();
       return;
     }
-    context.openLink(REPOSITORY_URL).catch((_error: BusinessError) => {
-      this.showOpenError();
-    });
+    RepositoryService.open(context)
+      .then((opened: boolean) => {
+        if (!opened) {
+          this.getUIContext().getPromptAction().openToast({
+            message: '无法直接跳转，地址已复制'
+          }).catch((_error: BusinessError) => {
+          });
+        }
+      })
+      .catch((_error: Error) => {
+        this.showOpenError();
+      });
   }
 
   private openSupport(): void {
