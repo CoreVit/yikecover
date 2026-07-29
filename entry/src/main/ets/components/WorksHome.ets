@@ -31,11 +31,6 @@ const SETTINGS: SettingEntry[] = [
     description: '模板、编辑与导出说明'
   },
   {
-    id: 4,
-    title: '支持个人开发者',
-    description: '一次性支持，无需登录'
-  },
-  {
     id: 5,
     title: '关于一刻封面',
     description: '开源信息、版本与项目地址'
@@ -181,10 +176,6 @@ export struct WorksHome {
       } else if (item.id === 3) {
         this.getUIContext().getRouter().pushUrl({
           url: 'pages/UseHelp'
-        });
-      } else if (item.id === 4) {
-        this.getUIContext().getRouter().pushUrl({
-          url: 'pages/SupportDeveloper'
         });
       } else if (item.id === 5) {
         this.getUIContext().getRouter().pushUrl({

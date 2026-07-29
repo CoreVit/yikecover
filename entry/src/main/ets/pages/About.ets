@@ -45,12 +45,6 @@ struct About {
       });
   }
 
-  private openSupport(): void {
-    this.getUIContext().getRouter().pushUrl({
-      url: 'pages/SupportDeveloper'
-    });
-  }
-
   @Builder
   private branchMark() {
     Stack() {
@@ -279,53 +273,6 @@ struct About {
             .padding(18)
             .backgroundColor($r('app.color.card_background'))
             .borderRadius(16)
-
-          Column({ space: 13 }) {
-            Row() {
-              Column({ space: 4 }) {
-                Text('喜欢这个项目？')
-                  .fontSize(18)
-                  .fontWeight(FontWeight.Bold)
-                  .fontColor($r('app.color.text_primary'))
-                Text('如果一刻封面对你有帮助，也欢迎支持个人开发者吃点儿好的。')
-                  .fontSize(12)
-                  .fontColor($r('app.color.text_secondary'))
-                  .lineHeight(19)
-              }
-              .alignItems(HorizontalAlign.Start)
-              .layoutWeight(1)
-
-              Text('¥7')
-                .fontSize(22)
-                .fontWeight(FontWeight.Bold)
-                .fontColor($r('app.color.brand_primary'))
-                .padding({ left: 12 })
-            }
-            .width('100%')
-            .alignItems(VerticalAlign.Top)
-
-            Text('所有功能永久免费，也不会新增广告；赞助不会解锁额外功能。')
-              .width('100%')
-              .fontSize(10)
-              .fontColor($r('app.color.text_muted'))
-
-            Button('前往赞助', { type: ButtonType.Normal })
-              .width('100%')
-              .height(44)
-              .fontSize(14)
-              .fontWeight(FontWeight.Bold)
-              .fontColor('#FFFFFF')
-              .backgroundColor($r('app.color.brand_primary'))
-              .borderRadius(11)
-              .onClick(() => {
-                this.openSupport();
-              })
-          }
-          .width('100%')
-          .padding(18)
-          .backgroundColor($r('app.color.card_background'))
-          .borderRadius(16)
-          .margin({ top: 14 })
 
           Text('项目信息')
             .width('100%')
