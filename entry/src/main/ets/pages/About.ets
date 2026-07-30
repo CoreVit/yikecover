@@ -283,7 +283,6 @@ struct About {
 
           Column() {
             this.detailRow('版本', this.versionName, true)
-            this.detailRow('开发者', 'CoreVit', true)
             this.detailRow('运行平台', 'HarmonyOS', false)
           }
           .width('100%')
@@ -291,7 +290,7 @@ struct About {
           .backgroundColor($r('app.color.card_background'))
           .borderRadius(16)
 
-          Text('© 2026 CoreVit')
+          Text('© 2026 一刻封面')
             .width('100%')
             .fontSize(11)
             .fontColor($r('app.color.text_muted'))

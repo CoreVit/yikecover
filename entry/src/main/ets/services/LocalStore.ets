@@ -9,8 +9,6 @@ import {
   createDefaultDraft,
   getTemplateDefinition
 } from '../model/CoverModels';
-import { SupportRecord } from '../model/SupportModels';
-
 const SETTINGS_STORE: string = 'yikecover_settings';
 const CONTENT_STORE: string = 'yikecover_content';
 
@@ -200,28 +198,6 @@ export class LocalStore {
     } catch (error) {
       return [];
     }
-  }
-
-  static async loadSupportRecords(): Promise<SupportRecord[]> {
-    const store: preferences.Preferences = await preferences.getPreferences(context(), CONTENT_STORE);
-    const raw: string = store.getSync('support_records', '[]') as string;
-    try {
-      return JSON.parse(raw) as SupportRecord[];
-    } catch (error) {
-      return [];
-    }
-  }
-
-  static async saveSupportRecord(record: SupportRecord): Promise<void> {
-    const store: preferences.Preferences = await preferences.getPreferences(context(), CONTENT_STORE);
-    const records: SupportRecord[] = await LocalStore.loadSupportRecords();
-    if (records.some((item: SupportRecord) => item.id === record.id ||
-      (record.transactionId.length > 0 && item.transactionId === record.transactionId))) {
-      return;
-    }
-    records.unshift(record);
-    store.putSync('support_records', JSON.stringify(records.slice(0, 20)));
-    await store.flush();
   }
 
   static async clearAllLocalData(): Promise<void> {

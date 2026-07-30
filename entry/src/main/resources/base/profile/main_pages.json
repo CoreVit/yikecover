@@ -6,7 +6,6 @@
     "pages/CoverEditor",
     "pages/ExportSettings",
     "pages/HistoryRecords",
-    "pages/UseHelp",
-    "pages/SupportDeveloper"
+    "pages/UseHelp"
   ]
 }
