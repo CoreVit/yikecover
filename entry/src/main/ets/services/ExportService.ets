@@ -21,6 +21,39 @@ interface ExportFormat {
 }
 
 export class ExportService {
+  private static delay(milliseconds: number): Promise<void> {
+    return new Promise<void>((resolve: () => void) => {
+      setTimeout(resolve, milliseconds);
+    });
+  }
+
+  private static async waitForSavedAsset(assetUri: string): Promise<number> {
+    const maxAttempts: number = 10;
+    for (let attempt: number = 1; attempt <= maxAttempts; attempt += 1) {
+      let assetFile: fileIo.File | undefined = undefined;
+      try {
+        assetFile = fileIo.openSync(assetUri, fileIo.OpenMode.READ_ONLY);
+        const savedSize: number = fileIo.statSync(assetFile.fd).size;
+        if (savedSize > 0) {
+          return savedSize;
+        }
+      } catch (error) {
+        hilog.warn(SAVE_LOG_DOMAIN, SAVE_LOG_TAG,
+          'VERIFY_WAIT attempt=%{public}d reason=%{public}s',
+          attempt, ExportService.errorDetail(error));
+      } finally {
+        if (assetFile !== undefined) {
+          try {
+            fileIo.closeSync(assetFile);
+          } catch (closeError) {
+          }
+        }
+      }
+      await ExportService.delay(300);
+    }
+    throw new Error('系统相册未完成图片写入');
+  }
+
   private static exportFormat(format: string): ExportFormat {
     if (format === 'JPEG') {
       return { mime: 'image/jpeg', extension: 'jpg' };
@@ -158,7 +191,7 @@ export class ExportService {
         throw new Error('图片编码结果为空');
       }
       ExportService.validateEncodedBuffer(buffer, settings.format);
-      path = `${appContext.cacheDir}/一刻封面-${Date.now()}.${extension}`;
+      path = `${appContext.cacheDir}/yikecover-${Date.now()}.${extension}`;
       outputFile = fileIo.openSync(path,
         fileIo.OpenMode.CREATE | fileIo.OpenMode.WRITE_ONLY |
         fileIo.OpenMode.TRUNC);
@@ -209,25 +242,28 @@ export class ExportService {
       onReadyToSave();
       const helper: photoAccessHelper.PhotoAccessHelper =
         photoAccessHelper.getPhotoAccessHelper(appContext);
-      const creationSetting: photoAccessHelper.CreationSetting = {
-        title: `一刻封面-${Date.now()}`,
+      const creationConfig: photoAccessHelper.PhotoCreationConfig = {
+        title: `YikeCover-${Date.now()}`,
         fileNameExtension: extension,
         photoType: photoAccessHelper.PhotoType.IMAGE
       };
-      // Atomic services use the system creation dialog for one-time,
-      // user-authorized media-library writes.
+      const sourceUri: string = fileUri.getUriFromPath(path);
+      // Use the API 12 save dialog instead of the API 23 Ex dialog. The older
+      // API is the compatibility path for atomic services and avoids a Photos
+      // process crash observed on API 23 devices.
       hilog.info(SAVE_LOG_DOMAIN, SAVE_LOG_TAG, 'DIALOG_OPEN');
-      const assetUri: string = await helper.showSingleAssetCreationDialogEx(
-        fileUri.getUriFromPath(path), creationSetting, true);
-      if (assetUri.length === 0) {
+      const assetUris: Array<string> = await helper.showAssetsCreationDialog(
+        [sourceUri], [creationConfig]);
+      if (assetUris.length !== 1 || assetUris[0].length === 0) {
         throw new Error('系统未返回相册文件');
       }
       hilog.info(SAVE_LOG_DOMAIN, SAVE_LOG_TAG, 'DIALOG_AUTHORIZED');
 
-      // The system dialog saves srcFileUri itself. Its return value identifies
-      // the saved asset; it is not a destination that the app should write.
-      // Some devices finish importing after this promise resolves, so keep the
-      // cache source available instead of deleting it immediately.
+      const assetUri: string = assetUris[0];
+      const savedSize: number =
+        await ExportService.waitForSavedAsset(assetUri);
+      hilog.info(SAVE_LOG_DOMAIN, SAVE_LOG_TAG,
+        'VERIFY_DONE bytes=%{public}d', savedSize);
       handedToSystem = true;
       hilog.info(SAVE_LOG_DOMAIN, SAVE_LOG_TAG, 'SAVE_DONE');
       return assetUri;
