@@ -133,6 +133,7 @@ export class ExportService {
     const extension: string = exportFormat.extension;
     const mime: string = exportFormat.mime;
     let generated: boolean = false;
+    let handedToSystem: boolean = false;
     let generatedSize: number = 0;
 
     try {
@@ -223,21 +224,11 @@ export class ExportService {
       }
       hilog.info(SAVE_LOG_DOMAIN, SAVE_LOG_TAG, 'DIALOG_AUTHORIZED');
 
-      // The dialog creates and authorizes a media-library destination URI.
-      // Copy to that URI directly: API 23 devices can reject fileIo.open() for
-      // this URI even though the one-time system authorization is valid.
-      let sourceFile: fileIo.File | undefined = undefined;
-      try {
-        sourceFile = await fileIo.open(path, fileIo.OpenMode.READ_ONLY);
-        hilog.info(SAVE_LOG_DOMAIN, SAVE_LOG_TAG, 'COPY_START');
-        await fileIo.copyFile(sourceFile.fd, assetUri);
-        hilog.info(SAVE_LOG_DOMAIN, SAVE_LOG_TAG, 'COPY_DONE');
-      } finally {
-        if (sourceFile !== undefined) {
-          fileIo.closeSync(sourceFile);
-        }
-      }
-
+      // The system dialog saves srcFileUri itself. Its return value identifies
+      // the saved asset; it is not a destination that the app should write.
+      // Some devices finish importing after this promise resolves, so keep the
+      // cache source available instead of deleting it immediately.
+      handedToSystem = true;
       hilog.info(SAVE_LOG_DOMAIN, SAVE_LOG_TAG, 'SAVE_DONE');
       return assetUri;
     } catch (error) {
@@ -245,7 +236,7 @@ export class ExportService {
         'SAVE_FAILED reason=%{public}s', ExportService.errorDetail(error));
       throw new Error(`相册保存未完成：${ExportService.errorDetail(error)}`);
     } finally {
-      if (path.length > 0) {
+      if (!handedToSystem && path.length > 0) {
         try {
           fileIo.unlinkSync(path);
         } catch (unlinkError) {
