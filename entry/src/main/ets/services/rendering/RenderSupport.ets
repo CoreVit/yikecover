@@ -266,21 +266,19 @@ export function drawCoverPhoto(ctx: CanvasRenderer,
   if (bitmap === undefined || bitmap.width <= 0 || bitmap.height <= 0) {
     drawNeutralPhoto(ctx);
   } else {
-    const targetRatio: number = DESIGN_WIDTH / DESIGN_HEIGHT;
-    const sourceRatio: number = bitmap.width / bitmap.height;
-    let sx: number = 0;
-    let sy: number = 0;
-    let sw: number = bitmap.width;
-    let sh: number = bitmap.height;
-    if (sourceRatio > targetRatio) {
-      sw = bitmap.height * targetRatio;
-      sx = (bitmap.width - sw) / 2;
-    } else {
-      sh = bitmap.width / targetRatio;
-      sy = (bitmap.height - sh) / 2;
-    }
-    ctx.drawImage(bitmap, sx, sy, sw, sh,
-      0, 0, DESIGN_WIDTH, DESIGN_HEIGHT);
+    const scale: number = Math.max(
+      DESIGN_WIDTH / bitmap.width,
+      DESIGN_HEIGHT / bitmap.height
+    );
+    const drawWidth: number = bitmap.width * scale;
+    const drawHeight: number = bitmap.height * scale;
+    const drawX: number = (DESIGN_WIDTH - drawWidth) / 2;
+    const drawY: number = (DESIGN_HEIGHT - drawHeight) / 2;
+
+    // Some HarmonyOS 6.1 devices ignore the source offset of the nine-argument
+    // drawImage overload and crop from the top-left. Draw the entire scaled
+    // image with a centered negative offset instead; the canvas clips overflow.
+    ctx.drawImage(bitmap, drawX, drawY, drawWidth, drawHeight);
   }
   ctx.restore();
 }

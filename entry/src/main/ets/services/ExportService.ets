@@ -209,9 +209,26 @@ export class ExportService {
       if (assetUri.length === 0) {
         throw new Error('系统未返回相册文件');
       }
-      // The system dialog copies the source file into the media library.
-      // Its returned URI identifies the completed asset; it is not a regular
-      // writable file URI and must not be truncated or written again.
+
+      // The dialog only creates and authorizes the destination asset. Copy the
+      // cached image after confirmation, and report success only after this
+      // operation completes. HarmonyOS 6.1 rejects TRUNC for the media URI, so
+      // open it with WRITE_ONLY exactly as required by PhotoAccessHelper.
+      let sourceFile: fileIo.File | undefined = undefined;
+      let targetFile: fileIo.File | undefined = undefined;
+      try {
+        sourceFile = await fileIo.open(path, fileIo.OpenMode.READ_ONLY);
+        targetFile = await fileIo.open(assetUri, fileIo.OpenMode.WRITE_ONLY);
+        await fileIo.copyFile(sourceFile.fd, targetFile.fd);
+      } finally {
+        if (sourceFile !== undefined) {
+          fileIo.closeSync(sourceFile);
+        }
+        if (targetFile !== undefined) {
+          fileIo.closeSync(targetFile);
+        }
+      }
+
       return assetUri;
     } catch (error) {
       throw new Error(`相册保存未完成：${ExportService.errorDetail(error)}`);
