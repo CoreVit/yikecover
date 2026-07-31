@@ -210,32 +210,16 @@ export class ExportService {
         throw new Error('系统未返回相册文件');
       }
 
-      // The dialog only creates and authorizes the destination asset. Copy the
-      // cached image after confirmation, and report success only after this
-      // operation completes. HarmonyOS 6.1 rejects TRUNC for the media URI, so
-      // open it with WRITE_ONLY exactly as required by PhotoAccessHelper.
+      // The dialog creates and authorizes a media-library destination URI.
+      // Copy to that URI directly: API 23 devices can reject fileIo.open() for
+      // this URI even though the one-time system authorization is valid.
       let sourceFile: fileIo.File | undefined = undefined;
-      let targetFile: fileIo.File | undefined = undefined;
       try {
         sourceFile = await fileIo.open(path, fileIo.OpenMode.READ_ONLY);
-        // The URI returned by the system gallery dialog is a newly authorized
-        // media asset. Some API 23 devices reject opening it with WRITE_ONLY;
-        // READ_WRITE | CREATE is the supported mode for populating that asset.
-        targetFile = await fileIo.open(
-          assetUri,
-          fileIo.OpenMode.READ_WRITE | fileIo.OpenMode.CREATE
-        );
-        await fileIo.copyFile(sourceFile.fd, targetFile.fd);
-        const savedSize: number = fileIo.statSync(targetFile.fd).size;
-        if (savedSize !== generatedSize) {
-          throw new Error(`Gallery file size mismatch: expected ${generatedSize}, actual ${savedSize}`);
-        }
+        await fileIo.copyFile(sourceFile.fd, assetUri);
       } finally {
         if (sourceFile !== undefined) {
           fileIo.closeSync(sourceFile);
-        }
-        if (targetFile !== undefined) {
-          fileIo.closeSync(targetFile);
         }
       }
 
