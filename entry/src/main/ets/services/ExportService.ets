@@ -3,8 +3,12 @@ import fileUri from '@ohos.file.fileuri';
 import photoAccessHelper from '@ohos.file.photoAccessHelper';
 import image from '@ohos.multimedia.image';
 import { LengthMetricsUnit } from '@kit.ArkUI';
+import { hilog } from '@kit.PerformanceAnalysisKit';
 import { CoverDraft, ExportSettings, TemplateDefinition, DESIGN_WIDTH } from '../model/CoverModels';
 import { CoverRenderer } from './CoverRenderer';
+
+const SAVE_LOG_DOMAIN = 0x0000;
+const SAVE_LOG_TAG = 'YikeCoverSave';
 
 interface DecodedPhoto {
   bitmap: ImageBitmap;
@@ -106,6 +110,9 @@ export class ExportService {
 
   static async exportToGallery(definition: TemplateDefinition, draft: CoverDraft,
     settings: ExportSettings, appContext: Context, onReadyToSave: () => void): Promise<string> {
+    hilog.info(SAVE_LOG_DOMAIN, SAVE_LOG_TAG,
+      'SAVE_START resolution=%{public}s format=%{public}s',
+      settings.resolution, settings.format);
     let canvas: OffscreenCanvas;
     try {
       canvas = new OffscreenCanvas(settings.width, settings.height,
@@ -160,7 +167,11 @@ export class ExportService {
         throw new Error(`临时图片写入不完整（${tempSize}/${generatedSize} 字节）`);
       }
       generated = true;
+      hilog.info(SAVE_LOG_DOMAIN, SAVE_LOG_TAG,
+        'RENDER_DONE bytes=%{public}d', generatedSize);
     } catch (error) {
+      hilog.error(SAVE_LOG_DOMAIN, SAVE_LOG_TAG,
+        'RENDER_FAILED reason=%{public}s', ExportService.errorDetail(error));
       if (settings.resolution === '4K') {
         throw new Error(`4K 生成失败：${ExportService.errorDetail(error)}。请切换为 1080P 后重试`);
       }
@@ -204,11 +215,13 @@ export class ExportService {
       };
       // Atomic services use the system creation dialog for one-time,
       // user-authorized media-library writes.
+      hilog.info(SAVE_LOG_DOMAIN, SAVE_LOG_TAG, 'DIALOG_OPEN');
       const assetUri: string = await helper.showSingleAssetCreationDialogEx(
         fileUri.getUriFromPath(path), creationSetting, true);
       if (assetUri.length === 0) {
         throw new Error('系统未返回相册文件');
       }
+      hilog.info(SAVE_LOG_DOMAIN, SAVE_LOG_TAG, 'DIALOG_AUTHORIZED');
 
       // The dialog creates and authorizes a media-library destination URI.
       // Copy to that URI directly: API 23 devices can reject fileIo.open() for
@@ -216,15 +229,20 @@ export class ExportService {
       let sourceFile: fileIo.File | undefined = undefined;
       try {
         sourceFile = await fileIo.open(path, fileIo.OpenMode.READ_ONLY);
+        hilog.info(SAVE_LOG_DOMAIN, SAVE_LOG_TAG, 'COPY_START');
         await fileIo.copyFile(sourceFile.fd, assetUri);
+        hilog.info(SAVE_LOG_DOMAIN, SAVE_LOG_TAG, 'COPY_DONE');
       } finally {
         if (sourceFile !== undefined) {
           fileIo.closeSync(sourceFile);
         }
       }
 
+      hilog.info(SAVE_LOG_DOMAIN, SAVE_LOG_TAG, 'SAVE_DONE');
       return assetUri;
     } catch (error) {
+      hilog.error(SAVE_LOG_DOMAIN, SAVE_LOG_TAG,
+        'SAVE_FAILED reason=%{public}s', ExportService.errorDetail(error));
       throw new Error(`相册保存未完成：${ExportService.errorDetail(error)}`);
     } finally {
       if (path.length > 0) {
