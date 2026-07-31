@@ -218,8 +218,18 @@ export class ExportService {
       let targetFile: fileIo.File | undefined = undefined;
       try {
         sourceFile = await fileIo.open(path, fileIo.OpenMode.READ_ONLY);
-        targetFile = await fileIo.open(assetUri, fileIo.OpenMode.WRITE_ONLY);
+        // The URI returned by the system gallery dialog is a newly authorized
+        // media asset. Some API 23 devices reject opening it with WRITE_ONLY;
+        // READ_WRITE | CREATE is the supported mode for populating that asset.
+        targetFile = await fileIo.open(
+          assetUri,
+          fileIo.OpenMode.READ_WRITE | fileIo.OpenMode.CREATE
+        );
         await fileIo.copyFile(sourceFile.fd, targetFile.fd);
+        const savedSize: number = fileIo.statSync(targetFile.fd).size;
+        if (savedSize !== generatedSize) {
+          throw new Error(`Gallery file size mismatch: expected ${generatedSize}, actual ${savedSize}`);
+        }
       } finally {
         if (sourceFile !== undefined) {
           fileIo.closeSync(sourceFile);
