@@ -9,6 +9,10 @@
         "compatibleSdkVersion": "6.1.0(23)",
         "runtimeOS": "HarmonyOS",
         "buildOption": {
+          "packOptions": {
+            // The .app submitted to AppGallery must contain signed HAP packages.
+            "appWithSignedPkg": true
+          },
           "strictMode": {
             "caseSensitiveCheck": true,
             "useNormalizedOHMUrl": true
