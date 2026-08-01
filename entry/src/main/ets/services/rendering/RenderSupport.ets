@@ -92,7 +92,7 @@ export function drawEditorialEpisodeNumber(ctx: CanvasRenderer,
     { bold: true, italic: true });
   ctx.textAlign = 'center';
   ctx.textBaseline = 'middle';
-  ctx.fillText(episode, 1842, 86);
+  ctx.fillText(episode, 1842, 100);
   ctx.restore();
 }
 
