@@ -100,10 +100,10 @@ function drawGoldTitles(ctx: CanvasRenderer, draft: CoverDraft): boolean {
   ctx.shadowOffsetY = 4;
   drawGradientText(ctx, draft.title1, PHOTO_TITLE_LEFT,
     PHOTO_TITLE_FIRST_BASELINE, maxWidth,
-    '#FFD85A', '#FFF2A1');
+    '#FFF2A4', '#E3B746');
   drawGradientText(ctx, draft.title2, PHOTO_TITLE_LEFT,
     PHOTO_TITLE_SECOND_BASELINE, maxWidth,
-    '#FFD85A', '#FFF2A1');
+    '#F8DE79', '#B77311');
   ctx.shadowColor = '#00000000';
   ctx.shadowBlur = 0;
   ctx.shadowOffsetY = 0;

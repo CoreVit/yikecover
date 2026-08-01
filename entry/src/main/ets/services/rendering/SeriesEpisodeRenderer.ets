@@ -114,7 +114,7 @@ function drawSeriesTitles(ctx: CanvasRenderer,
   ctx.shadowOffsetY = 4;
   drawGradientText(ctx, draft.title1, PHOTO_TITLE_LEFT,
     PHOTO_TITLE_FIRST_BASELINE, maxWidth,
-    '#FFFFFF', '#E8EEF1');
+    '#FFF43B', '#F2C426');
   drawGradientText(ctx, draft.title2, PHOTO_TITLE_LEFT,
     PHOTO_TITLE_SECOND_BASELINE, maxWidth,
     '#FFFFFF', '#D6DBE0');
