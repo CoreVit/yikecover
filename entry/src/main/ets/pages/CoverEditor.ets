@@ -69,6 +69,7 @@ struct CoverEditor {
   @State photoLoadFailed: boolean = false;
   @State previewDraftJson: string = '';
   @State previewRevision: number = 0;
+  @State draftLoaded: boolean = false;
 
   aboutToAppear(): void {
     const hostContext: Context | undefined = this.getUIContext().getHostContext();
@@ -80,6 +81,7 @@ struct CoverEditor {
     if (params !== undefined && params.templateId !== undefined) {
       this.templateId = params.templateId;
     }
+    this.draftLoaded = false;
     this.loadDraft();
     this.refreshExportSettings();
   }
@@ -132,6 +134,10 @@ struct CoverEditor {
     this.publishDate = draft.publishDate;
     this.requestPreview();
     this.savedDraftJson = JSON.stringify(this.draft());
+    // TextInput and TextArea treat `text` as their creation-time value. Build
+    // the form only after every persisted field has been restored, otherwise
+    // the preview updates while already-created inputs keep their empty state.
+    this.draftLoaded = true;
   }
 
   private async refreshExportSettings(): Promise<void> {
@@ -1047,21 +1053,38 @@ struct CoverEditor {
             this.preview()
           }
           GridCol({ span: { xs: 12, sm: 12, md: 12, lg: 7 } }) {
-            Column({ space: 14 }) {
-              if (this.definition().capabilities.requiresPhoto) {
-                this.photoSection()
+            if (this.draftLoaded) {
+              Column({ space: 14 }) {
+                if (this.definition().capabilities.requiresPhoto) {
+                  this.photoSection()
+                }
+                this.contentSection()
+                if (this.definition().capabilities.supportsEpisode ||
+                  this.definition().capabilities.supportsVersion ||
+                  this.definition().capabilities.supportsGrayscale ||
+                  this.definition().capabilities.supportsTheme) {
+                  this.optionsSection()
+                }
+                this.metadataSection()
+                this.exportSection()
               }
-              this.contentSection()
-              if (this.definition().capabilities.supportsEpisode ||
-                this.definition().capabilities.supportsVersion ||
-                this.definition().capabilities.supportsGrayscale ||
-                this.definition().capabilities.supportsTheme) {
-                this.optionsSection()
+              .width('100%')
+            } else {
+              Column({ space: 10 }) {
+                LoadingProgress()
+                  .width(30)
+                  .height(30)
+                  .color($r('app.color.brand_primary'))
+                Text('正在载入草稿')
+                  .fontSize(12)
+                  .fontColor($r('app.color.text_secondary'))
               }
-              this.metadataSection()
-              this.exportSection()
+              .width('100%')
+              .height(180)
+              .justifyContent(FlexAlign.Center)
+              .backgroundColor($r('app.color.card_background'))
+              .borderRadius(16)
             }
-            .width('100%')
           }
         }
         .width('100%')
