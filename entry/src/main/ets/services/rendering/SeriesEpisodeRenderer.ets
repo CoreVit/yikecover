@@ -10,6 +10,7 @@ import {
   CORNER_LABEL_FONT_SIZE,
   CORNER_LABEL_MIN_FONT_SIZE,
   drawCoverPhoto,
+  drawEditorialHeaderTabPath,
   drawEpisodeCornerLabel,
   drawGradientText,
   fitPhotoTitlePair,
@@ -57,17 +58,8 @@ function drawSeriesHeader(ctx: CanvasRenderer, draft: CoverDraft,
     CORNER_LABEL_FONT_SIZE, CORNER_LABEL_MIN_FONT_SIZE,
     { bold: true, italic: true });
   setCanvasFont(ctx, brandSize, { bold: true, italic: true });
-  const headerWidth: number = Math.min(680,
-    Math.max(390, 42 + ctx.measureText(draft.brand).width + 78));
-
   ctx.fillStyle = makeBand(ctx, palette);
-  ctx.beginPath();
-  ctx.moveTo(0, 0);
-  ctx.lineTo(headerWidth, 0);
-  ctx.quadraticCurveTo(headerWidth - 24, 112,
-    headerWidth - 106, 132);
-  ctx.lineTo(0, 132);
-  ctx.closePath();
+  drawEditorialHeaderTabPath(ctx);
   ctx.fill();
 
   ctx.fillStyle = palette.foreground;

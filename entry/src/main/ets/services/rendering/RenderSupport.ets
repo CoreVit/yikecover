@@ -22,6 +22,21 @@ export const CORNER_LABEL_FONT_SIZE: number = 68;
 export const CORNER_LABEL_MIN_FONT_SIZE: number = 44;
 export const BRAND_LABEL_CENTER_Y: number = 72;
 export const CORNER_LABEL_ROTATION: number = Math.PI / 4;
+export const EDITORIAL_HEADER_TAB_WIDTH: number = 510;
+export const EDITORIAL_HEADER_TAB_HEIGHT: number = 132;
+export const EDITORIAL_HEADER_VERSION_LEFT: number = 500;
+
+// Templates 06–09 intentionally share one header-tab silhouette. Renderers
+// provide their own fill colors or gradients, but never their own geometry.
+export function drawEditorialHeaderTabPath(ctx: CanvasRenderer): void {
+  ctx.beginPath();
+  ctx.moveTo(0, 0);
+  ctx.lineTo(EDITORIAL_HEADER_TAB_WIDTH, 0);
+  ctx.bezierCurveTo(462, 0, 480, EDITORIAL_HEADER_TAB_HEIGHT,
+    380, EDITORIAL_HEADER_TAB_HEIGHT);
+  ctx.lineTo(0, EDITORIAL_HEADER_TAB_HEIGHT);
+  ctx.closePath();
+}
 
 export function setCanvasFont(ctx: CanvasRenderer, size: number,
   options?: FontOptions): void {

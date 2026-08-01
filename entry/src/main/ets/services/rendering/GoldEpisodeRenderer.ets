@@ -9,6 +9,7 @@ import {
   CORNER_LABEL_FONT_SIZE,
   CORNER_LABEL_MIN_FONT_SIZE,
   drawCoverPhoto,
+  drawEditorialHeaderTabPath,
   drawEpisodeCornerLabel,
   drawGradientText,
   fitPhotoTitlePair,
@@ -19,10 +20,10 @@ import {
   PHOTO_TITLE_MAX_WIDTH,
   PHOTO_TITLE_SECOND_BASELINE,
   setPhotoTitleFont,
-  setCanvasFont
+  setCanvasFont,
+  EDITORIAL_HEADER_VERSION_LEFT
 } from './RenderSupport';
 
-const VERSION_LABEL_GAP: number = 28;
 const VERSION_LABEL_FONT_SIZE: number = 60;
 const VERSION_LABEL_MIN_FONT_SIZE: number = 42;
 
@@ -39,17 +40,8 @@ function drawGoldHeader(ctx: CanvasRenderer, draft: CoverDraft): void {
     CORNER_LABEL_FONT_SIZE, CORNER_LABEL_MIN_FONT_SIZE,
     { bold: true, italic: true });
   setCanvasFont(ctx, brandSize, { bold: true, italic: true });
-  const headerWidth: number = Math.min(680,
-    Math.max(420, 42 + ctx.measureText(draft.brand).width + 78));
-
   ctx.fillStyle = goldBand(ctx);
-  ctx.beginPath();
-  ctx.moveTo(0, 0);
-  ctx.lineTo(headerWidth, 0);
-  ctx.quadraticCurveTo(headerWidth - 26, 112,
-    headerWidth - 120, 132);
-  ctx.lineTo(0, 132);
-  ctx.closePath();
+  drawEditorialHeaderTabPath(ctx);
   ctx.fill();
 
   ctx.fillStyle = '#8B4E08';
@@ -58,7 +50,7 @@ function drawGoldHeader(ctx: CanvasRenderer, draft: CoverDraft): void {
   ctx.fillText(draft.brand, 42, BRAND_LABEL_CENTER_Y);
 
   if (draft.versionLabel.length > 0) {
-    const versionLeft: number = headerWidth + VERSION_LABEL_GAP;
+    const versionLeft: number = EDITORIAL_HEADER_VERSION_LEFT;
     ctx.fillStyle = '#F4D572';
     const versionSize: number = fitSingleText(ctx, draft.versionLabel,
       1640 - versionLeft - 72, VERSION_LABEL_FONT_SIZE,

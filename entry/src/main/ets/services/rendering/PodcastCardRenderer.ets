@@ -8,10 +8,12 @@ import {
   BRAND_LABEL_CENTER_Y,
   CORNER_LABEL_FONT_SIZE,
   CORNER_LABEL_MIN_FONT_SIZE,
+  drawEditorialHeaderTabPath,
   drawEpisodeCornerLabel,
   fitSingleText,
   setCanvasFont,
-  wrapText
+  wrapText,
+  EDITORIAL_HEADER_VERSION_LEFT
 } from './RenderSupport';
 
 export interface PodcastCardPalette {
@@ -26,12 +28,6 @@ const HEADER_LEFT: number = 72;
 const HEADER_MAX_WIDTH: number = 360;
 const COPY_LEFT: number = 106;
 const COPY_WIDTH: number = 1010;
-const HEADER_TAB_WIDTH: number = 510;
-const HEADER_TAB_HEIGHT: number = 132;
-const HEADER_CURVE_FIRST_X: number = 462;
-const HEADER_CURVE_SECOND_X: number = 480;
-const HEADER_CURVE_END_X: number = 380;
-const VERSION_LABEL_LEFT: number = 500;
 const CORNER_INNER_TOP_X: number = 1576;
 const CORNER_OUTER_TOP_X: number = 1764;
 const CORNER_OUTER_RIGHT_Y: number = 156;
@@ -121,17 +117,7 @@ function drawHeader(ctx: CanvasRenderer, draft: CoverDraft,
   const displayBrand: string =
     Array.from(draft.brand.trim()).slice(0, 4).join('');
   ctx.fillStyle = palette.accent;
-  ctx.beginPath();
-  ctx.moveTo(0, 0);
-  ctx.lineTo(HEADER_TAB_WIDTH, 0);
-  // Single cubic fitted to the measured 21/22 tab boundary. Horizontal
-  // endpoint handles preserve the soft clipped-tab flow without a join or
-  // curvature kink, and both podcast variants share these exact coordinates.
-  ctx.bezierCurveTo(HEADER_CURVE_FIRST_X, 0,
-    HEADER_CURVE_SECOND_X, HEADER_TAB_HEIGHT,
-    HEADER_CURVE_END_X, HEADER_TAB_HEIGHT);
-  ctx.lineTo(0, HEADER_TAB_HEIGHT);
-  ctx.closePath();
+  drawEditorialHeaderTabPath(ctx);
   ctx.fill();
 
   ctx.fillStyle = palette.backgroundTop;
@@ -143,7 +129,7 @@ function drawHeader(ctx: CanvasRenderer, draft: CoverDraft,
   ctx.fillText(displayBrand, HEADER_LEFT, BRAND_LABEL_CENTER_Y);
 
   if (showVersion && draft.versionLabel.trim().length > 0) {
-    const versionLeft: number = VERSION_LABEL_LEFT;
+    const versionLeft: number = EDITORIAL_HEADER_VERSION_LEFT;
     const versionSize: number = fitSingleText(ctx, draft.versionLabel,
       1560 - versionLeft, 62, 42, { bold: true, italic: true });
     ctx.fillStyle = palette.accent;
