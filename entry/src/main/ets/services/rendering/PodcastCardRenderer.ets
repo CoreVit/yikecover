@@ -28,6 +28,9 @@ const COPY_LEFT: number = 106;
 const COPY_WIDTH: number = 1010;
 const VERSION_GAP: number = 30;
 const HEADER_TAB_WIDTH: number = 420;
+const HEADER_TAB_HEIGHT: number = 132;
+const HEADER_CURVE_RADIUS_X: number = 95;
+const ELLIPSE_KAPPA: number = 0.55228475;
 
 function drawBackground(ctx: CanvasRenderer,
   palette: PodcastCardPalette): void {
@@ -115,9 +118,17 @@ function drawHeader(ctx: CanvasRenderer, draft: CoverDraft,
   ctx.beginPath();
   ctx.moveTo(0, 0);
   ctx.lineTo(HEADER_TAB_WIDTH, 0);
-  ctx.bezierCurveTo(HEADER_TAB_WIDTH - 9, 72,
-    HEADER_TAB_WIDTH - 35, 126, HEADER_TAB_WIDTH - 95, 132);
-  ctx.lineTo(0, 132);
+  // Cubic approximation of one quarter ellipse. Keeping the first control
+  // point vertical and the second horizontal removes the visible kink while
+  // giving both podcast variants exactly the same reference curvature.
+  ctx.bezierCurveTo(HEADER_TAB_WIDTH,
+    HEADER_TAB_HEIGHT * ELLIPSE_KAPPA,
+    HEADER_TAB_WIDTH - HEADER_CURVE_RADIUS_X +
+      HEADER_CURVE_RADIUS_X * ELLIPSE_KAPPA,
+    HEADER_TAB_HEIGHT,
+    HEADER_TAB_WIDTH - HEADER_CURVE_RADIUS_X,
+    HEADER_TAB_HEIGHT);
+  ctx.lineTo(0, HEADER_TAB_HEIGHT);
   ctx.closePath();
   ctx.fill();
 
