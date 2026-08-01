@@ -238,6 +238,7 @@ export function todayText(): string {
 export function createDefaultDraft(definition: TemplateDefinition): CoverDraft {
   const isPodcast: boolean =
     definition.capabilities.supportsPodcastFields;
+  const isDirectEpisode: boolean = definition.id === 6 || definition.id === 7;
   return {
     templateId: definition.id,
     photoUri: '',
@@ -248,8 +249,9 @@ export function createDefaultDraft(definition: TemplateDefinition): CoverDraft {
     personName: '示例人物',
     englishName: 'PORTRAIT',
     episodeTitle: '本期主题',
-    episodePreset: isPodcast ? EpisodePreset.CUSTOM : EpisodePreset.UP,
-    customEpisode: isPodcast ? '01' : '',
+    episodePreset: isPodcast || isDirectEpisode ?
+      EpisodePreset.CUSTOM : EpisodePreset.UP,
+    customEpisode: isPodcast ? '01' : isDirectEpisode ? '1' : '',
     versionLabel: definition.capabilities.supportsVersion ? '会员专享' : '',
     grayscale: false,
     theme: definition.id === 6 ? CoverTheme.RED : CoverTheme.GOLD,

@@ -725,6 +725,19 @@ struct CoverEditor {
               .fontSize(10)
               .fontColor('#FF746A')
           }
+        } else if (this.templateId === 6 || this.templateId === 7) {
+          this.field('分集字符', this.customEpisode, '1–2 位数字或一个字符',
+            (value: string) => {
+              this.episodePreset = EpisodePreset.CUSTOM;
+              this.customEpisode = value;
+            })
+          if (this.customEpisode.length > 0 &&
+            !isValidCustomEpisode(this.customEpisode)) {
+            Text('“字”“9”“10”有效；“特别”“100”无效')
+              .width('100%')
+              .fontSize(10)
+              .fontColor('#FF746A')
+          }
         } else {
           Text('分集字符')
             .width('100%')
@@ -833,7 +846,7 @@ struct CoverEditor {
               this.theme = CoverTheme.RED;
               this.requestPreview();
             })
-          Text('青绿蓝')
+          Text('青色')
             .layoutWeight(1)
             .height(38)
             .fontSize(12)

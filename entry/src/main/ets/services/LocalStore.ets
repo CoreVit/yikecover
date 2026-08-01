@@ -9,6 +9,7 @@ import {
   EpisodePreset,
   createDefaultDraft,
   getTemplateDefinition,
+  isValidCustomEpisode,
   isValidPodcastEpisode
 } from '../model/CoverModels';
 const SETTINGS_STORE: string = 'yikecover_settings';
@@ -47,6 +48,16 @@ function migrateDraftDefaults(draft: CoverDraft): CoverDraft {
     draft.episodePreset = EpisodePreset.CUSTOM;
     if (!isValidPodcastEpisode(draft.customEpisode)) {
       draft.customEpisode = '01';
+    }
+  }
+  if (draft.templateId === 6 || draft.templateId === 7) {
+    if (draft.episodePreset !== EpisodePreset.CUSTOM &&
+      draft.customEpisode.trim().length === 0) {
+      draft.customEpisode = draft.episodePreset;
+    }
+    draft.episodePreset = EpisodePreset.CUSTOM;
+    if (!isValidCustomEpisode(draft.customEpisode)) {
+      draft.customEpisode = '1';
     }
   }
   return draft;

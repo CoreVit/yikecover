@@ -66,8 +66,8 @@ function drawGoldHeader(ctx: CanvasRenderer, draft: CoverDraft): void {
 }
 
 function drawGoldCorner(ctx: CanvasRenderer, episode: string): void {
-  const corner: CanvasGradient = ctx.createLinearGradient(1634, 0,
-    DESIGN_WIDTH, 286);
+  const corner: CanvasGradient = ctx.createLinearGradient(1620, 0,
+    DESIGN_WIDTH, 300);
   corner.addColorStop(0, '#FFF8B0');
   corner.addColorStop(1, '#D7AC62');
   ctx.fillStyle = corner;

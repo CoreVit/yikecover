@@ -78,8 +78,8 @@ function drawSeriesHeader(ctx: CanvasRenderer, draft: CoverDraft,
 
 function drawSeriesCorner(ctx: CanvasRenderer, episode: string,
   palette: SeriesPalette): void {
-  const corner: CanvasGradient = ctx.createLinearGradient(1634, 0,
-    DESIGN_WIDTH, 286);
+  const corner: CanvasGradient = ctx.createLinearGradient(1620, 0,
+    DESIGN_WIDTH, 300);
   corner.addColorStop(0, palette.start);
   corner.addColorStop(1, palette.end);
   ctx.fillStyle = corner;

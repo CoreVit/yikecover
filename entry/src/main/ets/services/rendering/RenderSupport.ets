@@ -73,10 +73,10 @@ export function drawEpisodeCornerLabel(ctx: CanvasRenderer, episode: string,
 // edges with matching curves. The straight middle section must stay straight.
 export function drawEditorialEpisodeCornerPath(ctx: CanvasRenderer): void {
   ctx.beginPath();
-  ctx.moveTo(1634, 0);
-  ctx.bezierCurveTo(1662, 0, 1670, 14, 1690, 34);
-  ctx.lineTo(1886, 230);
-  ctx.bezierCurveTo(1906, 250, 1920, 258, 1920, 286);
+  ctx.moveTo(1620, 0);
+  ctx.bezierCurveTo(1648, 0, 1656, 14, 1676, 34);
+  ctx.lineTo(1886, 244);
+  ctx.bezierCurveTo(1906, 264, 1920, 272, 1920, 300);
   ctx.lineTo(DESIGN_WIDTH, 0);
   ctx.closePath();
 }
