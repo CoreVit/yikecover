@@ -11,7 +11,8 @@ import {
   CORNER_LABEL_MIN_FONT_SIZE,
   drawCoverPhoto,
   drawEditorialHeaderTabPath,
-  drawEpisodeCornerLabel,
+  drawEditorialEpisodeCornerPath,
+  drawEditorialEpisodeNumber,
   drawGradientText,
   fitPhotoTitlePair,
   fitSingleText,
@@ -33,8 +34,8 @@ interface SeriesPalette {
 function paletteFor(draft: CoverDraft): SeriesPalette {
   if (draft.theme === CoverTheme.CYAN) {
     return {
-      start: '#05D28C',
-      end: '#167AC7',
+      start: '#01D26A',
+      end: '#0784B5',
       foreground: '#FFFFFF'
     };
   }
@@ -48,6 +49,9 @@ function paletteFor(draft: CoverDraft): SeriesPalette {
 function makeBand(ctx: CanvasRenderer, palette: SeriesPalette): CanvasGradient {
   const band: CanvasGradient = ctx.createLinearGradient(0, 0, 790, 0);
   band.addColorStop(0, palette.start);
+  if (palette.start === '#01D26A') {
+    band.addColorStop(0.5, '#00A99A');
+  }
   band.addColorStop(1, palette.end);
   return band;
 }
@@ -74,15 +78,15 @@ function drawSeriesHeader(ctx: CanvasRenderer, draft: CoverDraft,
 
 function drawSeriesCorner(ctx: CanvasRenderer, episode: string,
   palette: SeriesPalette): void {
-  ctx.fillStyle = makeBand(ctx, palette);
-  ctx.beginPath();
-  ctx.moveTo(1650, 0);
-  ctx.lineTo(DESIGN_WIDTH, 0);
-  ctx.lineTo(DESIGN_WIDTH, 286);
-  ctx.closePath();
+  const corner: CanvasGradient = ctx.createLinearGradient(1580, 0,
+    DESIGN_WIDTH, 276);
+  corner.addColorStop(0, palette.start);
+  corner.addColorStop(1, palette.end);
+  ctx.fillStyle = corner;
+  drawEditorialEpisodeCornerPath(ctx);
   ctx.fill();
 
-  drawEpisodeCornerLabel(ctx, episode, palette.foreground);
+  drawEditorialEpisodeNumber(ctx, episode, palette.foreground);
 }
 
 function drawSeriesShade(ctx: CanvasRenderer): void {
@@ -110,7 +114,7 @@ function drawSeriesTitles(ctx: CanvasRenderer,
   ctx.shadowOffsetY = 4;
   drawGradientText(ctx, draft.title1, PHOTO_TITLE_LEFT,
     PHOTO_TITLE_FIRST_BASELINE, maxWidth,
-    '#FFF43B', '#F2C426');
+    '#FFFFFF', '#E8EEF1');
   drawGradientText(ctx, draft.title2, PHOTO_TITLE_LEFT,
     PHOTO_TITLE_SECOND_BASELINE, maxWidth,
     '#FFFFFF', '#D6DBE0');

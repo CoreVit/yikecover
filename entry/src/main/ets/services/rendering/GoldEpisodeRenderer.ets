@@ -10,7 +10,8 @@ import {
   CORNER_LABEL_MIN_FONT_SIZE,
   drawCoverPhoto,
   drawEditorialHeaderTabPath,
-  drawEpisodeCornerLabel,
+  drawEditorialEpisodeCornerPath,
+  drawEditorialEpisodeNumber,
   drawGradientText,
   fitPhotoTitlePair,
   fitSingleText,
@@ -21,6 +22,7 @@ import {
   PHOTO_TITLE_SECOND_BASELINE,
   setPhotoTitleFont,
   setCanvasFont,
+  EDITORIAL_HEADER_TAB_WIDTH,
   EDITORIAL_HEADER_VERSION_LEFT
 } from './RenderSupport';
 
@@ -28,10 +30,11 @@ const VERSION_LABEL_FONT_SIZE: number = 60;
 const VERSION_LABEL_MIN_FONT_SIZE: number = 42;
 
 function goldBand(ctx: CanvasRenderer): CanvasGradient {
-  const band: CanvasGradient = ctx.createLinearGradient(0, 0, 900, 0);
-  band.addColorStop(0, '#FFF0A1');
-  band.addColorStop(0.52, '#E7B84B');
-  band.addColorStop(1, '#B86A0B');
+  const band: CanvasGradient = ctx.createLinearGradient(0, 0,
+    EDITORIAL_HEADER_TAB_WIDTH, 0);
+  band.addColorStop(0, '#FBD75F');
+  band.addColorStop(0.52, '#F9E270');
+  band.addColorStop(1, '#FFF0A0');
   return band;
 }
 
@@ -63,15 +66,15 @@ function drawGoldHeader(ctx: CanvasRenderer, draft: CoverDraft): void {
 }
 
 function drawGoldCorner(ctx: CanvasRenderer, episode: string): void {
-  ctx.fillStyle = goldBand(ctx);
-  ctx.beginPath();
-  ctx.moveTo(1640, 0);
-  ctx.lineTo(DESIGN_WIDTH, 0);
-  ctx.lineTo(DESIGN_WIDTH, 286);
-  ctx.closePath();
+  const corner: CanvasGradient = ctx.createLinearGradient(1580, 0,
+    DESIGN_WIDTH, 276);
+  corner.addColorStop(0, '#FFF8B0');
+  corner.addColorStop(1, '#D7AC62');
+  ctx.fillStyle = corner;
+  drawEditorialEpisodeCornerPath(ctx);
   ctx.fill();
 
-  drawEpisodeCornerLabel(ctx, episode, '#86500A');
+  drawEditorialEpisodeNumber(ctx, episode, '#A96512');
 }
 
 function drawGoldTitleContrast(ctx: CanvasRenderer): void {
@@ -97,10 +100,10 @@ function drawGoldTitles(ctx: CanvasRenderer, draft: CoverDraft): boolean {
   ctx.shadowOffsetY = 4;
   drawGradientText(ctx, draft.title1, PHOTO_TITLE_LEFT,
     PHOTO_TITLE_FIRST_BASELINE, maxWidth,
-    '#FFF2A4', '#E3B746');
+    '#FFD85A', '#FFF2A1');
   drawGradientText(ctx, draft.title2, PHOTO_TITLE_LEFT,
     PHOTO_TITLE_SECOND_BASELINE, maxWidth,
-    '#F8DE79', '#B77311');
+    '#FFD85A', '#FFF2A1');
   ctx.shadowColor = '#00000000';
   ctx.shadowBlur = 0;
   ctx.shadowOffsetY = 0;

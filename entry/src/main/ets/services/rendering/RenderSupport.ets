@@ -69,6 +69,33 @@ export function drawEpisodeCornerLabel(ctx: CanvasRenderer, episode: string,
   ctx.restore();
 }
 
+// Templates 06 and 07 use a long diagonal whose two ends ease into the canvas
+// edges with matching curves. The straight middle section must stay straight.
+export function drawEditorialEpisodeCornerPath(ctx: CanvasRenderer): void {
+  ctx.beginPath();
+  ctx.moveTo(1580, 0);
+  ctx.bezierCurveTo(1608, 0, 1618, 10, 1638, 30);
+  ctx.lineTo(1882, 218);
+  ctx.bezierCurveTo(1906, 236, 1920, 246, 1920, 276);
+  ctx.lineTo(DESIGN_WIDTH, 0);
+  ctx.closePath();
+}
+
+export function drawEditorialEpisodeNumber(ctx: CanvasRenderer,
+  episode: string, color: string): void {
+  if (episode.length === 0) {
+    return;
+  }
+  ctx.save();
+  ctx.fillStyle = color;
+  setCanvasFont(ctx, episode.length > 1 ? 92 : 112,
+    { bold: true, italic: true });
+  ctx.textAlign = 'center';
+  ctx.textBaseline = 'middle';
+  ctx.fillText(episode, 1842, 86);
+  ctx.restore();
+}
+
 export function roundedRect(ctx: CanvasRenderer, x: number, y: number,
   width: number, height: number, radius: number): void {
   const safeRadius: number = Math.min(radius, Math.min(width, height) / 2);
