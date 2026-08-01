@@ -36,13 +36,7 @@ const CORNER_INNER_TOP_X: number = 1576;
 const CORNER_OUTER_TOP_X: number = 1764;
 const CORNER_OUTER_RIGHT_Y: number = 156;
 const CORNER_INNER_RIGHT_Y: number = 344;
-const CORNER_CAP_BEND: number = 18;
-const CORNER_INNER_TANGENT_X: number = 1906;
-const CORNER_INNER_TANGENT_Y: number = 330;
-const CORNER_OUTER_TOP_TANGENT_X: number = 1792;
-const CORNER_OUTER_TOP_TANGENT_Y: number = 14;
-const CORNER_OUTER_RIGHT_TANGENT_X: number = 1906;
-const CORNER_OUTER_RIGHT_TANGENT_Y: number = 128;
+const CORNER_CAP_BEND: number = 6;
 
 function drawBackground(ctx: CanvasRenderer,
   palette: PodcastCardPalette): void {
@@ -163,18 +157,11 @@ function drawHeader(ctx: CanvasRenderer, draft: CoverDraft,
   // Parallel straight long edges with equal, subtly bowed end caps. The top
   // and right cap use the same bend so the diagonal ribbon stays symmetric.
   ctx.moveTo(CORNER_INNER_TOP_X, 0);
-  ctx.lineTo(CORNER_INNER_TANGENT_X, CORNER_INNER_TANGENT_Y);
-  ctx.quadraticCurveTo(DESIGN_WIDTH, CORNER_INNER_TANGENT_Y,
-    DESIGN_WIDTH, CORNER_INNER_RIGHT_Y);
+  ctx.lineTo(DESIGN_WIDTH, CORNER_INNER_RIGHT_Y);
   ctx.quadraticCurveTo(DESIGN_WIDTH + CORNER_CAP_BEND,
     (CORNER_INNER_RIGHT_Y + CORNER_OUTER_RIGHT_Y) / 2,
     DESIGN_WIDTH, CORNER_OUTER_RIGHT_Y);
-  ctx.quadraticCurveTo(DESIGN_WIDTH, CORNER_OUTER_RIGHT_TANGENT_Y,
-    CORNER_OUTER_RIGHT_TANGENT_X, CORNER_OUTER_RIGHT_TANGENT_Y);
-  ctx.lineTo(CORNER_OUTER_TOP_TANGENT_X,
-    CORNER_OUTER_TOP_TANGENT_Y);
-  ctx.quadraticCurveTo(CORNER_OUTER_TOP_TANGENT_X, 0,
-    CORNER_OUTER_TOP_X, 0);
+  ctx.lineTo(CORNER_OUTER_TOP_X, 0);
   ctx.quadraticCurveTo(
     (CORNER_OUTER_TOP_X + CORNER_INNER_TOP_X) / 2,
     -CORNER_CAP_BEND, CORNER_INNER_TOP_X, 0);
