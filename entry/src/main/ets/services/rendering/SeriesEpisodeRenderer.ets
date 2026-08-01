@@ -53,19 +53,24 @@ function makeBand(ctx: CanvasRenderer, palette: SeriesPalette): CanvasGradient {
 
 function drawSeriesHeader(ctx: CanvasRenderer, draft: CoverDraft,
   palette: SeriesPalette): void {
+  const brandSize: number = fitSingleText(ctx, draft.brand, 620,
+    CORNER_LABEL_FONT_SIZE, CORNER_LABEL_MIN_FONT_SIZE,
+    { bold: true, italic: true });
+  setCanvasFont(ctx, brandSize, { bold: true, italic: true });
+  const headerWidth: number = Math.min(680,
+    Math.max(390, 42 + ctx.measureText(draft.brand).width + 78));
+
   ctx.fillStyle = makeBand(ctx, palette);
   ctx.beginPath();
   ctx.moveTo(0, 0);
-  ctx.lineTo(760, 0);
-  ctx.quadraticCurveTo(736, 112, 654, 132);
+  ctx.lineTo(headerWidth, 0);
+  ctx.quadraticCurveTo(headerWidth - 24, 112,
+    headerWidth - 106, 132);
   ctx.lineTo(0, 132);
   ctx.closePath();
   ctx.fill();
 
   ctx.fillStyle = palette.foreground;
-  const brandSize: number = fitSingleText(ctx, draft.brand, 620,
-    CORNER_LABEL_FONT_SIZE, CORNER_LABEL_MIN_FONT_SIZE,
-    { bold: true, italic: true });
   setCanvasFont(ctx, brandSize, { bold: true, italic: true });
   ctx.textBaseline = 'middle';
   ctx.fillText(draft.brand, 42, BRAND_LABEL_CENTER_Y);

@@ -27,6 +27,7 @@ const HEADER_MAX_WIDTH: number = 360;
 const COPY_LEFT: number = 106;
 const COPY_WIDTH: number = 1010;
 const VERSION_GAP: number = 30;
+const HEADER_TAB_WIDTH: number = 420;
 
 function drawBackground(ctx: CanvasRenderer,
   palette: PodcastCardPalette): void {
@@ -113,8 +114,9 @@ function drawHeader(ctx: CanvasRenderer, draft: CoverDraft,
   ctx.fillStyle = palette.accent;
   ctx.beginPath();
   ctx.moveTo(0, 0);
-  ctx.lineTo(505, 0);
-  ctx.bezierCurveTo(496, 72, 470, 126, 410, 132);
+  ctx.lineTo(HEADER_TAB_WIDTH, 0);
+  ctx.bezierCurveTo(HEADER_TAB_WIDTH - 9, 72,
+    HEADER_TAB_WIDTH - 35, 126, HEADER_TAB_WIDTH - 95, 132);
   ctx.lineTo(0, 132);
   ctx.closePath();
   ctx.fill();
@@ -128,8 +130,7 @@ function drawHeader(ctx: CanvasRenderer, draft: CoverDraft,
   ctx.fillText(displayBrand, HEADER_LEFT, BRAND_LABEL_CENTER_Y);
 
   if (showVersion && draft.versionLabel.trim().length > 0) {
-    const versionLeft: number = HEADER_LEFT +
-      ctx.measureText(displayBrand).width + VERSION_GAP;
+    const versionLeft: number = HEADER_TAB_WIDTH + VERSION_GAP;
     const versionSize: number = fitSingleText(ctx, draft.versionLabel,
       1560 - versionLeft, 62, 42, { bold: true, italic: true });
     ctx.fillStyle = palette.accent;

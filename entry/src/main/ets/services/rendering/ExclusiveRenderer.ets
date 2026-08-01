@@ -24,12 +24,12 @@ function exclusiveTabWidth(ctx: CanvasRenderer, brand: string): number {
     CORNER_LABEL_FONT_SIZE, CORNER_LABEL_MIN_FONT_SIZE,
     { bold: true, italic: true });
   setCanvasFont(ctx, size, { bold: true, italic: true });
-  return Math.min(830, Math.max(330, ctx.measureText(brand).width + 122));
+  return Math.min(850, Math.max(360, ctx.measureText(brand).width + 160));
 }
 
 function drawExclusiveBrand(ctx: CanvasRenderer, brand: string): void {
   const width: number = exclusiveTabWidth(ctx, brand);
-  const size: number = fitSingleText(ctx, brand, width - 122,
+  const size: number = fitSingleText(ctx, brand, width - 160,
     CORNER_LABEL_FONT_SIZE, CORNER_LABEL_MIN_FONT_SIZE,
     { bold: true, italic: true });
   ctx.fillStyle = '#EB0000';
