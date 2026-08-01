@@ -32,6 +32,17 @@ const HEADER_CURVE_FIRST_X: number = 462;
 const HEADER_CURVE_SECOND_X: number = 480;
 const HEADER_CURVE_END_X: number = 380;
 const VERSION_LABEL_LEFT: number = 500;
+const CORNER_INNER_TOP_X: number = 1576;
+const CORNER_OUTER_TOP_X: number = 1764;
+const CORNER_OUTER_RIGHT_Y: number = 156;
+const CORNER_INNER_RIGHT_Y: number = 344;
+const CORNER_CAP_BEND: number = 18;
+const CORNER_INNER_TANGENT_X: number = 1906;
+const CORNER_INNER_TANGENT_Y: number = 330;
+const CORNER_OUTER_TOP_TANGENT_X: number = 1792;
+const CORNER_OUTER_TOP_TANGENT_Y: number = 14;
+const CORNER_OUTER_RIGHT_TANGENT_X: number = 1906;
+const CORNER_OUTER_RIGHT_TANGENT_Y: number = 128;
 
 function drawBackground(ctx: CanvasRenderer,
   palette: PodcastCardPalette): void {
@@ -149,15 +160,32 @@ function drawHeader(ctx: CanvasRenderer, draft: CoverDraft,
 
   ctx.fillStyle = palette.accent;
   ctx.beginPath();
-  ctx.moveTo(1580, 0);
-  ctx.lineTo(1778, 0);
-  ctx.quadraticCurveTo(1828, 0, 1860, 38);
-  ctx.lineTo(DESIGN_WIDTH, 106);
-  ctx.lineTo(DESIGN_WIDTH, 332);
+  // Parallel straight long edges with equal, subtly bowed end caps. The top
+  // and right cap use the same bend so the diagonal ribbon stays symmetric.
+  ctx.moveTo(CORNER_INNER_TOP_X, 0);
+  ctx.lineTo(CORNER_INNER_TANGENT_X, CORNER_INNER_TANGENT_Y);
+  ctx.quadraticCurveTo(DESIGN_WIDTH, CORNER_INNER_TANGENT_Y,
+    DESIGN_WIDTH, CORNER_INNER_RIGHT_Y);
+  ctx.quadraticCurveTo(DESIGN_WIDTH + CORNER_CAP_BEND,
+    (CORNER_INNER_RIGHT_Y + CORNER_OUTER_RIGHT_Y) / 2,
+    DESIGN_WIDTH, CORNER_OUTER_RIGHT_Y);
+  ctx.quadraticCurveTo(DESIGN_WIDTH, CORNER_OUTER_RIGHT_TANGENT_Y,
+    CORNER_OUTER_RIGHT_TANGENT_X, CORNER_OUTER_RIGHT_TANGENT_Y);
+  ctx.lineTo(CORNER_OUTER_TOP_TANGENT_X,
+    CORNER_OUTER_TOP_TANGENT_Y);
+  ctx.quadraticCurveTo(CORNER_OUTER_TOP_TANGENT_X, 0,
+    CORNER_OUTER_TOP_X, 0);
+  ctx.quadraticCurveTo(
+    (CORNER_OUTER_TOP_X + CORNER_INNER_TOP_X) / 2,
+    -CORNER_CAP_BEND, CORNER_INNER_TOP_X, 0);
   ctx.closePath();
   ctx.fill();
+  const cornerCenterX: number =
+    (CORNER_INNER_TOP_X + CORNER_OUTER_TOP_X + DESIGN_WIDTH * 2) / 4;
+  const cornerCenterY: number =
+    (CORNER_OUTER_RIGHT_Y + CORNER_INNER_RIGHT_Y) / 4;
   drawEpisodeCornerLabel(ctx, resolvedEpisode(draft),
-    palette.backgroundTop, 1818, 82);
+    palette.backgroundTop, cornerCenterX, cornerCenterY);
 }
 
 function drawQuoteAndCopy(ctx: CanvasRenderer, draft: CoverDraft,
