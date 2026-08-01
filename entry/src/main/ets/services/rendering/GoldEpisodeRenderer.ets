@@ -47,7 +47,7 @@ function drawGoldHeader(ctx: CanvasRenderer, draft: CoverDraft): void {
   ctx.fillStyle = '#8B4E08';
   setCanvasFont(ctx, brandSize, { bold: true, italic: true });
   ctx.textBaseline = 'middle';
-  ctx.fillText(draft.brand, 42, BRAND_LABEL_CENTER_Y);
+  ctx.fillText(draft.brand, 58, BRAND_LABEL_CENTER_Y);
 
   if (draft.versionLabel.length > 0) {
     const versionLeft: number = EDITORIAL_HEADER_VERSION_LEFT;

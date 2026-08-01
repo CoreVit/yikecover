@@ -58,8 +58,11 @@ function drawSeriesHeader(ctx: CanvasRenderer, draft: CoverDraft,
     CORNER_LABEL_FONT_SIZE, CORNER_LABEL_MIN_FONT_SIZE,
     { bold: true, italic: true });
   setCanvasFont(ctx, brandSize, { bold: true, italic: true });
+  const measuredBrandWidth: number = ctx.measureText(draft.brand).width;
+  const headerWidth: number = Math.min(760,
+    Math.max(510, measuredBrandWidth + 140));
   ctx.fillStyle = makeBand(ctx, palette);
-  drawEditorialHeaderTabPath(ctx);
+  drawEditorialHeaderTabPath(ctx, headerWidth);
   ctx.fill();
 
   ctx.fillStyle = palette.foreground;

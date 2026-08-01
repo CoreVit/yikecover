@@ -26,14 +26,17 @@ export const EDITORIAL_HEADER_TAB_WIDTH: number = 510;
 export const EDITORIAL_HEADER_TAB_HEIGHT: number = 132;
 export const EDITORIAL_HEADER_VERSION_LEFT: number = 500;
 
-// Templates 06–09 intentionally share one header-tab silhouette. Renderers
-// provide their own fill colors or gradients, but never their own geometry.
-export function drawEditorialHeaderTabPath(ctx: CanvasRenderer): void {
+// Templates 06–09 share the same curve. A longer label may extend the straight
+// section horizontally without stretching or otherwise deforming that curve.
+export function drawEditorialHeaderTabPath(ctx: CanvasRenderer,
+  width: number = EDITORIAL_HEADER_TAB_WIDTH): void {
+  const horizontalOffset: number = width - EDITORIAL_HEADER_TAB_WIDTH;
   ctx.beginPath();
   ctx.moveTo(0, 0);
-  ctx.lineTo(EDITORIAL_HEADER_TAB_WIDTH, 0);
-  ctx.bezierCurveTo(462, 0, 480, EDITORIAL_HEADER_TAB_HEIGHT,
-    380, EDITORIAL_HEADER_TAB_HEIGHT);
+  ctx.lineTo(width, 0);
+  ctx.bezierCurveTo(462 + horizontalOffset, 0,
+    480 + horizontalOffset, EDITORIAL_HEADER_TAB_HEIGHT,
+    380 + horizontalOffset, EDITORIAL_HEADER_TAB_HEIGHT);
   ctx.lineTo(0, EDITORIAL_HEADER_TAB_HEIGHT);
   ctx.closePath();
 }
