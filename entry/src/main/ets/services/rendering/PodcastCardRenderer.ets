@@ -26,11 +26,12 @@ const HEADER_LEFT: number = 72;
 const HEADER_MAX_WIDTH: number = 360;
 const COPY_LEFT: number = 106;
 const COPY_WIDTH: number = 1010;
-const VERSION_GAP: number = 30;
-const HEADER_TAB_WIDTH: number = 420;
+const HEADER_TAB_WIDTH: number = 510;
 const HEADER_TAB_HEIGHT: number = 132;
-const HEADER_CURVE_RADIUS_X: number = 95;
-const ELLIPSE_KAPPA: number = 0.55228475;
+const HEADER_CURVE_MIDDLE_X: number = 465;
+const HEADER_CURVE_MIDDLE_Y: number = 66;
+const HEADER_CURVE_END_X: number = 395;
+const VERSION_LABEL_LEFT: number = 500;
 
 function drawBackground(ctx: CanvasRenderer,
   palette: PodcastCardPalette): void {
@@ -118,16 +119,13 @@ function drawHeader(ctx: CanvasRenderer, draft: CoverDraft,
   ctx.beginPath();
   ctx.moveTo(0, 0);
   ctx.lineTo(HEADER_TAB_WIDTH, 0);
-  // Cubic approximation of one quarter ellipse. Keeping the first control
-  // point vertical and the second horizontal removes the visible kink while
-  // giving both podcast variants exactly the same reference curvature.
-  ctx.bezierCurveTo(HEADER_TAB_WIDTH,
-    HEADER_TAB_HEIGHT * ELLIPSE_KAPPA,
-    HEADER_TAB_WIDTH - HEADER_CURVE_RADIUS_X +
-      HEADER_CURVE_RADIUS_X * ELLIPSE_KAPPA,
-    HEADER_TAB_HEIGHT,
-    HEADER_TAB_WIDTH - HEADER_CURVE_RADIUS_X,
-    HEADER_TAB_HEIGHT);
+  // Measured from both 21/22 reference covers: the tab uses a continuous
+  // two-stage S curve rather than a quarter ellipse. The paired control points
+  // around the middle keep the tangent continuous in both podcast variants.
+  ctx.bezierCurveTo(490, 0, 470, 28,
+    HEADER_CURVE_MIDDLE_X, HEADER_CURVE_MIDDLE_Y);
+  ctx.bezierCurveTo(462, 102, 410, HEADER_TAB_HEIGHT,
+    HEADER_CURVE_END_X, HEADER_TAB_HEIGHT);
   ctx.lineTo(0, HEADER_TAB_HEIGHT);
   ctx.closePath();
   ctx.fill();
@@ -141,7 +139,7 @@ function drawHeader(ctx: CanvasRenderer, draft: CoverDraft,
   ctx.fillText(displayBrand, HEADER_LEFT, BRAND_LABEL_CENTER_Y);
 
   if (showVersion && draft.versionLabel.trim().length > 0) {
-    const versionLeft: number = HEADER_TAB_WIDTH + VERSION_GAP;
+    const versionLeft: number = VERSION_LABEL_LEFT;
     const versionSize: number = fitSingleText(ctx, draft.versionLabel,
       1560 - versionLeft, 62, 42, { bold: true, italic: true });
     ctx.fillStyle = palette.accent;
