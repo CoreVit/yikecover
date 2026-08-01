@@ -21,39 +21,6 @@ interface ExportFormat {
 }
 
 export class ExportService {
-  private static delay(milliseconds: number): Promise<void> {
-    return new Promise<void>((resolve: () => void) => {
-      setTimeout(resolve, milliseconds);
-    });
-  }
-
-  private static async waitForSavedAsset(assetUri: string): Promise<number> {
-    const maxAttempts: number = 10;
-    for (let attempt: number = 1; attempt <= maxAttempts; attempt += 1) {
-      let assetFile: fileIo.File | undefined = undefined;
-      try {
-        assetFile = fileIo.openSync(assetUri, fileIo.OpenMode.READ_ONLY);
-        const savedSize: number = fileIo.statSync(assetFile.fd).size;
-        if (savedSize > 0) {
-          return savedSize;
-        }
-      } catch (error) {
-        hilog.warn(SAVE_LOG_DOMAIN, SAVE_LOG_TAG,
-          'VERIFY_WAIT attempt=%{public}d reason=%{public}s',
-          attempt, ExportService.errorDetail(error));
-      } finally {
-        if (assetFile !== undefined) {
-          try {
-            fileIo.closeSync(assetFile);
-          } catch (closeError) {
-          }
-        }
-      }
-      await ExportService.delay(300);
-    }
-    throw new Error('系统相册未完成图片写入');
-  }
-
   private static exportFormat(format: string): ExportFormat {
     if (format === 'JPEG') {
       return { mime: 'image/jpeg', extension: 'jpg' };
@@ -166,7 +133,6 @@ export class ExportService {
     const extension: string = exportFormat.extension;
     const mime: string = exportFormat.mime;
     let generated: boolean = false;
-    let handedToSystem: boolean = false;
     let generatedSize: number = 0;
 
     try {
@@ -260,11 +226,31 @@ export class ExportService {
       hilog.info(SAVE_LOG_DOMAIN, SAVE_LOG_TAG, 'DIALOG_AUTHORIZED');
 
       const assetUri: string = assetUris[0];
-      const savedSize: number =
-        await ExportService.waitForSavedAsset(assetUri);
-      hilog.info(SAVE_LOG_DOMAIN, SAVE_LOG_TAG,
-        'VERIFY_DONE bytes=%{public}d', savedSize);
-      handedToSystem = true;
+      let sourceFile: fileIo.File | undefined = undefined;
+      let destinationFile: fileIo.File | undefined = undefined;
+      try {
+        sourceFile = fileIo.openSync(path, fileIo.OpenMode.READ_ONLY);
+        destinationFile = fileIo.openSync(assetUri,
+          fileIo.OpenMode.WRITE_ONLY);
+        hilog.info(SAVE_LOG_DOMAIN, SAVE_LOG_TAG,
+          'COPY_START bytes=%{public}d', generatedSize);
+        await fileIo.copyFile(sourceFile.fd, destinationFile.fd);
+        hilog.info(SAVE_LOG_DOMAIN, SAVE_LOG_TAG,
+          'COPY_DONE bytes=%{public}d', generatedSize);
+      } finally {
+        if (sourceFile !== undefined) {
+          try {
+            fileIo.closeSync(sourceFile);
+          } catch (closeError) {
+          }
+        }
+        if (destinationFile !== undefined) {
+          try {
+            fileIo.closeSync(destinationFile);
+          } catch (closeError) {
+          }
+        }
+      }
       hilog.info(SAVE_LOG_DOMAIN, SAVE_LOG_TAG, 'SAVE_DONE');
       return assetUri;
     } catch (error) {
@@ -272,7 +258,7 @@ export class ExportService {
         'SAVE_FAILED reason=%{public}s', ExportService.errorDetail(error));
       throw new Error(`相册保存未完成：${ExportService.errorDetail(error)}`);
     } finally {
-      if (!handedToSystem && path.length > 0) {
+      if (path.length > 0) {
         try {
           fileIo.unlinkSync(path);
         } catch (unlinkError) {
