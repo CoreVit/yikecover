@@ -108,6 +108,8 @@ function drawEqualizer(ctx: CanvasRenderer, color: string): void {
 
 function drawHeader(ctx: CanvasRenderer, draft: CoverDraft,
   palette: PodcastCardPalette, showVersion: boolean): void {
+  const displayBrand: string =
+    Array.from(draft.brand.trim()).slice(0, 4).join('');
   ctx.fillStyle = palette.accent;
   ctx.beginPath();
   ctx.moveTo(0, 0);
@@ -118,16 +120,16 @@ function drawHeader(ctx: CanvasRenderer, draft: CoverDraft,
   ctx.fill();
 
   ctx.fillStyle = palette.backgroundTop;
-  const brandSize: number = fitSingleText(ctx, draft.brand,
+  const brandSize: number = fitSingleText(ctx, displayBrand,
     HEADER_MAX_WIDTH, CORNER_LABEL_FONT_SIZE, CORNER_LABEL_MIN_FONT_SIZE,
     { bold: true, italic: true });
   setCanvasFont(ctx, brandSize, { bold: true, italic: true });
   ctx.textBaseline = 'middle';
-  ctx.fillText(draft.brand, HEADER_LEFT, BRAND_LABEL_CENTER_Y);
+  ctx.fillText(displayBrand, HEADER_LEFT, BRAND_LABEL_CENTER_Y);
 
   if (showVersion && draft.versionLabel.trim().length > 0) {
     const versionLeft: number = HEADER_LEFT +
-      ctx.measureText(draft.brand).width + VERSION_GAP;
+      ctx.measureText(displayBrand).width + VERSION_GAP;
     const versionSize: number = fitSingleText(ctx, draft.versionLabel,
       1560 - versionLeft, 62, 42, { bold: true, italic: true });
     ctx.fillStyle = palette.accent;
@@ -138,15 +140,15 @@ function drawHeader(ctx: CanvasRenderer, draft: CoverDraft,
 
   ctx.fillStyle = palette.accent;
   ctx.beginPath();
-  ctx.moveTo(1640, 0);
-  ctx.lineTo(1818, 0);
-  ctx.quadraticCurveTo(1850, 0, 1876, 28);
-  ctx.lineTo(DESIGN_WIDTH, 166);
-  ctx.lineTo(DESIGN_WIDTH, 270);
+  ctx.moveTo(1580, 0);
+  ctx.lineTo(1778, 0);
+  ctx.quadraticCurveTo(1828, 0, 1860, 38);
+  ctx.lineTo(DESIGN_WIDTH, 106);
+  ctx.lineTo(DESIGN_WIDTH, 332);
   ctx.closePath();
   ctx.fill();
   drawEpisodeCornerLabel(ctx, resolvedEpisode(draft),
-    palette.backgroundTop, 1830, 78);
+    palette.backgroundTop, 1818, 82);
 }
 
 function drawQuoteAndCopy(ctx: CanvasRenderer, draft: CoverDraft,
@@ -198,17 +200,9 @@ function drawQuoteAndCopy(ctx: CanvasRenderer, draft: CoverDraft,
 }
 
 function logoRows(brand: string): string[] {
-  let core: string = brand.trim();
-  if (core.endsWith('播客')) {
-    core = core.slice(0, core.length - 2);
-  }
-  if (core.length === 0) {
-    core = '一刻';
-  }
-  const units: string[] = Array.from(core);
-  const first: string = units.slice(0, 3).join('');
-  const second: string = units.length > 3 ?
-    units.slice(3, 6).join('') : '播客';
+  const units: string[] = Array.from(brand.trim()).slice(0, 4);
+  const first: string = units.slice(0, 2).join('');
+  const second: string = units.slice(2, 4).join('');
   return [first, second];
 }
 

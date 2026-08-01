@@ -6,8 +6,10 @@ import {
   DEFAULT_PHOTO_TITLE_SECOND,
   ExportSettings,
   HistoryRecord,
+  EpisodePreset,
   createDefaultDraft,
-  getTemplateDefinition
+  getTemplateDefinition,
+  isValidPodcastEpisode
 } from '../model/CoverModels';
 const SETTINGS_STORE: string = 'yikecover_settings';
 const CONTENT_STORE: string = 'yikecover_content';
@@ -32,13 +34,19 @@ function recordTitle(draft: CoverDraft): string {
   return draft.title1;
 }
 
-function migrateDefaultPhotoTitles(draft: CoverDraft): CoverDraft {
+function migrateDraftDefaults(draft: CoverDraft): CoverDraft {
   if (draft.templateId >= 1 && draft.templateId <= 7) {
     if (draft.title1 === '在这里输入第一行标题') {
       draft.title1 = DEFAULT_PHOTO_TITLE_FIRST;
     }
     if (draft.title2 === '在这里输入第二行标题') {
       draft.title2 = DEFAULT_PHOTO_TITLE_SECOND;
+    }
+  }
+  if (draft.templateId === 8 || draft.templateId === 9) {
+    draft.episodePreset = EpisodePreset.CUSTOM;
+    if (!isValidPodcastEpisode(draft.customEpisode)) {
+      draft.customEpisode = '01';
     }
   }
   return draft;
@@ -121,7 +129,7 @@ export class LocalStore {
     const raw: string = store.getSync(`draft_${templateId}`, '') as string;
     if (raw.length > 0) {
       try {
-        return migrateDefaultPhotoTitles(JSON.parse(raw) as CoverDraft);
+        return migrateDraftDefaults(JSON.parse(raw) as CoverDraft);
       } catch (error) {
       }
     }

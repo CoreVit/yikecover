@@ -236,6 +236,8 @@ export function todayText(): string {
 }
 
 export function createDefaultDraft(definition: TemplateDefinition): CoverDraft {
+  const isPodcast: boolean =
+    definition.capabilities.supportsPodcastFields;
   return {
     templateId: definition.id,
     photoUri: '',
@@ -246,8 +248,8 @@ export function createDefaultDraft(definition: TemplateDefinition): CoverDraft {
     personName: '示例人物',
     englishName: 'PORTRAIT',
     episodeTitle: '本期主题',
-    episodePreset: EpisodePreset.UP,
-    customEpisode: '',
+    episodePreset: isPodcast ? EpisodePreset.CUSTOM : EpisodePreset.UP,
+    customEpisode: isPodcast ? '01' : '',
     versionLabel: definition.capabilities.supportsVersion ? '会员专享' : '',
     grayscale: false,
     theme: definition.id === 6 ? CoverTheme.RED : CoverTheme.GOLD,
@@ -275,6 +277,10 @@ export function isValidCustomEpisode(value: string): boolean {
     return true;
   }
   return Array.from(normalized).length === 1;
+}
+
+export function isValidPodcastEpisode(value: string): boolean {
+  return /^\d{1,2}$/.test(value.trim());
 }
 
 export function automaticCopy(draft: CoverDraft, definition: TemplateDefinition): string {

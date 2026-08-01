@@ -13,6 +13,7 @@ import {
   createDefaultDraft,
   getTemplateDefinition,
   isValidCustomEpisode,
+  isValidPodcastEpisode,
   todayText
 } from '../model/CoverModels';
 import { CoverPreview } from '../components/CoverPreview';
@@ -216,6 +217,13 @@ struct CoverEditor {
 
   private validateEpisode(): boolean {
     if (!this.definition().capabilities.supportsEpisode) {
+      return true;
+    }
+    if (this.definition().capabilities.supportsPodcastFields) {
+      if (!isValidPodcastEpisode(this.customEpisode)) {
+        this.showToast('期数限 1–2 位数字');
+        return false;
+      }
       return true;
     }
     if (this.episodePreset !== EpisodePreset.CUSTOM) {
@@ -428,13 +436,42 @@ struct CoverEditor {
   }
 
   @Builder
-  private field(label: string, value: string, placeholder: string, action: (value: string) => void) {
+  private field(label: string, value: string, placeholder: string,
+    action: (value: string) => void, maxLength: number = 1000) {
     Column({ space: 6 }) {
       Text(label)
         .width('100%')
         .fontSize(11)
         .fontColor($r('app.color.text_secondary'))
       TextInput({ text: value, placeholder: placeholder })
+        .maxLength(maxLength)
+        .width('100%')
+        .height(44)
+        .fontSize(13)
+        .fontColor($r('app.color.text_primary'))
+        .placeholderColor($r('app.color.text_muted'))
+        .backgroundColor($r('app.color.control_background'))
+        .borderRadius(9)
+        .padding({ left: 12, right: 12 })
+        .onChange((text: string) => {
+          action(text);
+          this.requestPreview();
+        })
+    }
+    .width('100%')
+  }
+
+  @Builder
+  private numberField(label: string, value: string, placeholder: string,
+    action: (value: string) => void) {
+    Column({ space: 6 }) {
+      Text(label)
+        .width('100%')
+        .fontSize(11)
+        .fontColor($r('app.color.text_secondary'))
+      TextInput({ text: value, placeholder: placeholder })
+        .type(InputType.Number)
+        .maxLength(2)
         .width('100%')
         .height(44)
         .fontSize(13)
@@ -609,7 +646,13 @@ struct CoverEditor {
       this.sectionTitle(this.definition().capabilities.requiresPhoto ? '02' : '01',
         '封面内容', '字号、位置、颜色和阴影由模板自动确定')
 
-      this.field('品牌', this.brand, '输入品牌', (value: string) => { this.brand = value; })
+      if (this.definition().capabilities.supportsPodcastFields) {
+        this.field('品牌（四字）', this.brand, '例如：王局播客',
+          (value: string) => { this.brand = value; }, 4)
+      } else {
+        this.field('品牌', this.brand, '输入品牌',
+          (value: string) => { this.brand = value; })
+      }
 
       if (this.definition().capabilities.supportsPersonFields) {
         this.field('人物说明', this.kicker, '例如：人物专题',
@@ -663,25 +706,41 @@ struct CoverEditor {
       this.sectionTitle('03', '模板选项', '只显示当前模板支持的选项')
 
       if (this.definition().capabilities.supportsEpisode) {
-        Text('分集字符')
-          .width('100%')
-          .fontSize(11)
-          .fontColor($r('app.color.text_secondary'))
-        Row({ space: 7 }) {
-          this.episodeChoice(EpisodePreset.UP)
-          this.episodeChoice(EpisodePreset.MIDDLE)
-          this.episodeChoice(EpisodePreset.DOWN)
-          this.episodeChoice(EpisodePreset.CUSTOM)
-        }
-        .width('100%')
-        if (this.episodePreset === EpisodePreset.CUSTOM) {
-          this.field('自定义字符', this.customEpisode, '1–2 位数字或一个字符',
-            (value: string) => { this.customEpisode = value; })
-          if (this.customEpisode.length > 0 && !isValidCustomEpisode(this.customEpisode)) {
-            Text('“字”“9”“10”有效；“特别”“100”无效')
+        if (this.definition().capabilities.supportsPodcastFields) {
+          this.numberField('期数', this.customEpisode, '输入 1–2 位数字',
+            (value: string) => {
+              this.episodePreset = EpisodePreset.CUSTOM;
+              this.customEpisode = value;
+            })
+          if (this.customEpisode.length > 0 &&
+            !isValidPodcastEpisode(this.customEpisode)) {
+            Text('请输入 1–2 位数字，例如：01')
               .width('100%')
               .fontSize(10)
               .fontColor('#FF746A')
+          }
+        } else {
+          Text('分集字符')
+            .width('100%')
+            .fontSize(11)
+            .fontColor($r('app.color.text_secondary'))
+          Row({ space: 7 }) {
+            this.episodeChoice(EpisodePreset.UP)
+            this.episodeChoice(EpisodePreset.MIDDLE)
+            this.episodeChoice(EpisodePreset.DOWN)
+            this.episodeChoice(EpisodePreset.CUSTOM)
+          }
+          .width('100%')
+          if (this.episodePreset === EpisodePreset.CUSTOM) {
+            this.field('自定义字符', this.customEpisode, '1–2 位数字或一个字符',
+              (value: string) => { this.customEpisode = value; })
+            if (this.customEpisode.length > 0 &&
+              !isValidCustomEpisode(this.customEpisode)) {
+              Text('“字”“9”“10”有效；“特别”“100”无效')
+                .width('100%')
+                .fontSize(10)
+                .fontColor('#FF746A')
+            }
           }
         }
       }
