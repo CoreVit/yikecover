@@ -28,9 +28,9 @@ const COPY_LEFT: number = 106;
 const COPY_WIDTH: number = 1010;
 const HEADER_TAB_WIDTH: number = 510;
 const HEADER_TAB_HEIGHT: number = 132;
-const HEADER_CURVE_MIDDLE_X: number = 465;
-const HEADER_CURVE_MIDDLE_Y: number = 66;
-const HEADER_CURVE_END_X: number = 395;
+const HEADER_CURVE_FIRST_X: number = 462;
+const HEADER_CURVE_SECOND_X: number = 480;
+const HEADER_CURVE_END_X: number = 380;
 const VERSION_LABEL_LEFT: number = 500;
 
 function drawBackground(ctx: CanvasRenderer,
@@ -119,12 +119,11 @@ function drawHeader(ctx: CanvasRenderer, draft: CoverDraft,
   ctx.beginPath();
   ctx.moveTo(0, 0);
   ctx.lineTo(HEADER_TAB_WIDTH, 0);
-  // Measured from both 21/22 reference covers: the tab uses a continuous
-  // two-stage S curve rather than a quarter ellipse. The paired control points
-  // around the middle keep the tangent continuous in both podcast variants.
-  ctx.bezierCurveTo(490, 0, 470, 28,
-    HEADER_CURVE_MIDDLE_X, HEADER_CURVE_MIDDLE_Y);
-  ctx.bezierCurveTo(462, 102, 410, HEADER_TAB_HEIGHT,
+  // Single cubic fitted to the measured 21/22 tab boundary. Horizontal
+  // endpoint handles preserve the soft clipped-tab flow without a join or
+  // curvature kink, and both podcast variants share these exact coordinates.
+  ctx.bezierCurveTo(HEADER_CURVE_FIRST_X, 0,
+    HEADER_CURVE_SECOND_X, HEADER_TAB_HEIGHT,
     HEADER_CURVE_END_X, HEADER_TAB_HEIGHT);
   ctx.lineTo(0, HEADER_TAB_HEIGHT);
   ctx.closePath();
