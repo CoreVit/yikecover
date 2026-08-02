@@ -41,6 +41,8 @@ export const EDITORIAL_HEADER_VERSION_LEFT: number = 500;
 const EDITORIAL_HEADER_TAIL_WIDTH: number = 130;
 const EDITORIAL_HEADER_TOP_CONTROL: number = 60;
 const EDITORIAL_HEADER_BOTTOM_CONTROL: number = 100;
+const EDITORIAL_HEADER_LEFT_RADIUS: number = 38;
+const QUARTER_CIRCLE_CONTROL: number = 0.55228475;
 
 // Templates 06–09 share the same curve. A longer label may extend the straight
 // section horizontally without stretching or otherwise deforming that curve.
@@ -54,7 +56,13 @@ export function drawEditorialHeaderTabPath(ctx: CanvasRenderer,
     curveEnd + EDITORIAL_HEADER_BOTTOM_CONTROL,
     EDITORIAL_HEADER_TAB_HEIGHT,
     curveEnd, EDITORIAL_HEADER_TAB_HEIGHT);
-  ctx.lineTo(0, EDITORIAL_HEADER_TAB_HEIGHT);
+  ctx.lineTo(EDITORIAL_HEADER_LEFT_RADIUS, EDITORIAL_HEADER_TAB_HEIGHT);
+  const leftControl: number = EDITORIAL_HEADER_LEFT_RADIUS *
+    (1 - QUARTER_CIRCLE_CONTROL);
+  ctx.bezierCurveTo(leftControl, EDITORIAL_HEADER_TAB_HEIGHT,
+    0, EDITORIAL_HEADER_TAB_HEIGHT + leftControl,
+    0, EDITORIAL_HEADER_TAB_HEIGHT + EDITORIAL_HEADER_LEFT_RADIUS);
+  ctx.lineTo(0, 0);
   ctx.closePath();
 }
 
