@@ -20,15 +20,16 @@ import {
   setCanvasFont
 } from './RenderSupport';
 
-const EXCLUSIVE_LABEL_PADDING: number =
-  (EDITORIAL_HEADER_TAB_HEIGHT - CORNER_LABEL_FONT_SIZE) / 2;
-const EXCLUSIVE_LABEL_CENTER_Y: number = EDITORIAL_HEADER_TAB_HEIGHT / 2;
+const EXCLUSIVE_LABEL_LEFT: number = 52;
+const EXCLUSIVE_LABEL_RIGHT_GAP: number = 12;
+const EXCLUSIVE_LABEL_CENTER_Y: number = 73;
 
 function exclusiveTabLayout(ctx: CanvasRenderer,
   brand: string): AdaptiveHeaderLayout {
-  return adaptiveHeaderLayout(ctx, brand, EXCLUSIVE_LABEL_PADDING,
+  return adaptiveHeaderLayout(ctx, brand, EXCLUSIVE_LABEL_LEFT,
     CORNER_LABEL_FONT_SIZE, CORNER_LABEL_MIN_FONT_SIZE,
-    360, 850, EXCLUSIVE_LABEL_PADDING, 104, EXCLUSIVE_LABEL_PADDING,
+    360, 850, EXCLUSIVE_LABEL_RIGHT_GAP, 104,
+    EXCLUSIVE_LABEL_RIGHT_GAP,
     { bold: true, italic: true });
 }
 
@@ -49,7 +50,7 @@ function drawExclusiveBrand(ctx: CanvasRenderer, brand: string): void {
   ctx.fillStyle = '#FFFFFF';
   setCanvasFont(ctx, layout.fontSize, { bold: true, italic: true });
   ctx.textBaseline = 'middle';
-  ctx.fillText(brand, EXCLUSIVE_LABEL_PADDING, EXCLUSIVE_LABEL_CENTER_Y);
+  ctx.fillText(brand, EXCLUSIVE_LABEL_LEFT, EXCLUSIVE_LABEL_CENTER_Y);
   ctx.textBaseline = 'alphabetic';
 }
 
