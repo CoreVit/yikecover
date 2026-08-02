@@ -10,6 +10,7 @@ import {
   drawEditorialHeaderTabPath,
   EDITORIAL_HEADER_LABEL_CENTER_Y,
   EDITORIAL_HEADER_LABEL_LEFT,
+  EDITORIAL_HEADER_VERSION_CENTER_Y,
   drawEpisodeCornerLabel,
   fitSingleText,
   setCanvasFont,
@@ -134,7 +135,7 @@ function drawHeader(ctx: CanvasRenderer, draft: CoverDraft,
     ctx.fillStyle = palette.accent;
     setCanvasFont(ctx, versionSize, { bold: true, italic: true });
     ctx.fillText(draft.versionLabel, versionLeft,
-      EDITORIAL_HEADER_LABEL_CENTER_Y);
+      EDITORIAL_HEADER_VERSION_CENTER_Y);
   }
   ctx.textBaseline = 'alphabetic';
 

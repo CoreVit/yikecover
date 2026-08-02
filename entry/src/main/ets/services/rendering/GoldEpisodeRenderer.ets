@@ -10,6 +10,7 @@ import {
   drawCoverPhoto,
   EDITORIAL_HEADER_LABEL_CENTER_Y,
   EDITORIAL_HEADER_LABEL_LEFT,
+  EDITORIAL_HEADER_VERSION_CENTER_Y,
   drawEditorialHeaderTabPath,
   drawEditorialEpisodeCornerPath,
   drawEditorialEpisodeNumber,
@@ -58,7 +59,7 @@ function drawGoldHeader(ctx: CanvasRenderer, draft: CoverDraft): void {
       VERSION_LABEL_MIN_FONT_SIZE, { bold: true, italic: true });
     setCanvasFont(ctx, versionSize, { bold: true, italic: true });
     ctx.fillText(draft.versionLabel, versionLeft,
-      EDITORIAL_HEADER_LABEL_CENTER_Y);
+      EDITORIAL_HEADER_VERSION_CENTER_Y);
   }
   ctx.textBaseline = 'alphabetic';
 }
