@@ -4,6 +4,8 @@ import {
   CoverDraft,
   DEFAULT_PHOTO_TITLE_FIRST,
   DEFAULT_PHOTO_TITLE_SECOND,
+  DEFAULT_QUOTE_BODY,
+  DEFAULT_QUOTE_TITLE,
   ExportSettings,
   HistoryRecord,
   EpisodePreset,
@@ -16,6 +18,17 @@ const SETTINGS_STORE: string = 'yikecover_settings';
 const CONTENT_STORE: string = 'yikecover_content';
 
 let applicationContext: Context | undefined = undefined;
+
+const LEGACY_QUOTE_DEFAULT_CHECKSUM: number = 157451345;
+
+function quoteDefaultChecksum(title: string, body: string): number {
+  const units: string[] = Array.from(`${title}\n${body}`);
+  let checksum: number = 0;
+  for (let index: number = 0; index < units.length; index++) {
+    checksum = (checksum * 131 + units[index].charCodeAt(0)) % 2147483647;
+  }
+  return checksum;
+}
 
 function context(): Context {
   if (applicationContext === undefined) {
@@ -49,6 +62,12 @@ function migrateDraftDefaults(draft: CoverDraft): CoverDraft {
     if (!isValidPodcastEpisode(draft.customEpisode)) {
       draft.customEpisode = '01';
     }
+  }
+  if (draft.templateId === 10 &&
+    quoteDefaultChecksum(draft.title1, draft.title2) ===
+      LEGACY_QUOTE_DEFAULT_CHECKSUM) {
+    draft.title1 = DEFAULT_QUOTE_TITLE;
+    draft.title2 = DEFAULT_QUOTE_BODY;
   }
   if (draft.templateId === 6 || draft.templateId === 7) {
     if (draft.episodePreset !== EpisodePreset.CUSTOM &&

@@ -1006,7 +1006,8 @@ struct CoverEditor {
   @Builder
   private exportSection() {
     Column({ space: 13 }) {
-      this.sectionTitle('05', '导出封面', '按目标分辨率重新渲染')
+      this.sectionTitle(this.templateId === 10 ? '02' : '05',
+        '导出封面', '按目标分辨率重新渲染')
       Row() {
         Column({ space: 3 }) {
           Text(this.exportLabel)
@@ -1102,7 +1103,9 @@ struct CoverEditor {
                   this.definition().capabilities.supportsTheme) {
                   this.optionsSection()
                 }
-                this.metadataSection()
+                if (this.templateId !== 10) {
+                  this.metadataSection()
+                }
                 this.exportSection()
               }
               .width('100%')
