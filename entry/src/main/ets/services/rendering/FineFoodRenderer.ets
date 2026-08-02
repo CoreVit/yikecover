@@ -29,6 +29,7 @@ function foodTabLayout(ctx: CanvasRenderer,
   return adaptiveHeaderLayout(ctx, brand, FOOD_BRAND_LEFT,
     FOOD_BRAND_FONT_SIZE, FOOD_BRAND_MIN_FONT_SIZE,
     470, 920, FOOD_BRAND_RIGHT_GAP, FOOD_SHELF_CURVE_WIDTH,
+    FOOD_BRAND_RIGHT_GAP,
     { bold: true, italic: true });
 }
 

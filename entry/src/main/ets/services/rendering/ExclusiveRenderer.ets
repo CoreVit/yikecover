@@ -24,7 +24,7 @@ function exclusiveTabLayout(ctx: CanvasRenderer,
   brand: string): AdaptiveHeaderLayout {
   return adaptiveHeaderLayout(ctx, brand, 56,
     CORNER_LABEL_FONT_SIZE, CORNER_LABEL_MIN_FONT_SIZE,
-    360, 850, 28, 104, { bold: true, italic: true });
+    360, 850, 28, 104, 28, { bold: true, italic: true });
 }
 
 function drawExclusiveBrand(ctx: CanvasRenderer, brand: string): void {

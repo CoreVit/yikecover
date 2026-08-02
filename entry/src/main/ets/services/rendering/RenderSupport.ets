@@ -388,7 +388,8 @@ export function fitSingleText(ctx: CanvasRenderer, text: string,
 export function adaptiveHeaderLayout(ctx: CanvasRenderer, text: string,
   labelLeft: number, preferredFontSize: number, minimumFontSize: number,
   minimumWidth: number, maximumWidth: number, rightGap: number,
-  tailWidth: number, options?: FontOptions): AdaptiveHeaderLayout {
+  tailWidth: number, trailingGap: number,
+  options?: FontOptions): AdaptiveHeaderLayout {
   setCanvasFont(ctx, preferredFontSize, options);
   const preferredTextWidth: number = ctx.measureText(text).width;
   const naturalWidth: number =
@@ -403,7 +404,7 @@ export function adaptiveHeaderLayout(ctx: CanvasRenderer, text: string,
     width: width,
     fontSize: fontSize,
     curveStart: width - tailWidth,
-    trailingLabelLeft: width + rightGap
+    trailingLabelLeft: width + trailingGap
   };
 }
 
@@ -411,14 +412,14 @@ export function classicFrameHeaderLayout(ctx: CanvasRenderer,
   text: string): AdaptiveHeaderLayout {
   return adaptiveHeaderLayout(ctx, text, 58,
     CORNER_LABEL_FONT_SIZE, CORNER_LABEL_MIN_FONT_SIZE,
-    404, 954, 28, 116, { bold: true, italic: true });
+    404, 954, 28, 116, 28, { bold: true, italic: true });
 }
 
 export function editorialHeaderLayout(ctx: CanvasRenderer, text: string,
   labelLeft: number): AdaptiveHeaderLayout {
   return adaptiveHeaderLayout(ctx, text, labelLeft,
     CORNER_LABEL_FONT_SIZE, CORNER_LABEL_MIN_FONT_SIZE,
-    510, 920, 28, 130, { bold: true, italic: true });
+    480, 920, 6, 130, 28, { bold: true, italic: true });
 }
 
 export function drawGradientText(ctx: CanvasRenderer, text: string,
