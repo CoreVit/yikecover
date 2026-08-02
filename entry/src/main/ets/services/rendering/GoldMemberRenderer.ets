@@ -5,6 +5,7 @@ import {
 } from '../../model/CoverModels';
 import {
   AdaptiveHeaderLayout,
+  BRAND_LABEL_CENTER_Y,
   classicFrameHeaderLayout,
   drawCoverPhoto,
   drawGradientText,
@@ -109,7 +110,7 @@ function drawMemberHeader(ctx: CanvasRenderer, draft: CoverDraft): void {
   setCanvasFont(ctx, layout.fontSize, { bold: true, italic: true });
   ctx.textAlign = 'left';
   ctx.textBaseline = 'middle';
-  ctx.fillText(draft.brand, 58, MEMBER_LABEL_CENTER_Y);
+  ctx.fillText(draft.brand, 58, BRAND_LABEL_CENTER_Y);
 
   if (draft.versionLabel.length > 0) {
     const versionLeft: number = layout.trailingLabelLeft;
