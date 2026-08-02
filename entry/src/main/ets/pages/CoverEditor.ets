@@ -1168,7 +1168,7 @@ struct CoverEditor {
     .constraintSize({ maxWidth: 1180 })
     .alignSelf(ItemAlign.Center)
     .alignItems(VerticalAlign.Top)
-    .padding({ left: 14, right: 14, bottom: 28 })
+    .padding({ left: 14, right: 14, top: 14, bottom: 28 })
   }
 
   @Builder
@@ -1180,7 +1180,7 @@ struct CoverEditor {
       }
       .width('100%')
       .constraintSize({ maxWidth: 1180 })
-      .padding({ left: 14, right: 14, bottom: 28 })
+      .padding({ left: 14, right: 14, top: 14, bottom: 28 })
     }
     .align(Alignment.TopStart)
     .layoutWeight(1)
