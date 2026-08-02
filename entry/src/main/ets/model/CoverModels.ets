@@ -207,7 +207,7 @@ export const TEMPLATE_DEFINITIONS: TemplateDefinition[] = [
     code: '09',
     name: '金色播客节目卡',
     subtitle: '金色信息与版本分集',
-    accent: '#D4B366',
+    accent: '#BC8F36',
     skeleton: TemplateSkeleton.PODCAST,
     capabilities: capabilities(false, true, true, false, false, false, true),
     defaultBrand: '一刻播客',
