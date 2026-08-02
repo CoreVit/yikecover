@@ -5,15 +5,14 @@ import {
   resolvedEpisode
 } from '../../model/CoverModels';
 import {
+  AdaptiveHeaderLayout,
+  editorialHeaderLayout,
   BRAND_LABEL_CENTER_Y,
-  CORNER_LABEL_FONT_SIZE,
-  CORNER_LABEL_MIN_FONT_SIZE,
   drawEditorialHeaderTabPath,
   drawEpisodeCornerLabel,
   fitSingleText,
   setCanvasFont,
-  wrapText,
-  EDITORIAL_HEADER_VERSION_LEFT
+  wrapText
 } from './RenderSupport';
 
 export interface PodcastCardPalette {
@@ -25,7 +24,6 @@ export interface PodcastCardPalette {
 }
 
 const HEADER_LEFT: number = 72;
-const HEADER_MAX_WIDTH: number = 360;
 const COPY_LEFT: number = 106;
 const COPY_WIDTH: number = 1010;
 const CORNER_INNER_TOP_X: number = 1576;
@@ -116,22 +114,22 @@ function drawHeader(ctx: CanvasRenderer, draft: CoverDraft,
   palette: PodcastCardPalette, showVersion: boolean): void {
   const displayBrand: string =
     Array.from(draft.brand.trim()).slice(0, 4).join('');
+  const layout: AdaptiveHeaderLayout =
+    editorialHeaderLayout(ctx, displayBrand, HEADER_LEFT);
   ctx.fillStyle = palette.accent;
-  drawEditorialHeaderTabPath(ctx);
+  drawEditorialHeaderTabPath(ctx, layout.width);
   ctx.fill();
 
   ctx.fillStyle = palette.backgroundTop;
-  const brandSize: number = fitSingleText(ctx, displayBrand,
-    HEADER_MAX_WIDTH, CORNER_LABEL_FONT_SIZE, CORNER_LABEL_MIN_FONT_SIZE,
-    { bold: true, italic: true });
-  setCanvasFont(ctx, brandSize, { bold: true, italic: true });
+  setCanvasFont(ctx, layout.fontSize, { bold: true, italic: true });
   ctx.textBaseline = 'middle';
   ctx.fillText(displayBrand, HEADER_LEFT, BRAND_LABEL_CENTER_Y);
 
   if (showVersion && draft.versionLabel.trim().length > 0) {
-    const versionLeft: number = EDITORIAL_HEADER_VERSION_LEFT;
+    const versionLeft: number = layout.trailingLabelLeft;
     const versionSize: number = fitSingleText(ctx, draft.versionLabel,
-      1560 - versionLeft, 62, 42, { bold: true, italic: true });
+      CORNER_INNER_TOP_X - versionLeft - 28,
+      62, 42, { bold: true, italic: true });
     ctx.fillStyle = palette.accent;
     setCanvasFont(ctx, versionSize, { bold: true, italic: true });
     ctx.fillText(draft.versionLabel, versionLeft, BRAND_LABEL_CENTER_Y);

@@ -9,6 +9,13 @@ export interface FontOptions {
   family?: string;
 }
 
+export interface AdaptiveHeaderLayout {
+  width: number;
+  fontSize: number;
+  curveStart: number;
+  trailingLabelLeft: number;
+}
+
 // Photo templates 01–07 share one editorial title block. Keeping these
 // coordinates in design space prevents individual renderers from drifting.
 export const PHOTO_TITLE_LEFT: number = 72;
@@ -376,6 +383,42 @@ export function fitSingleText(ctx: CanvasRenderer, text: string,
   }
   setCanvasFont(ctx, minimum, options);
   return minimum;
+}
+
+export function adaptiveHeaderLayout(ctx: CanvasRenderer, text: string,
+  labelLeft: number, preferredFontSize: number, minimumFontSize: number,
+  minimumWidth: number, maximumWidth: number, rightGap: number,
+  tailWidth: number, options?: FontOptions): AdaptiveHeaderLayout {
+  setCanvasFont(ctx, preferredFontSize, options);
+  const preferredTextWidth: number = ctx.measureText(text).width;
+  const naturalWidth: number =
+    labelLeft + preferredTextWidth + rightGap + tailWidth;
+  const width: number = Math.min(maximumWidth,
+    Math.max(minimumWidth, naturalWidth));
+  const availableTextWidth: number = Math.max(1,
+    width - labelLeft - rightGap - tailWidth);
+  const fontSize: number = fitSingleText(ctx, text, availableTextWidth,
+    preferredFontSize, minimumFontSize, options);
+  return {
+    width: width,
+    fontSize: fontSize,
+    curveStart: width - tailWidth,
+    trailingLabelLeft: width + rightGap
+  };
+}
+
+export function classicFrameHeaderLayout(ctx: CanvasRenderer,
+  text: string): AdaptiveHeaderLayout {
+  return adaptiveHeaderLayout(ctx, text, 58,
+    CORNER_LABEL_FONT_SIZE, CORNER_LABEL_MIN_FONT_SIZE,
+    404, 954, 28, 116, { bold: true, italic: true });
+}
+
+export function editorialHeaderLayout(ctx: CanvasRenderer, text: string,
+  labelLeft: number): AdaptiveHeaderLayout {
+  return adaptiveHeaderLayout(ctx, text, labelLeft,
+    CORNER_LABEL_FONT_SIZE, CORNER_LABEL_MIN_FONT_SIZE,
+    510, 920, 28, 130, { bold: true, italic: true });
 }
 
 export function drawGradientText(ctx: CanvasRenderer, text: string,

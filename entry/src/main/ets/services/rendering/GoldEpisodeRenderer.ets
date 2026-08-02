@@ -5,9 +5,9 @@ import {
   resolvedEpisode
 } from '../../model/CoverModels';
 import {
+  AdaptiveHeaderLayout,
+  editorialHeaderLayout,
   BRAND_LABEL_CENTER_Y,
-  CORNER_LABEL_FONT_SIZE,
-  CORNER_LABEL_MIN_FONT_SIZE,
   drawCoverPhoto,
   drawEditorialHeaderTabPath,
   drawEditorialEpisodeCornerPath,
@@ -21,17 +21,15 @@ import {
   PHOTO_TITLE_MAX_WIDTH,
   PHOTO_TITLE_SECOND_BASELINE,
   setPhotoTitleFont,
-  setCanvasFont,
-  EDITORIAL_HEADER_TAB_WIDTH,
-  EDITORIAL_HEADER_VERSION_LEFT
+  setCanvasFont
 } from './RenderSupport';
 
 const VERSION_LABEL_FONT_SIZE: number = 60;
 const VERSION_LABEL_MIN_FONT_SIZE: number = 42;
 
-function goldBand(ctx: CanvasRenderer): CanvasGradient {
+function goldBand(ctx: CanvasRenderer, width: number): CanvasGradient {
   const band: CanvasGradient = ctx.createLinearGradient(0, 0,
-    EDITORIAL_HEADER_TAB_WIDTH, 0);
+    width, 0);
   band.addColorStop(0, '#FBD75F');
   band.addColorStop(0.52, '#F9E270');
   band.addColorStop(1, '#FFF0A0');
@@ -39,24 +37,22 @@ function goldBand(ctx: CanvasRenderer): CanvasGradient {
 }
 
 function drawGoldHeader(ctx: CanvasRenderer, draft: CoverDraft): void {
-  const brandSize: number = fitSingleText(ctx, draft.brand, 610,
-    CORNER_LABEL_FONT_SIZE, CORNER_LABEL_MIN_FONT_SIZE,
-    { bold: true, italic: true });
-  setCanvasFont(ctx, brandSize, { bold: true, italic: true });
-  ctx.fillStyle = goldBand(ctx);
-  drawEditorialHeaderTabPath(ctx);
+  const layout: AdaptiveHeaderLayout =
+    editorialHeaderLayout(ctx, draft.brand, 58);
+  ctx.fillStyle = goldBand(ctx, layout.width);
+  drawEditorialHeaderTabPath(ctx, layout.width);
   ctx.fill();
 
   ctx.fillStyle = '#8B4E08';
-  setCanvasFont(ctx, brandSize, { bold: true, italic: true });
+  setCanvasFont(ctx, layout.fontSize, { bold: true, italic: true });
   ctx.textBaseline = 'middle';
   ctx.fillText(draft.brand, 58, BRAND_LABEL_CENTER_Y);
 
   if (draft.versionLabel.length > 0) {
-    const versionLeft: number = EDITORIAL_HEADER_VERSION_LEFT;
+    const versionLeft: number = layout.trailingLabelLeft;
     ctx.fillStyle = '#F4D572';
     const versionSize: number = fitSingleText(ctx, draft.versionLabel,
-      1640 - versionLeft - 72, VERSION_LABEL_FONT_SIZE,
+      1620 - versionLeft - 28, VERSION_LABEL_FONT_SIZE,
       VERSION_LABEL_MIN_FONT_SIZE, { bold: true, italic: true });
     setCanvasFont(ctx, versionSize, { bold: true, italic: true });
     ctx.fillText(draft.versionLabel, versionLeft,

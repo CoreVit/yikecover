@@ -4,9 +4,9 @@ import {
   DESIGN_WIDTH
 } from '../../model/CoverModels';
 import {
+  AdaptiveHeaderLayout,
+  classicFrameHeaderLayout,
   BRAND_LABEL_CENTER_Y,
-  CORNER_LABEL_FONT_SIZE,
-  CORNER_LABEL_MIN_FONT_SIZE,
   drawCoverPhoto,
   drawGradientText,
   fitPhotoTitlePair,
@@ -22,7 +22,6 @@ import {
 
 const INSET: number = 24;
 const RADIUS: number = 78;
-const VERSION_LABEL_GAP: number = 28;
 const VERSION_LABEL_FONT_SIZE: number = 60;
 const VERSION_LABEL_MIN_FONT_SIZE: number = 42;
 
@@ -43,27 +42,24 @@ function memberMetalGradient(ctx: CanvasRenderer): CanvasGradient {
   return frame;
 }
 
-function memberTabWidth(ctx: CanvasRenderer, brand: string): number {
-  const size: number = fitSingleText(ctx, brand, 760,
-    CORNER_LABEL_FONT_SIZE, CORNER_LABEL_MIN_FONT_SIZE,
-    { bold: true, italic: true });
-  setCanvasFont(ctx, size, { bold: true, italic: true });
-  return Math.min(930, Math.max(380, ctx.measureText(brand).width + 132));
+function memberTabLayout(ctx: CanvasRenderer,
+  brand: string): AdaptiveHeaderLayout {
+  return classicFrameHeaderLayout(ctx, brand);
 }
 
 function createMemberOpening(ctx: CanvasRenderer, brand: string): void {
   const right: number = DESIGN_WIDTH - INSET;
   const bottom: number = DESIGN_HEIGHT - INSET;
   const bottomJoin: number = DESIGN_WIDTH / 2;
-  const notchEnd: number =
-    Math.min(memberTabWidth(ctx, brand) + 38, right - RADIUS * 2);
+  const layout: AdaptiveHeaderLayout = memberTabLayout(ctx, brand);
+  const notchEnd: number = Math.min(layout.width, right - RADIUS * 2);
   ctx.beginPath();
   ctx.moveTo(bottomJoin, bottom);
   ctx.lineTo(INSET + RADIUS, bottom);
   ctx.quadraticCurveTo(INSET, bottom, INSET, bottom - RADIUS);
   ctx.lineTo(INSET, 192);
   ctx.quadraticCurveTo(INSET, 136, 82, 136);
-  const shelfEnd: number = notchEnd - 116;
+  const shelfEnd: number = layout.curveStart;
   ctx.lineTo(shelfEnd, 136);
   ctx.bezierCurveTo(shelfEnd + 52, 136,
     notchEnd - 52, INSET, notchEnd, INSET);
@@ -107,19 +103,16 @@ function drawMemberFrame(ctx: CanvasRenderer, draft: CoverDraft,
 }
 
 function drawMemberHeader(ctx: CanvasRenderer, draft: CoverDraft): void {
-  const width: number = memberTabWidth(ctx, draft.brand);
-  const brandSize: number = fitSingleText(ctx, draft.brand, width - 132,
-    CORNER_LABEL_FONT_SIZE, CORNER_LABEL_MIN_FONT_SIZE,
-    { bold: true, italic: true });
+  const layout: AdaptiveHeaderLayout = memberTabLayout(ctx, draft.brand);
 
   ctx.fillStyle = '#9A570C';
-  setCanvasFont(ctx, brandSize, { bold: true, italic: true });
+  setCanvasFont(ctx, layout.fontSize, { bold: true, italic: true });
   ctx.textAlign = 'left';
   ctx.textBaseline = 'middle';
   ctx.fillText(draft.brand, 58, BRAND_LABEL_CENTER_Y);
 
   if (draft.versionLabel.length > 0) {
-    const versionLeft: number = width + VERSION_LABEL_GAP;
+    const versionLeft: number = layout.trailingLabelLeft;
     const versionSize: number = fitSingleText(ctx, draft.versionLabel,
       DESIGN_WIDTH - versionLeft - 72, VERSION_LABEL_FONT_SIZE,
       VERSION_LABEL_MIN_FONT_SIZE, { bold: true, italic: true });

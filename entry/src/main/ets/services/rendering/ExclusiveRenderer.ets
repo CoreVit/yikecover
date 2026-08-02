@@ -4,12 +4,13 @@ import {
   DESIGN_WIDTH
 } from '../../model/CoverModels';
 import {
+  AdaptiveHeaderLayout,
+  adaptiveHeaderLayout,
   BRAND_LABEL_CENTER_Y,
   CORNER_LABEL_FONT_SIZE,
   CORNER_LABEL_MIN_FONT_SIZE,
   drawCoverPhoto,
   fitPhotoTitlePair,
-  fitSingleText,
   isTextTooWide,
   PHOTO_TITLE_FIRST_BASELINE,
   PHOTO_TITLE_LEFT,
@@ -19,31 +20,28 @@ import {
   setCanvasFont
 } from './RenderSupport';
 
-function exclusiveTabWidth(ctx: CanvasRenderer, brand: string): number {
-  const size: number = fitSingleText(ctx, brand, 680,
+function exclusiveTabLayout(ctx: CanvasRenderer,
+  brand: string): AdaptiveHeaderLayout {
+  return adaptiveHeaderLayout(ctx, brand, 56,
     CORNER_LABEL_FONT_SIZE, CORNER_LABEL_MIN_FONT_SIZE,
-    { bold: true, italic: true });
-  setCanvasFont(ctx, size, { bold: true, italic: true });
-  return Math.min(850, Math.max(360, ctx.measureText(brand).width + 160));
+    360, 850, 28, 104, { bold: true, italic: true });
 }
 
 function drawExclusiveBrand(ctx: CanvasRenderer, brand: string): void {
-  const width: number = exclusiveTabWidth(ctx, brand);
-  const size: number = fitSingleText(ctx, brand, width - 160,
-    CORNER_LABEL_FONT_SIZE, CORNER_LABEL_MIN_FONT_SIZE,
-    { bold: true, italic: true });
+  const layout: AdaptiveHeaderLayout = exclusiveTabLayout(ctx, brand);
+  const width: number = layout.width;
   ctx.fillStyle = '#EB0000';
   ctx.beginPath();
   ctx.moveTo(0, 0);
   ctx.lineTo(width, 0);
   ctx.lineTo(width - 44, 96);
-  ctx.quadraticCurveTo(width - 58, 128, width - 104, 128);
+  ctx.quadraticCurveTo(width - 58, 128, layout.curveStart, 128);
   ctx.lineTo(0, 128);
   ctx.closePath();
   ctx.fill();
 
   ctx.fillStyle = '#FFFFFF';
-  setCanvasFont(ctx, size, { bold: true, italic: true });
+  setCanvasFont(ctx, layout.fontSize, { bold: true, italic: true });
   ctx.textBaseline = 'middle';
   ctx.fillText(brand, 56, BRAND_LABEL_CENTER_Y);
   ctx.textBaseline = 'alphabetic';

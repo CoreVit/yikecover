@@ -6,16 +6,15 @@ import {
   resolvedEpisode
 } from '../../model/CoverModels';
 import {
+  AdaptiveHeaderLayout,
+  editorialHeaderLayout,
   BRAND_LABEL_CENTER_Y,
-  CORNER_LABEL_FONT_SIZE,
-  CORNER_LABEL_MIN_FONT_SIZE,
   drawCoverPhoto,
   drawEditorialHeaderTabPath,
   drawEditorialEpisodeCornerPath,
   drawEditorialEpisodeNumber,
   drawGradientText,
   fitPhotoTitlePair,
-  fitSingleText,
   isTextTooWide,
   PHOTO_TITLE_FIRST_BASELINE,
   PHOTO_TITLE_LEFT,
@@ -46,8 +45,9 @@ function paletteFor(draft: CoverDraft): SeriesPalette {
   };
 }
 
-function makeBand(ctx: CanvasRenderer, palette: SeriesPalette): CanvasGradient {
-  const band: CanvasGradient = ctx.createLinearGradient(0, 0, 790, 0);
+function makeBand(ctx: CanvasRenderer, palette: SeriesPalette,
+  width: number): CanvasGradient {
+  const band: CanvasGradient = ctx.createLinearGradient(0, 0, width, 0);
   band.addColorStop(0, palette.start);
   if (palette.start === '#01D26A') {
     band.addColorStop(0.5, '#00A99A');
@@ -58,19 +58,14 @@ function makeBand(ctx: CanvasRenderer, palette: SeriesPalette): CanvasGradient {
 
 function drawSeriesHeader(ctx: CanvasRenderer, draft: CoverDraft,
   palette: SeriesPalette): void {
-  const brandSize: number = fitSingleText(ctx, draft.brand, 620,
-    CORNER_LABEL_FONT_SIZE, CORNER_LABEL_MIN_FONT_SIZE,
-    { bold: true, italic: true });
-  setCanvasFont(ctx, brandSize, { bold: true, italic: true });
-  const measuredBrandWidth: number = ctx.measureText(draft.brand).width;
-  const headerWidth: number = Math.min(760,
-    Math.max(510, measuredBrandWidth + 140));
-  ctx.fillStyle = makeBand(ctx, palette);
-  drawEditorialHeaderTabPath(ctx, headerWidth);
+  const layout: AdaptiveHeaderLayout =
+    editorialHeaderLayout(ctx, draft.brand, 42);
+  ctx.fillStyle = makeBand(ctx, palette, layout.width);
+  drawEditorialHeaderTabPath(ctx, layout.width);
   ctx.fill();
 
   ctx.fillStyle = palette.foreground;
-  setCanvasFont(ctx, brandSize, { bold: true, italic: true });
+  setCanvasFont(ctx, layout.fontSize, { bold: true, italic: true });
   ctx.textBaseline = 'middle';
   ctx.fillText(draft.brand, 42, BRAND_LABEL_CENTER_Y);
   ctx.textBaseline = 'alphabetic';

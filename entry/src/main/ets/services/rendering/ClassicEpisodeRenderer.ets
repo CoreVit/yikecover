@@ -5,14 +5,13 @@ import {
   resolvedEpisode
 } from '../../model/CoverModels';
 import {
+  AdaptiveHeaderLayout,
+  classicFrameHeaderLayout,
   BRAND_LABEL_CENTER_Y,
-  CORNER_LABEL_FONT_SIZE,
-  CORNER_LABEL_MIN_FONT_SIZE,
   drawCoverPhoto,
   drawEpisodeCornerLabel,
   drawGradientText,
   fitPhotoTitlePair,
-  fitSingleText,
   isTextTooWide,
   PHOTO_TITLE_FIRST_BASELINE,
   PHOTO_TITLE_LEFT,
@@ -26,20 +25,17 @@ const INSET: number = 24;
 const RADIUS: number = 64;
 const CIRCLE_CONTROL: number = RADIUS * 0.55228475;
 
-function tabWidth(ctx: CanvasRenderer, brand: string): number {
-  const size: number = fitSingleText(ctx, brand, 760,
-    CORNER_LABEL_FONT_SIZE, CORNER_LABEL_MIN_FONT_SIZE,
-    { bold: true, italic: true });
-  setCanvasFont(ctx, size, { bold: true, italic: true });
-  return Math.min(920, Math.max(370, ctx.measureText(brand).width + 126));
+function tabLayout(ctx: CanvasRenderer,
+  brand: string): AdaptiveHeaderLayout {
+  return classicFrameHeaderLayout(ctx, brand);
 }
 
 function createEpisodeOpening(ctx: CanvasRenderer, brand: string): void {
   const right: number = DESIGN_WIDTH - INSET;
   const bottom: number = DESIGN_HEIGHT - INSET;
   const bottomJoin: number = DESIGN_WIDTH / 2;
-  const notchEnd: number =
-    Math.min(tabWidth(ctx, brand) + 34, right - RADIUS * 2);
+  const layout: AdaptiveHeaderLayout = tabLayout(ctx, brand);
+  const notchEnd: number = Math.min(layout.width, right - RADIUS * 2);
   ctx.beginPath();
   ctx.moveTo(bottomJoin, bottom);
   ctx.lineTo(INSET + RADIUS, bottom);
@@ -47,7 +43,7 @@ function createEpisodeOpening(ctx: CanvasRenderer, brand: string): void {
     INSET, bottom - RADIUS + CIRCLE_CONTROL, INSET, bottom - RADIUS);
   ctx.lineTo(INSET, 192);
   ctx.quadraticCurveTo(INSET, 136, 82, 136);
-  const shelfEnd: number = notchEnd - 116;
+  const shelfEnd: number = layout.curveStart;
   ctx.lineTo(shelfEnd, 136);
   ctx.bezierCurveTo(shelfEnd + 52, 136,
     notchEnd - 52, INSET, notchEnd, INSET);
@@ -100,12 +96,9 @@ function drawEpisodeBackground(ctx: CanvasRenderer, draft: CoverDraft,
 }
 
 function drawEpisodeBrand(ctx: CanvasRenderer, brand: string): void {
-  const width: number = tabWidth(ctx, brand);
-  const size: number = fitSingleText(ctx, brand, width - 126,
-    CORNER_LABEL_FONT_SIZE, CORNER_LABEL_MIN_FONT_SIZE,
-    { bold: true, italic: true });
+  const layout: AdaptiveHeaderLayout = tabLayout(ctx, brand);
   ctx.fillStyle = '#FFFFFF';
-  setCanvasFont(ctx, size, { bold: true, italic: true });
+  setCanvasFont(ctx, layout.fontSize, { bold: true, italic: true });
   ctx.textAlign = 'left';
   ctx.textBaseline = 'middle';
   ctx.fillText(brand, 58, BRAND_LABEL_CENTER_Y);

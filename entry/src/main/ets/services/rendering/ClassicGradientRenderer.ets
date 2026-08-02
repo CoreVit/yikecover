@@ -4,13 +4,12 @@ import {
   DESIGN_WIDTH
 } from '../../model/CoverModels';
 import {
+  AdaptiveHeaderLayout,
+  classicFrameHeaderLayout,
   BRAND_LABEL_CENTER_Y,
-  CORNER_LABEL_FONT_SIZE,
-  CORNER_LABEL_MIN_FONT_SIZE,
   drawCoverPhoto,
   drawGradientText,
   fitPhotoTitlePair,
-  fitSingleText,
   isTextTooWide,
   PHOTO_TITLE_FIRST_BASELINE,
   PHOTO_TITLE_LEFT,
@@ -22,27 +21,24 @@ import {
 
 const INSET: number = 24;
 const RADIUS: number = 78;
-function brandTabWidth(ctx: CanvasRenderer, brand: string): number {
-  const size: number = fitSingleText(ctx, brand, 760,
-    CORNER_LABEL_FONT_SIZE, CORNER_LABEL_MIN_FONT_SIZE,
-    { bold: true, italic: true });
-  setCanvasFont(ctx, size, { bold: true, italic: true });
-  return Math.min(920, Math.max(370, ctx.measureText(brand).width + 126));
+function brandTabLayout(ctx: CanvasRenderer,
+  brand: string): AdaptiveHeaderLayout {
+  return classicFrameHeaderLayout(ctx, brand);
 }
 
 function createClassicOpening(ctx: CanvasRenderer, brand: string): void {
   const right: number = DESIGN_WIDTH - INSET;
   const bottom: number = DESIGN_HEIGHT - INSET;
   const bottomJoin: number = DESIGN_WIDTH / 2;
-  const notchEnd: number =
-    Math.min(brandTabWidth(ctx, brand) + 34, right - RADIUS * 2);
+  const layout: AdaptiveHeaderLayout = brandTabLayout(ctx, brand);
+  const notchEnd: number = Math.min(layout.width, right - RADIUS * 2);
   ctx.beginPath();
   ctx.moveTo(bottomJoin, bottom);
   ctx.lineTo(INSET + RADIUS, bottom);
   ctx.quadraticCurveTo(INSET, bottom, INSET, bottom - RADIUS);
   ctx.lineTo(INSET, 192);
   ctx.quadraticCurveTo(INSET, 136, 82, 136);
-  const shelfEnd: number = notchEnd - 116;
+  const shelfEnd: number = layout.curveStart;
   ctx.lineTo(shelfEnd, 136);
   ctx.bezierCurveTo(shelfEnd + 52, 136,
     notchEnd - 52, INSET, notchEnd, INSET);
@@ -83,12 +79,9 @@ function drawFrameAndPhoto(ctx: CanvasRenderer, draft: CoverDraft,
 }
 
 function drawBrandTab(ctx: CanvasRenderer, brand: string): void {
-  const width: number = brandTabWidth(ctx, brand);
-  const size: number = fitSingleText(ctx, brand, width - 126,
-    CORNER_LABEL_FONT_SIZE, CORNER_LABEL_MIN_FONT_SIZE,
-    { bold: true, italic: true });
+  const layout: AdaptiveHeaderLayout = brandTabLayout(ctx, brand);
   ctx.fillStyle = '#FFFFFF';
-  setCanvasFont(ctx, size, { bold: true, italic: true });
+  setCanvasFont(ctx, layout.fontSize, { bold: true, italic: true });
   ctx.textAlign = 'left';
   ctx.textBaseline = 'middle';
   ctx.fillText(brand, 58, BRAND_LABEL_CENTER_Y);

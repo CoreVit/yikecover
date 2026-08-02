@@ -4,9 +4,10 @@ import {
   DESIGN_WIDTH
 } from '../../model/CoverModels';
 import {
+  AdaptiveHeaderLayout,
+  adaptiveHeaderLayout,
   drawCoverPhoto,
   fitPhotoTitlePair,
-  fitSingleText,
   isTextTooWide,
   PHOTO_TITLE_FIRST_BASELINE,
   PHOTO_TITLE_LEFT,
@@ -23,15 +24,12 @@ const FOOD_BRAND_MIN_FONT_SIZE: number = 48;
 const FOOD_BRAND_RIGHT_GAP: number = 28;
 const FOOD_SHELF_CURVE_WIDTH: number = 112;
 
-function foodTabWidth(ctx: CanvasRenderer, brand: string): number {
-  const size: number = fitSingleText(ctx, brand, 660,
+function foodTabLayout(ctx: CanvasRenderer,
+  brand: string): AdaptiveHeaderLayout {
+  return adaptiveHeaderLayout(ctx, brand, FOOD_BRAND_LEFT,
     FOOD_BRAND_FONT_SIZE, FOOD_BRAND_MIN_FONT_SIZE,
+    470, 920, FOOD_BRAND_RIGHT_GAP, FOOD_SHELF_CURVE_WIDTH,
     { bold: true, italic: true });
-  setCanvasFont(ctx, size, { bold: true, italic: true });
-  const brandRight: number =
-    FOOD_BRAND_LEFT + ctx.measureText(brand).width;
-  return Math.min(920, Math.max(470,
-    brandRight + FOOD_BRAND_RIGHT_GAP + FOOD_SHELF_CURVE_WIDTH));
 }
 
 function drawFoodBorder(ctx: CanvasRenderer, brand: string): void {
@@ -44,9 +42,9 @@ function drawFoodBorder(ctx: CanvasRenderer, brand: string): void {
   const right: number = DESIGN_WIDTH - inset;
   const bottom: number = DESIGN_HEIGHT - inset;
   const bottomJoin: number = DESIGN_WIDTH / 2;
-  const topJoin: number =
-    Math.min(foodTabWidth(ctx, brand), right - radius - 120);
-  const shelfEnd: number = topJoin - FOOD_SHELF_CURVE_WIDTH;
+  const layout: AdaptiveHeaderLayout = foodTabLayout(ctx, brand);
+  const topJoin: number = Math.min(layout.width, right - radius - 120);
+  const shelfEnd: number = layout.curveStart;
   const outline: CanvasGradient =
     ctx.createLinearGradient(0, inset, 0, bottom);
   outline.addColorStop(0, '#EF0010');
@@ -80,12 +78,9 @@ function drawFoodBorder(ctx: CanvasRenderer, brand: string): void {
 }
 
 function drawFoodBrand(ctx: CanvasRenderer, brand: string): void {
-  const width: number = foodTabWidth(ctx, brand);
-  const size: number = fitSingleText(ctx, brand, width - 140,
-    FOOD_BRAND_FONT_SIZE, FOOD_BRAND_MIN_FONT_SIZE,
-    { bold: true, italic: true });
+  const layout: AdaptiveHeaderLayout = foodTabLayout(ctx, brand);
   ctx.fillStyle = '#F00B11';
-  setCanvasFont(ctx, size, { bold: true, italic: true });
+  setCanvasFont(ctx, layout.fontSize, { bold: true, italic: true });
   ctx.textAlign = 'left';
   ctx.textBaseline = 'middle';
   ctx.fillText(brand, FOOD_BRAND_LEFT, FOOD_BRAND_CENTER_Y);
