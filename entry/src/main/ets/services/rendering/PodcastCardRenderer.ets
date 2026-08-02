@@ -9,6 +9,7 @@ import {
   editorialHeaderLayout,
   drawEditorialHeaderTabPath,
   EDITORIAL_HEADER_LABEL_CENTER_Y,
+  EDITORIAL_HEADER_LABEL_LEFT,
   drawEpisodeCornerLabel,
   fitSingleText,
   setCanvasFont,
@@ -23,7 +24,6 @@ export interface PodcastCardPalette {
   equalizer: string;
 }
 
-const HEADER_LEFT: number = 72;
 const COPY_LEFT: number = 106;
 const COPY_WIDTH: number = 1010;
 const CORNER_INNER_TOP_X: number = 1576;
@@ -115,7 +115,7 @@ function drawHeader(ctx: CanvasRenderer, draft: CoverDraft,
   const displayBrand: string =
     Array.from(draft.brand.trim()).slice(0, 4).join('');
   const layout: AdaptiveHeaderLayout =
-    editorialHeaderLayout(ctx, displayBrand, HEADER_LEFT);
+    editorialHeaderLayout(ctx, displayBrand, EDITORIAL_HEADER_LABEL_LEFT);
   ctx.fillStyle = palette.accent;
   drawEditorialHeaderTabPath(ctx, layout.width);
   ctx.fill();
@@ -123,7 +123,8 @@ function drawHeader(ctx: CanvasRenderer, draft: CoverDraft,
   ctx.fillStyle = palette.backgroundTop;
   setCanvasFont(ctx, layout.fontSize, { bold: true, italic: true });
   ctx.textBaseline = 'middle';
-  ctx.fillText(displayBrand, HEADER_LEFT, EDITORIAL_HEADER_LABEL_CENTER_Y);
+  ctx.fillText(displayBrand, EDITORIAL_HEADER_LABEL_LEFT,
+    EDITORIAL_HEADER_LABEL_CENTER_Y);
 
   if (showVersion && draft.versionLabel.trim().length > 0) {
     const versionLeft: number = layout.trailingLabelLeft;

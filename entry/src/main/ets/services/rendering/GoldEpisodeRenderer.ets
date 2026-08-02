@@ -9,6 +9,7 @@ import {
   editorialHeaderLayout,
   drawCoverPhoto,
   EDITORIAL_HEADER_LABEL_CENTER_Y,
+  EDITORIAL_HEADER_LABEL_LEFT,
   drawEditorialHeaderTabPath,
   drawEditorialEpisodeCornerPath,
   drawEditorialEpisodeNumber,
@@ -38,7 +39,7 @@ function goldBand(ctx: CanvasRenderer, width: number): CanvasGradient {
 
 function drawGoldHeader(ctx: CanvasRenderer, draft: CoverDraft): void {
   const layout: AdaptiveHeaderLayout =
-    editorialHeaderLayout(ctx, draft.brand, 58);
+    editorialHeaderLayout(ctx, draft.brand, EDITORIAL_HEADER_LABEL_LEFT);
   ctx.fillStyle = goldBand(ctx, layout.width);
   drawEditorialHeaderTabPath(ctx, layout.width);
   ctx.fill();
@@ -46,7 +47,8 @@ function drawGoldHeader(ctx: CanvasRenderer, draft: CoverDraft): void {
   ctx.fillStyle = '#8B4E08';
   setCanvasFont(ctx, layout.fontSize, { bold: true, italic: true });
   ctx.textBaseline = 'middle';
-  ctx.fillText(draft.brand, 58, EDITORIAL_HEADER_LABEL_CENTER_Y);
+  ctx.fillText(draft.brand, EDITORIAL_HEADER_LABEL_LEFT,
+    EDITORIAL_HEADER_LABEL_CENTER_Y);
 
   if (draft.versionLabel.length > 0) {
     const versionLeft: number = layout.trailingLabelLeft;

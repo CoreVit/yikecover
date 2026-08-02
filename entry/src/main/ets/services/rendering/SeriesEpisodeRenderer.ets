@@ -10,6 +10,7 @@ import {
   editorialHeaderLayout,
   drawCoverPhoto,
   EDITORIAL_HEADER_LABEL_CENTER_Y,
+  EDITORIAL_HEADER_LABEL_LEFT,
   drawEditorialHeaderTabPath,
   drawEditorialEpisodeCornerPath,
   drawEditorialEpisodeNumber,
@@ -59,7 +60,7 @@ function makeBand(ctx: CanvasRenderer, palette: SeriesPalette,
 function drawSeriesHeader(ctx: CanvasRenderer, draft: CoverDraft,
   palette: SeriesPalette): void {
   const layout: AdaptiveHeaderLayout =
-    editorialHeaderLayout(ctx, draft.brand, 42);
+    editorialHeaderLayout(ctx, draft.brand, EDITORIAL_HEADER_LABEL_LEFT);
   ctx.fillStyle = makeBand(ctx, palette, layout.width);
   drawEditorialHeaderTabPath(ctx, layout.width);
   ctx.fill();
@@ -67,7 +68,8 @@ function drawSeriesHeader(ctx: CanvasRenderer, draft: CoverDraft,
   ctx.fillStyle = palette.foreground;
   setCanvasFont(ctx, layout.fontSize, { bold: true, italic: true });
   ctx.textBaseline = 'middle';
-  ctx.fillText(draft.brand, 42, EDITORIAL_HEADER_LABEL_CENTER_Y);
+  ctx.fillText(draft.brand, EDITORIAL_HEADER_LABEL_LEFT,
+    EDITORIAL_HEADER_LABEL_CENTER_Y);
   ctx.textBaseline = 'alphabetic';
 }
 
