@@ -23,10 +23,10 @@ const PAGE_CONTENT_MAX_WIDTH: number = 1000;
 
 const TEMPLATE_SHORTCUTS: TemplateShortcut[] = [
   {
-    id: 1
+    id: 2
   },
   {
-    id: 2
+    id: 3
   },
   {
     id: 10
