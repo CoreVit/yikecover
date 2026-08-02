@@ -23,7 +23,7 @@ import {
 const INSET: number = 24;
 const RADIUS: number = 78;
 const MEMBER_LABEL_CENTER_Y: number = 80;
-const VERSION_LABEL_FONT_SIZE: number = 60;
+const VERSION_LABEL_FONT_SIZE: number = 64;
 const VERSION_LABEL_MIN_FONT_SIZE: number = 42;
 
 function memberMetalGradient(ctx: CanvasRenderer): CanvasGradient {

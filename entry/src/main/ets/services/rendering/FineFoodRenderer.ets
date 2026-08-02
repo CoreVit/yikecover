@@ -19,7 +19,7 @@ import {
 
 const FOOD_BRAND_LEFT: number = 54;
 const FOOD_BRAND_CENTER_Y: number = 78;
-const FOOD_BRAND_FONT_SIZE: number = 74;
+const FOOD_BRAND_FONT_SIZE: number = 88;
 const FOOD_BRAND_MIN_FONT_SIZE: number = 48;
 const FOOD_BRAND_RIGHT_GAP: number = 28;
 const FOOD_SHELF_CURVE_WIDTH: number = 112;
