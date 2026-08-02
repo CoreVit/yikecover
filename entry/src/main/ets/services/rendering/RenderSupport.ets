@@ -38,11 +38,9 @@ export const EDITORIAL_HEADER_TAB_HEIGHT: number = 132;
 export const EDITORIAL_HEADER_LABEL_CENTER_Y: number =
   EDITORIAL_HEADER_TAB_HEIGHT / 2;
 export const EDITORIAL_HEADER_VERSION_LEFT: number = 500;
-const EDITORIAL_HEADER_TAIL_WIDTH: number = 125;
-const EDITORIAL_HEADER_CURVE_MID_OFFSET: number = 47;
-const EDITORIAL_HEADER_CURVE_MID_Y: number = 66;
-const EDITORIAL_HEADER_CURVE_MID_CONTROL: number = 31;
-const EDITORIAL_HEADER_CURVE_END_CONTROL: number = 50;
+const EDITORIAL_HEADER_TAIL_WIDTH: number = 130;
+const EDITORIAL_HEADER_TOP_CONTROL: number = 60;
+const EDITORIAL_HEADER_BOTTOM_CONTROL: number = 100;
 
 // Templates 06–09 share the same curve. A longer label may extend the straight
 // section horizontally without stretching or otherwise deforming that curve.
@@ -52,14 +50,8 @@ export function drawEditorialHeaderTabPath(ctx: CanvasRenderer,
   ctx.beginPath();
   ctx.moveTo(0, 0);
   ctx.lineTo(width, 0);
-  const curveMidX: number = width - EDITORIAL_HEADER_CURVE_MID_OFFSET;
-  ctx.bezierCurveTo(width - EDITORIAL_HEADER_CURVE_MID_OFFSET, 0,
-    curveMidX, EDITORIAL_HEADER_CURVE_MID_Y -
-      EDITORIAL_HEADER_CURVE_MID_CONTROL,
-    curveMidX, EDITORIAL_HEADER_CURVE_MID_Y);
-  ctx.bezierCurveTo(curveMidX, EDITORIAL_HEADER_CURVE_MID_Y +
-    EDITORIAL_HEADER_CURVE_MID_CONTROL,
-    curveEnd + EDITORIAL_HEADER_CURVE_END_CONTROL,
+  ctx.bezierCurveTo(width - EDITORIAL_HEADER_TOP_CONTROL, 0,
+    curveEnd + EDITORIAL_HEADER_BOTTOM_CONTROL,
     EDITORIAL_HEADER_TAB_HEIGHT,
     curveEnd, EDITORIAL_HEADER_TAB_HEIGHT);
   ctx.lineTo(0, EDITORIAL_HEADER_TAB_HEIGHT);
