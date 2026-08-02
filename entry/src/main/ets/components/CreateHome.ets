@@ -328,13 +328,13 @@ export struct CreateHome {
           .height(26)
           .padding({ left: 8, right: 8 })
 
-          Text('选择一个模板，开始做封面')
+          Text('选择一个模板，开始创作')
             .fontSize(20)
             .fontWeight(FontWeight.Bold)
             .fontColor($r('app.color.text_primary'))
             .margin({ top: 5 })
 
-          Text('左右滑动预览全部模板，选定后替换图片和内容')
+          Text('左右滑动预览全部模板，选定后编辑对应内容')
             .fontSize(13)
             .fontColor($r('app.color.text_secondary'))
             .margin({ top: 7 })
@@ -426,7 +426,7 @@ export struct CreateHome {
               .fontSize(11)
               .fontWeight(FontWeight.Bold)
               .fontColor($r('app.color.brand_primary'))
-            Text('导出封面')
+            Text('导出作品')
               .fontSize(12)
               .fontColor($r('app.color.text_secondary'))
           }

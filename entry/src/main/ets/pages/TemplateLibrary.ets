@@ -92,7 +92,7 @@ struct TemplateLibrary {
 
       Scroll() {
         Column({ space: 12 }) {
-          Text('每套模板只固定版式，品牌、图片与内容都可替换。')
+          Text('每套模板只固定版式，可按模板编辑对应内容。')
             .width('100%')
             .fontSize(12)
             .fontColor($r('app.color.text_secondary'))

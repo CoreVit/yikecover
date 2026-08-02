@@ -215,8 +215,8 @@ export const TEMPLATE_DEFINITIONS: TemplateDefinition[] = [
   {
     id: 10,
     code: '10',
-    name: '红框语录卡',
-    subtitle: '居中引文与右锚标题',
+    name: '视频片尾语录',
+    subtitle: '片尾正文与右锚标题',
     accent: '#F0000D',
     skeleton: TemplateSkeleton.PODCAST,
     capabilities: capabilities(false, false, false, false, false, false, false),

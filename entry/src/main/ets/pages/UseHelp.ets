@@ -15,7 +15,7 @@ const HELP_STEPS: HelpStep[] = [
   {
     code: '01',
     title: '选择模板',
-    description: '在制作页左右滑动预览十套模板，或进入模板库查看全部版式。模板只固定设计，品牌、图片和内容都可以替换。'
+    description: '在制作页左右滑动预览十套模板，或进入模板库查看全部版式。模板只固定设计，可编辑内容按版式自动显示。'
   },
   {
     code: '02',
@@ -24,8 +24,8 @@ const HELP_STEPS: HelpStep[] = [
   },
   {
     code: '03',
-    title: '填写封面内容',
-    description: '按照当前模板显示的字段填写品牌和标题。文字会实时预览，字号、颜色、位置与阴影由模板自动确定。'
+    title: '填写模板内容',
+    description: '按照当前模板显示的字段填写对应内容。文字会实时预览，字号、颜色、位置与阴影由模板自动确定。'
   },
   {
     code: '04',
@@ -212,12 +212,12 @@ struct UseHelp {
       Scroll() {
         Column() {
           Column() {
-            Text('三步完成一张封面')
+            Text('三步完成一张作品')
               .width('100%')
               .fontSize(24)
               .fontWeight(FontWeight.Bold)
               .fontColor($r('app.color.text_primary'))
-            Text('模板负责版式，你只需要替换图片和内容。')
+            Text('模板负责版式，你只需要编辑对应内容。')
               .width('100%')
               .fontSize(13)
               .fontColor($r('app.color.text_secondary'))

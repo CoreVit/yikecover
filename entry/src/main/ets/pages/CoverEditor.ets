@@ -327,7 +327,8 @@ struct CoverEditor {
       await LocalStore.markExported(this.draft());
       this.savedDraftJson = JSON.stringify(this.draft());
       this.sessionModified = false;
-      this.showToast('封面已保存到相册');
+      this.showToast(this.templateId === 10 ?
+        '片尾画面已保存到相册' : '封面已保存到相册');
     } catch (error) {
       const message: string = error instanceof Error ? error.message : '导出失败，请稍后重试';
       this.showToast(message);
@@ -650,7 +651,8 @@ struct CoverEditor {
   private contentSection() {
     Column({ space: 13 }) {
       this.sectionTitle(this.definition().capabilities.requiresPhoto ? '02' : '01',
-        '封面内容', '字号、位置、颜色和阴影由模板自动确定')
+        this.templateId === 10 ? '片尾内容' : '封面内容',
+        '字号、位置、颜色和阴影由模板自动确定')
 
       if (this.templateId !== 10) {
         if (this.definition().capabilities.supportsPodcastFields) {
@@ -1007,7 +1009,8 @@ struct CoverEditor {
   private exportSection() {
     Column({ space: 13 }) {
       this.sectionTitle(this.templateId === 10 ? '02' : '05',
-        '导出封面', '按目标分辨率重新渲染')
+        this.templateId === 10 ? '导出画面' : '导出封面',
+        '按目标分辨率重新渲染')
       Row() {
         Column({ space: 3 }) {
           Text(this.exportLabel)
