@@ -29,7 +29,7 @@ const TEMPLATE_SHORTCUTS: TemplateShortcut[] = [
     id: 2
   },
   {
-    id: 4
+    id: 10
   }
 ];
 
