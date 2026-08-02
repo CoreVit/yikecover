@@ -652,15 +652,39 @@ struct CoverEditor {
       this.sectionTitle(this.definition().capabilities.requiresPhoto ? '02' : '01',
         '封面内容', '字号、位置、颜色和阴影由模板自动确定')
 
-      if (this.definition().capabilities.supportsPodcastFields) {
-        this.field('品牌（四字）', this.brand, '例如：王局播客',
-          (value: string) => { this.brand = value; }, 4)
-      } else {
-        this.field('品牌', this.brand, '输入品牌',
-          (value: string) => { this.brand = value; })
+      if (this.templateId !== 10) {
+        if (this.definition().capabilities.supportsPodcastFields) {
+          this.field('品牌（四字）', this.brand, '例如：王局播客',
+            (value: string) => { this.brand = value; }, 4)
+        } else {
+          this.field('品牌', this.brand, '输入品牌',
+            (value: string) => { this.brand = value; })
+        }
       }
 
-      if (this.definition().capabilities.supportsPersonFields) {
+      if (this.templateId === 10) {
+        Column({ space: 6 }) {
+          Text('中心正文')
+            .width('100%')
+            .fontSize(11)
+            .fontColor($r('app.color.text_secondary'))
+          TextArea({ text: this.title2, placeholder: '输入语录正文' })
+            .width('100%')
+            .height(150)
+            .fontSize(13)
+            .fontColor($r('app.color.text_primary'))
+            .placeholderColor($r('app.color.text_muted'))
+            .backgroundColor($r('app.color.control_background'))
+            .borderRadius(9)
+            .padding(12)
+            .onChange((value: string) => {
+              this.title2 = value;
+              this.requestPreview();
+            })
+        }
+        this.field('底部标题', this.title1, '输入底部标题',
+          (value: string) => { this.title1 = value; })
+      } else if (this.definition().capabilities.supportsPersonFields) {
         this.field('人物说明', this.kicker, '例如：人物专题',
           (value: string) => { this.kicker = value; })
         this.field('人物主名', this.personName, '输入人物主名',

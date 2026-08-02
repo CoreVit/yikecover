@@ -13,6 +13,7 @@ import { renderSeriesEpisode } from './rendering/SeriesEpisodeRenderer';
 import { renderGoldEpisode } from './rendering/GoldEpisodeRenderer';
 import { renderPodcast } from './rendering/PodcastRenderer';
 import { renderGoldPodcast } from './rendering/GoldPodcastRenderer';
+import { renderQuoteFrame } from './rendering/QuoteFrameRenderer';
 
 export interface RenderResult {
   titleTooLong: boolean;
@@ -62,6 +63,9 @@ export class CoverRenderer {
         break;
       case 9:
         tooLong = renderGoldPodcast(ctx, draft);
+        break;
+      case 10:
+        tooLong = renderQuoteFrame(ctx, draft);
         break;
       default:
         tooLong = renderClassicGradient(ctx, draft, bitmap);

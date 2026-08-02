@@ -208,6 +208,18 @@ export const TEMPLATE_DEFINITIONS: TemplateDefinition[] = [
     defaultBrand: '一刻播客',
     defaultTitle1: '行业观察',
     defaultTitle2: '在这里输入播客正文'
+  },
+  {
+    id: 10,
+    code: '10',
+    name: '红框语录卡',
+    subtitle: '居中引文与右锚标题',
+    accent: '#F0000D',
+    skeleton: TemplateSkeleton.PODCAST,
+    capabilities: capabilities(false, false, false, false, false, false, false),
+    defaultBrand: '',
+    defaultTitle1: '《中共对离岸信托征税，中国富豪何去何从？》',
+    defaultTitle2: '中国富豪们纷纷在境外设置离岸信托，除了避税的动机之外，很大原因在于境内缺少完善的财产保护机制，如果这方面的法律不完善，单纯的追征税款，会让更多的人恐惧政策的不确定性，加速个人和财富的外流。'
   }
 ];
 
