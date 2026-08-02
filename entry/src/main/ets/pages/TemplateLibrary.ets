@@ -79,12 +79,6 @@ struct TemplateLibrary {
         .alignItems(HorizontalAlign.Start)
         .margin({ left: 12 })
         Blank()
-        Text('10 套')
-          .fontSize(12)
-          .fontColor($r('app.color.brand_primary'))
-          .padding({ left: 11, right: 11, top: 6, bottom: 6 })
-          .backgroundColor($r('app.color.brand_soft'))
-          .borderRadius(16)
       }
       .width('100%')
       .padding({ left: 18, right: 18, top: 14, bottom: 14 })

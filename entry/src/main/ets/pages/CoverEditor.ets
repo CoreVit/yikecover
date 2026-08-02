@@ -405,12 +405,6 @@ struct CoverEditor {
       .alignItems(HorizontalAlign.Start)
       .margin({ left: 12 })
       Blank()
-      Text(`模板 ${this.definition().code}`)
-        .fontSize(11)
-        .fontColor(this.definition().accent)
-        .padding({ left: 10, right: 10, top: 6, bottom: 6 })
-        .backgroundColor($r('app.color.control_background'))
-        .borderRadius(14)
     }
     .width('100%')
     .padding({ left: 14, right: 14, top: 12, bottom: 12 })
