@@ -7,8 +7,8 @@ import {
 import {
   AdaptiveHeaderLayout,
   editorialHeaderLayout,
-  BRAND_LABEL_CENTER_Y,
   drawCoverPhoto,
+  EDITORIAL_HEADER_LABEL_CENTER_Y,
   drawEditorialHeaderTabPath,
   drawEditorialEpisodeCornerPath,
   drawEditorialEpisodeNumber,
@@ -46,7 +46,7 @@ function drawGoldHeader(ctx: CanvasRenderer, draft: CoverDraft): void {
   ctx.fillStyle = '#8B4E08';
   setCanvasFont(ctx, layout.fontSize, { bold: true, italic: true });
   ctx.textBaseline = 'middle';
-  ctx.fillText(draft.brand, 58, BRAND_LABEL_CENTER_Y);
+  ctx.fillText(draft.brand, 58, EDITORIAL_HEADER_LABEL_CENTER_Y);
 
   if (draft.versionLabel.length > 0) {
     const versionLeft: number = layout.trailingLabelLeft;
@@ -56,7 +56,7 @@ function drawGoldHeader(ctx: CanvasRenderer, draft: CoverDraft): void {
       VERSION_LABEL_MIN_FONT_SIZE, { bold: true, italic: true });
     setCanvasFont(ctx, versionSize, { bold: true, italic: true });
     ctx.fillText(draft.versionLabel, versionLeft,
-      BRAND_LABEL_CENTER_Y);
+      EDITORIAL_HEADER_LABEL_CENTER_Y);
   }
   ctx.textBaseline = 'alphabetic';
 }

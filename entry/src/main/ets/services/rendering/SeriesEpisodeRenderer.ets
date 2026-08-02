@@ -8,8 +8,8 @@ import {
 import {
   AdaptiveHeaderLayout,
   editorialHeaderLayout,
-  BRAND_LABEL_CENTER_Y,
   drawCoverPhoto,
+  EDITORIAL_HEADER_LABEL_CENTER_Y,
   drawEditorialHeaderTabPath,
   drawEditorialEpisodeCornerPath,
   drawEditorialEpisodeNumber,
@@ -67,7 +67,7 @@ function drawSeriesHeader(ctx: CanvasRenderer, draft: CoverDraft,
   ctx.fillStyle = palette.foreground;
   setCanvasFont(ctx, layout.fontSize, { bold: true, italic: true });
   ctx.textBaseline = 'middle';
-  ctx.fillText(draft.brand, 42, BRAND_LABEL_CENTER_Y);
+  ctx.fillText(draft.brand, 42, EDITORIAL_HEADER_LABEL_CENTER_Y);
   ctx.textBaseline = 'alphabetic';
 }
 

@@ -9,6 +9,7 @@ import {
   drawCoverPhoto,
   EDITORIAL_HEADER_LABEL_FONT_SIZE,
   EDITORIAL_HEADER_LABEL_MIN_FONT_SIZE,
+  EDITORIAL_HEADER_LABEL_CENTER_Y,
   EDITORIAL_HEADER_TAB_HEIGHT,
   fitPhotoTitlePair,
   isTextTooWide,
@@ -22,7 +23,6 @@ import {
 
 const EXCLUSIVE_LABEL_LEFT: number = 52;
 const EXCLUSIVE_LABEL_RIGHT_GAP: number = 12;
-const EXCLUSIVE_LABEL_CENTER_Y: number = 73;
 
 function exclusiveTabLayout(ctx: CanvasRenderer,
   brand: string): AdaptiveHeaderLayout {
@@ -51,7 +51,8 @@ function drawExclusiveBrand(ctx: CanvasRenderer, brand: string): void {
   ctx.fillStyle = '#FFFFFF';
   setCanvasFont(ctx, layout.fontSize, { bold: true, italic: true });
   ctx.textBaseline = 'middle';
-  ctx.fillText(brand, EXCLUSIVE_LABEL_LEFT, EXCLUSIVE_LABEL_CENTER_Y);
+  ctx.fillText(brand, EXCLUSIVE_LABEL_LEFT,
+    EDITORIAL_HEADER_LABEL_CENTER_Y);
   ctx.textBaseline = 'alphabetic';
 }
 

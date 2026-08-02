@@ -35,6 +35,8 @@ export const BRAND_LABEL_CENTER_Y: number = 72;
 export const CORNER_LABEL_ROTATION: number = Math.PI / 4;
 export const EDITORIAL_HEADER_TAB_WIDTH: number = 510;
 export const EDITORIAL_HEADER_TAB_HEIGHT: number = 132;
+export const EDITORIAL_HEADER_LABEL_CENTER_Y: number =
+  EDITORIAL_HEADER_TAB_HEIGHT / 2;
 export const EDITORIAL_HEADER_VERSION_LEFT: number = 500;
 const EDITORIAL_HEADER_TAIL_WIDTH: number = 100;
 const EDITORIAL_HEADER_TAIL_CONTROL: number = 36;

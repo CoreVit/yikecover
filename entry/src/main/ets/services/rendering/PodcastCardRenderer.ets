@@ -7,8 +7,8 @@ import {
 import {
   AdaptiveHeaderLayout,
   editorialHeaderLayout,
-  BRAND_LABEL_CENTER_Y,
   drawEditorialHeaderTabPath,
+  EDITORIAL_HEADER_LABEL_CENTER_Y,
   drawEpisodeCornerLabel,
   fitSingleText,
   setCanvasFont,
@@ -123,7 +123,7 @@ function drawHeader(ctx: CanvasRenderer, draft: CoverDraft,
   ctx.fillStyle = palette.backgroundTop;
   setCanvasFont(ctx, layout.fontSize, { bold: true, italic: true });
   ctx.textBaseline = 'middle';
-  ctx.fillText(displayBrand, HEADER_LEFT, BRAND_LABEL_CENTER_Y);
+  ctx.fillText(displayBrand, HEADER_LEFT, EDITORIAL_HEADER_LABEL_CENTER_Y);
 
   if (showVersion && draft.versionLabel.trim().length > 0) {
     const versionLeft: number = layout.trailingLabelLeft;
@@ -132,7 +132,8 @@ function drawHeader(ctx: CanvasRenderer, draft: CoverDraft,
       76, 52, { bold: true, italic: true });
     ctx.fillStyle = palette.accent;
     setCanvasFont(ctx, versionSize, { bold: true, italic: true });
-    ctx.fillText(draft.versionLabel, versionLeft, BRAND_LABEL_CENTER_Y);
+    ctx.fillText(draft.versionLabel, versionLeft,
+      EDITORIAL_HEADER_LABEL_CENTER_Y);
   }
   ctx.textBaseline = 'alphabetic';
 
