@@ -107,6 +107,39 @@ function drawSecondaryFrame(ctx: CanvasRenderer): void {
   ctx.stroke();
 }
 
+function addOpeningQuoteMark(ctx: CanvasRenderer, centerX: number): void {
+  ctx.moveTo(centerX + 12, -29);
+  ctx.bezierCurveTo(centerX + 16, -26, centerX + 10, -20,
+    centerX + 4, -16);
+  ctx.bezierCurveTo(centerX - 2, -11, centerX - 3, -7,
+    centerX, -4);
+  ctx.bezierCurveTo(centerX + 4, 0, centerX + 14, 2,
+    centerX + 16.5, 10);
+  ctx.bezierCurveTo(centerX + 16.5, 19, centerX + 14, 27,
+    centerX + 5, 29);
+  ctx.bezierCurveTo(centerX - 7, 29, centerX - 15.5, 25,
+    centerX - 16.5, 15);
+  ctx.bezierCurveTo(centerX - 16.5, 7, centerX - 16, 1,
+    centerX - 13.5, -5);
+  ctx.bezierCurveTo(centerX - 11.5, -13, centerX - 4, -23,
+    centerX + 10, -29);
+  ctx.closePath();
+}
+
+function drawQuotePair(ctx: CanvasRenderer, centerX: number,
+  centerY: number, closing: boolean): void {
+  ctx.save();
+  ctx.translate(centerX, centerY);
+  if (closing) {
+    ctx.rotate(Math.PI);
+  }
+  ctx.beginPath();
+  addOpeningQuoteMark(ctx, -22.5);
+  addOpeningQuoteMark(ctx, 22.5);
+  ctx.fill();
+  ctx.restore();
+}
+
 function drawFixedArtwork(ctx: CanvasRenderer, light: boolean): void {
   ctx.fillStyle = light ? '#FFFFFF' : '#000000';
   ctx.fillRect(0, 0, DESIGN_WIDTH, DESIGN_HEIGHT);
@@ -119,11 +152,8 @@ function drawFixedArtwork(ctx: CanvasRenderer, light: boolean): void {
   drawSecondaryFrame(ctx);
 
   ctx.fillStyle = FRAME_RED;
-  setCanvasFont(ctx, 112, { bold: true });
-  ctx.textAlign = 'center';
-  ctx.textBaseline = 'middle';
-  ctx.fillText('“', 225, 322);
-  ctx.fillText('”', 1700, 704);
+  drawQuotePair(ctx, 225, 315, false);
+  drawQuotePair(ctx, 1702.5, 700.5, true);
 }
 
 function drawQuoteBody(ctx: CanvasRenderer, text: string,
