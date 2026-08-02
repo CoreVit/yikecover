@@ -24,7 +24,7 @@ import {
   setCanvasFont
 } from './RenderSupport';
 
-const VERSION_LABEL_FONT_SIZE: number = 60;
+const VERSION_LABEL_FONT_SIZE: number = 62;
 const VERSION_LABEL_MIN_FONT_SIZE: number = 42;
 
 function goldBand(ctx: CanvasRenderer, width: number): CanvasGradient {
