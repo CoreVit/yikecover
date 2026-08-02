@@ -38,9 +38,9 @@ export const EDITORIAL_HEADER_TAB_HEIGHT: number = 132;
 export const EDITORIAL_HEADER_LABEL_CENTER_Y: number =
   EDITORIAL_HEADER_TAB_HEIGHT / 2;
 export const EDITORIAL_HEADER_VERSION_LEFT: number = 500;
-const EDITORIAL_HEADER_TAIL_WIDTH: number = 116;
-const EDITORIAL_HEADER_TOP_CONTROL: number = 45;
-const EDITORIAL_HEADER_BOTTOM_CONTROL: number = 64;
+const EDITORIAL_HEADER_TAIL_WIDTH: number = 125;
+const EDITORIAL_HEADER_TOP_CONTROL: number = 50;
+const EDITORIAL_HEADER_BOTTOM_CONTROL: number = 89;
 
 // Templates 06–09 share the same curve. A longer label may extend the straight
 // section horizontally without stretching or otherwise deforming that curve.
