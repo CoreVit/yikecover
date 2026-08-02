@@ -436,7 +436,7 @@ export struct CreateHome {
         .padding({ top: 17, bottom: 17, left: 14, right: 14 })
         .backgroundColor($r('app.color.card_background'))
         .borderRadius(14)
-        .margin({ top: 28, bottom: 28 })
+        .margin({ top: 28, bottom: 104 })
         }
         .width('100%')
         .constraintSize({ maxWidth: PAGE_CONTENT_MAX_WIDTH })

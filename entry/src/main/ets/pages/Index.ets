@@ -1,11 +1,9 @@
-import {
-  AtomicServiceTabs,
-  SymbolGlyphModifier,
-  TabBarOptions,
-  TabBarPosition
-} from '@kit.ArkUI';
 import { CreateHome } from '../components/CreateHome';
 import { WorksHome } from '../components/WorksHome';
+
+const FLOATING_TAB_WIDTH: number = 216;
+const FLOATING_TAB_HEIGHT: number = 58;
+const FLOATING_TAB_BOTTOM_MARGIN: number = 18;
 
 @Entry
 @Component
@@ -17,84 +15,82 @@ struct Index {
     this.worksRefreshToken += 1;
   }
 
-  private tabSymbol(symbol: Resource): TabBarSymbol {
-    const normal: SymbolGlyphModifier = new SymbolGlyphModifier(symbol);
-    normal.fontSize(24);
-    normal.fontColor([$r('app.color.text_muted')]);
+  private selectTab(index: number): void {
+    if (this.currentTab === index) {
+      return;
+    }
 
-    const selected: SymbolGlyphModifier = new SymbolGlyphModifier(symbol);
-    selected.fontSize(24);
-    selected.fontColor([$r('app.color.brand_primary')]);
-
-    return {
-      normal: normal,
-      selected: selected
-    };
+    this.currentTab = index;
+    if (index === 1) {
+      this.worksRefreshToken += 1;
+    }
   }
 
   @Builder
-  createTabContent() {
-    Column() {
-      CreateHome()
+  private tabItem(index: number, label: string, symbol: Resource) {
+    Column({ space: 2 }) {
+      SymbolGlyph(symbol)
+        .fontSize(21)
+        .fontColor([
+          this.currentTab === index ?
+            $r('app.color.brand_primary') : $r('app.color.text_muted')
+        ])
+
+      Text(label)
+        .fontSize(10)
+        .fontWeight(this.currentTab === index ? FontWeight.Bold : FontWeight.Medium)
+        .fontColor(this.currentTab === index ?
+          $r('app.color.brand_primary') : $r('app.color.text_muted'))
     }
-    .width('100%')
-    .height('100%')
-    .alignItems(HorizontalAlign.Start)
-    .justifyContent(FlexAlign.Start)
+    .width(98)
+    .height(48)
+    .justifyContent(FlexAlign.Center)
+    .backgroundColor(this.currentTab === index ?
+      $r('app.color.brand_soft') : Color.Transparent)
+    .borderRadius(24)
+    .onClick(() => {
+      this.selectTab(index);
+    })
   }
 
   @Builder
-  worksTabContent() {
-    Column() {
-      WorksHome({
-        currentTab: $currentTab,
-        refreshToken: this.worksRefreshToken
-      })
+  private floatingTabBar() {
+    Row({ space: 4 }) {
+      this.tabItem(0, '制作', $r('sys.symbol.plus'))
+      this.tabItem(1, '作品', $r('sys.symbol.rectangle_on_rectangle'))
     }
-    .width('100%')
-    .height('100%')
-    .alignItems(HorizontalAlign.Start)
-    .justifyContent(FlexAlign.Start)
+    .width(FLOATING_TAB_WIDTH)
+    .height(FLOATING_TAB_HEIGHT)
+    .padding(5)
+    .justifyContent(FlexAlign.Center)
+    .backgroundColor($r('app.color.nav_background'))
+    .border({
+      width: 1,
+      color: $r('app.color.divider')
+    })
+    .borderRadius(FLOATING_TAB_HEIGHT / 2)
+    .shadow({
+      radius: 18,
+      color: '#38000000',
+      offsetX: 0,
+      offsetY: 7
+    })
+    .margin({ bottom: FLOATING_TAB_BOTTOM_MARGIN })
+    .zIndex(10)
   }
 
   build() {
-    Column() {
-      AtomicServiceTabs({
-        tabContents: [
-          () => {
-            this.createTabContent()
-          },
-          () => {
-            this.worksTabContent()
-          }
-        ],
-        tabBarOptionsArray: [
-          new TabBarOptions(
-            this.tabSymbol($r('sys.symbol.plus')),
-            '制作',
-            $r('app.color.text_muted'),
-            $r('app.color.brand_primary')
-          ),
-          new TabBarOptions(
-            this.tabSymbol($r('sys.symbol.rectangle_on_rectangle')),
-            '作品',
-            $r('app.color.text_muted'),
-            $r('app.color.brand_primary')
-          )
-        ],
-        tabBarPosition: TabBarPosition.BOTTOM,
-        barBackgroundColor: $r('app.color.nav_background'),
-        barOverlap: false,
-        index: this.currentTab,
-        onChange: (index: number): void => {
-          this.currentTab = index;
-          if (index === 1) {
-            this.worksRefreshToken += 1;
-          }
-        }
-      })
-      .width('100%')
-      .layoutWeight(1)
+    Stack({ alignContent: Alignment.Bottom }) {
+      if (this.currentTab === 0) {
+        CreateHome()
+      } else {
+        WorksHome({
+          currentTab: $currentTab,
+          refreshToken: this.worksRefreshToken
+        })
+      }
+
+      this.floatingTabBar()
     }
     .width('100%')
     .height('100%')

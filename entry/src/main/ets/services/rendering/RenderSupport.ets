@@ -281,7 +281,7 @@ export function drawNeutralPhoto(ctx: CanvasRenderer): void {
   ctx.quadraticCurveTo(1560, 612, 1624, 570);
   ctx.stroke();
 
-  ctx.fillStyle = '#A95447';
+  ctx.fillStyle = '#0A59F7';
   ctx.beginPath();
   ctx.moveTo(1510, 774);
   ctx.lineTo(1552, 846);

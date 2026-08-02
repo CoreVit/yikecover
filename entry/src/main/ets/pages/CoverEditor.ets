@@ -1079,7 +1079,7 @@ struct CoverEditor {
           .fontSize(14)
           .fontWeight(FontWeight.Bold)
           .fontColor('#FFFFFF')
-          .backgroundColor('#724037')
+          .backgroundColor($r('app.color.brand_primary'))
           .borderRadius(25)
           .enabled(false)
       } else {

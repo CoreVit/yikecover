@@ -322,7 +322,7 @@ export struct WorksHome {
         .padding({ left: 16, right: 16 })
         .backgroundColor($r('app.color.card_background'))
         .borderRadius(16)
-        .margin({ bottom: 28 })
+        .margin({ bottom: 104 })
         }
         .width('100%')
         .constraintSize({ maxWidth: PAGE_CONTENT_MAX_WIDTH })
