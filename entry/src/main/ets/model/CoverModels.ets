@@ -4,7 +4,7 @@ export const DEFAULT_PHOTO_TITLE_FIRST: string =
   '在这里输入第一行标题，';
 export const DEFAULT_PHOTO_TITLE_SECOND: string =
   '在这里输入第二行标题？';
-export const DEFAULT_QUOTE_TITLE: string = '《把复杂问题说清楚》';
+export const DEFAULT_QUOTE_TITLE: string = '《把复杂问题说清楚，难点在哪里？》';
 export const DEFAULT_QUOTE_BODY: string =
   '把复杂的问题说清楚，需要先放下结论，耐心辨认事实、背景与彼此的差异。真正可靠的判断，不来自匆忙的表态，而来自持续观察、反复核对，以及愿意修正自己的诚实。';
 
