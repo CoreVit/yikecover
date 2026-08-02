@@ -580,8 +580,6 @@ struct CoverEditor {
       }
       .width('100%')
       .aspectRatio(16 / 9)
-      .borderRadius(12)
-      .clip(true)
 
       Row() {
         Row({ space: 7 }) {
