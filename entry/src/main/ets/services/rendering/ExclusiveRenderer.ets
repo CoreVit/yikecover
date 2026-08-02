@@ -6,9 +6,9 @@ import {
 import {
   AdaptiveHeaderLayout,
   adaptiveHeaderLayout,
-  CORNER_LABEL_FONT_SIZE,
-  CORNER_LABEL_MIN_FONT_SIZE,
   drawCoverPhoto,
+  EDITORIAL_HEADER_LABEL_FONT_SIZE,
+  EDITORIAL_HEADER_LABEL_MIN_FONT_SIZE,
   EDITORIAL_HEADER_TAB_HEIGHT,
   fitPhotoTitlePair,
   isTextTooWide,
@@ -27,7 +27,8 @@ const EXCLUSIVE_LABEL_CENTER_Y: number = 73;
 function exclusiveTabLayout(ctx: CanvasRenderer,
   brand: string): AdaptiveHeaderLayout {
   return adaptiveHeaderLayout(ctx, brand, EXCLUSIVE_LABEL_LEFT,
-    CORNER_LABEL_FONT_SIZE, CORNER_LABEL_MIN_FONT_SIZE,
+    EDITORIAL_HEADER_LABEL_FONT_SIZE,
+    EDITORIAL_HEADER_LABEL_MIN_FONT_SIZE,
     360, 850, EXCLUSIVE_LABEL_RIGHT_GAP, 104,
     EXCLUSIVE_LABEL_RIGHT_GAP,
     { bold: true, italic: true });

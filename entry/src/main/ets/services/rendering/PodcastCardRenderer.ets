@@ -129,7 +129,7 @@ function drawHeader(ctx: CanvasRenderer, draft: CoverDraft,
     const versionLeft: number = layout.trailingLabelLeft;
     const versionSize: number = fitSingleText(ctx, draft.versionLabel,
       CORNER_INNER_TOP_X - versionLeft - 28,
-      64, 42, { bold: true, italic: true });
+      76, 52, { bold: true, italic: true });
     ctx.fillStyle = palette.accent;
     setCanvasFont(ctx, versionSize, { bold: true, italic: true });
     ctx.fillText(draft.versionLabel, versionLeft, BRAND_LABEL_CENTER_Y);
