@@ -27,6 +27,8 @@ export const PHOTO_TITLE_PREFERRED_FONT_SIZE: number = 96;
 export const PHOTO_TITLE_MIN_FONT_SIZE: number = 64;
 export const CORNER_LABEL_FONT_SIZE: number = 68;
 export const CORNER_LABEL_MIN_FONT_SIZE: number = 44;
+const CLASSIC_HEADER_LABEL_FONT_SIZE: number = 88;
+const CLASSIC_HEADER_LABEL_MIN_FONT_SIZE: number = 56;
 export const BRAND_LABEL_CENTER_Y: number = 72;
 export const CORNER_LABEL_ROTATION: number = Math.PI / 4;
 export const EDITORIAL_HEADER_TAB_WIDTH: number = 510;
@@ -411,7 +413,7 @@ export function adaptiveHeaderLayout(ctx: CanvasRenderer, text: string,
 export function classicFrameHeaderLayout(ctx: CanvasRenderer,
   text: string): AdaptiveHeaderLayout {
   return adaptiveHeaderLayout(ctx, text, 58,
-    CORNER_LABEL_FONT_SIZE, CORNER_LABEL_MIN_FONT_SIZE,
+    CLASSIC_HEADER_LABEL_FONT_SIZE, CLASSIC_HEADER_LABEL_MIN_FONT_SIZE,
     404, 954, 28, 116, 28, { bold: true, italic: true });
 }
 
