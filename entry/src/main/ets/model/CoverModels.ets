@@ -17,7 +17,9 @@ export enum TemplateSkeleton {
 export enum CoverTheme {
   RED = 'red',
   CYAN = 'cyan',
-  GOLD = 'gold'
+  GOLD = 'gold',
+  DARK = 'dark',
+  LIGHT = 'light'
 }
 
 export enum EpisodePreset {
@@ -269,7 +271,8 @@ export function createDefaultDraft(definition: TemplateDefinition): CoverDraft {
     customEpisode: isPodcast ? '01' : isDirectEpisode ? '1' : '',
     versionLabel: definition.capabilities.supportsVersion ? '会员专享' : '',
     grayscale: false,
-    theme: definition.id === 6 ? CoverTheme.RED : CoverTheme.GOLD,
+    theme: definition.id === 6 ? CoverTheme.RED :
+      definition.id === 10 ? CoverTheme.DARK : CoverTheme.GOLD,
     quoteLabel: '本期话题',
     podcastBody: '在这里输入播客正文，支持自动换行与字号适配。',
     podcastEnglish: 'Yike Podcast',

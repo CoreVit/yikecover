@@ -2,6 +2,7 @@ import preferences from '@ohos.data.preferences';
 import fileIo from '@ohos.file.fs';
 import {
   CoverDraft,
+  CoverTheme,
   DEFAULT_PHOTO_TITLE_FIRST,
   DEFAULT_PHOTO_TITLE_SECOND,
   DEFAULT_QUOTE_BODY,
@@ -68,6 +69,10 @@ function migrateDraftDefaults(draft: CoverDraft): CoverDraft {
       LEGACY_QUOTE_DEFAULT_CHECKSUM) {
     draft.title1 = DEFAULT_QUOTE_TITLE;
     draft.title2 = DEFAULT_QUOTE_BODY;
+  }
+  if (draft.templateId === 10 && draft.theme !== CoverTheme.LIGHT &&
+    draft.theme !== CoverTheme.DARK) {
+    draft.theme = CoverTheme.DARK;
   }
   if (draft.templateId === 6 || draft.templateId === 7) {
     if (draft.episodePreset !== EpisodePreset.CUSTOM &&
@@ -170,7 +175,7 @@ export class LocalStore {
     draft.brand = brand;
     draft.versionLabel = version;
     draft.theme = theme;
-    return draft;
+    return migrateDraftDefaults(draft);
   }
 
   static async saveDraft(draft: CoverDraft): Promise<void> {

@@ -686,6 +686,30 @@ struct CoverEditor {
         }
         this.field('底部标题', this.title1, '输入底部标题',
           (value: string) => { this.title1 = value; })
+        Row() {
+          Column({ space: 3 }) {
+            Text('白底模式')
+              .fontSize(13)
+              .fontColor($r('app.color.text_primary'))
+            Text(this.theme === CoverTheme.LIGHT ?
+              '当前为白底黑字' : '切换为白底黑字')
+              .fontSize(10)
+              .fontColor($r('app.color.text_secondary'))
+          }
+          .alignItems(HorizontalAlign.Start)
+          Blank()
+          Toggle({
+            type: ToggleType.Switch,
+            isOn: this.theme === CoverTheme.LIGHT
+          })
+            .selectedColor($r('app.color.brand_primary'))
+            .onChange((isOn: boolean) => {
+              this.theme = isOn ? CoverTheme.LIGHT : CoverTheme.DARK;
+              this.requestPreview();
+            })
+        }
+        .width('100%')
+        .padding({ top: 5, bottom: 3 })
       } else if (this.definition().capabilities.supportsPersonFields) {
         this.field('人物说明', this.kicker, '例如：人物专题',
           (value: string) => { this.kicker = value; })

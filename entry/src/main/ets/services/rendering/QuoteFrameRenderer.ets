@@ -1,5 +1,6 @@
 import {
   CoverDraft,
+  CoverTheme,
   DESIGN_HEIGHT,
   DESIGN_WIDTH
 } from '../../model/CoverModels';
@@ -106,8 +107,8 @@ function drawSecondaryFrame(ctx: CanvasRenderer): void {
   ctx.stroke();
 }
 
-function drawFixedArtwork(ctx: CanvasRenderer): void {
-  ctx.fillStyle = '#000000';
+function drawFixedArtwork(ctx: CanvasRenderer, light: boolean): void {
+  ctx.fillStyle = light ? '#FFFFFF' : '#000000';
   ctx.fillRect(0, 0, DESIGN_WIDTH, DESIGN_HEIGHT);
 
   ctx.strokeStyle = FRAME_RED;
@@ -125,10 +126,11 @@ function drawFixedArtwork(ctx: CanvasRenderer): void {
   ctx.fillText('”', 1700, 704);
 }
 
-function drawQuoteBody(ctx: CanvasRenderer, text: string): boolean {
+function drawQuoteBody(ctx: CanvasRenderer, text: string,
+  light: boolean): boolean {
   const layout: QuoteLayout = quoteLayout(ctx, text);
   setCanvasFont(ctx, layout.fontSize, { bold: true, italic: true });
-  ctx.fillStyle = '#FFFFFF';
+  ctx.fillStyle = light ? '#111111' : '#FFFFFF';
   ctx.textAlign = 'left';
   ctx.textBaseline = 'middle';
   const firstCenterY: number = BODY_CENTER_Y -
@@ -140,8 +142,9 @@ function drawQuoteBody(ctx: CanvasRenderer, text: string): boolean {
   return layout.lines.length > BODY_MAX_LINES;
 }
 
-function drawFooterTitle(ctx: CanvasRenderer, title: string): void {
-  ctx.fillStyle = '#FFFFFF';
+function drawFooterTitle(ctx: CanvasRenderer, title: string,
+  light: boolean): void {
+  ctx.fillStyle = light ? '#111111' : '#FFFFFF';
   setCanvasFont(ctx, 30);
   ctx.textAlign = 'right';
   ctx.textBaseline = 'alphabetic';
@@ -150,8 +153,9 @@ function drawFooterTitle(ctx: CanvasRenderer, title: string): void {
 
 export function renderQuoteFrame(ctx: CanvasRenderer,
   draft: CoverDraft): boolean {
-  drawFixedArtwork(ctx);
-  const tooLong: boolean = drawQuoteBody(ctx, draft.title2);
-  drawFooterTitle(ctx, draft.title1);
+  const light: boolean = draft.theme === CoverTheme.LIGHT;
+  drawFixedArtwork(ctx, light);
+  const tooLong: boolean = drawQuoteBody(ctx, draft.title2, light);
+  drawFooterTitle(ctx, draft.title1, light);
   return tooLong;
 }
