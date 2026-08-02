@@ -34,7 +34,7 @@ struct TemplateLibrary {
           Blank()
           Text(item.code)
             .fontSize(10)
-            .fontColor($r('app.color.text_secondary'))
+            .fontColor(item.accent)
         }
         .width('100%')
         Text(item.subtitle)
