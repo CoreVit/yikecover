@@ -157,12 +157,12 @@ export const TEMPLATE_DEFINITIONS: TemplateDefinition[] = [
   {
     id: 5,
     code: '05',
-    name: '独家现场封面',
-    subtitle: '独家页签与双行标题',
+    name: '一刻现场封面',
+    subtitle: '现场页签与双行标题',
     accent: '#D90B16',
     skeleton: TemplateSkeleton.PHOTO_OVERLAY,
     capabilities: capabilities(true, false, false, false, false, false, false),
-    defaultBrand: '独家现场',
+    defaultBrand: '一刻现场',
     defaultTitle1: DEFAULT_PHOTO_TITLE_FIRST,
     defaultTitle2: DEFAULT_PHOTO_TITLE_SECOND
   },

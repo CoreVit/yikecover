@@ -659,7 +659,7 @@ struct CoverEditor {
 
       if (this.templateId !== 10) {
         if (this.definition().capabilities.supportsPodcastFields) {
-          this.field('品牌（四字）', this.brand, '例如：王局播客',
+          this.field('品牌（四字）', this.brand, '例如：一刻播客',
             (value: string) => { this.brand = value; }, 4)
         } else {
           this.field('品牌', this.brand, '输入品牌',
