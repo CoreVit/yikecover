@@ -70,6 +70,17 @@ struct CoverEditor {
   @State previewDraftJson: string = '';
   @State previewRevision: number = 0;
   @State draftLoaded: boolean = false;
+  @State pageWidth: number = 0;
+
+  private lengthValue(value: Length): number {
+    if (typeof value === 'number') {
+      return value;
+    }
+    if (typeof value === 'string') {
+      return parseFloat(value);
+    }
+    return 0;
+  }
 
   aboutToAppear(): void {
     const hostContext: Context | undefined = this.getUIContext().getHostContext();
@@ -1096,69 +1107,101 @@ struct CoverEditor {
     .borderRadius(16)
   }
 
+  @Builder
+  private editorSections() {
+    if (this.draftLoaded) {
+      Column({ space: 14 }) {
+        if (this.definition().capabilities.requiresPhoto) {
+          this.photoSection()
+        }
+        this.contentSection()
+        if (this.definition().capabilities.supportsEpisode ||
+          this.definition().capabilities.supportsVersion ||
+          this.definition().capabilities.supportsGrayscale ||
+          this.definition().capabilities.supportsTheme) {
+          this.optionsSection()
+        }
+        if (this.templateId !== 10) {
+          this.metadataSection()
+        }
+        this.exportSection()
+      }
+      .width('100%')
+    } else {
+      Column({ space: 10 }) {
+        LoadingProgress()
+          .width(30)
+          .height(30)
+          .color($r('app.color.brand_primary'))
+        Text('正在载入草稿')
+          .fontSize(12)
+          .fontColor($r('app.color.text_secondary'))
+      }
+      .width('100%')
+      .height(180)
+      .justifyContent(FlexAlign.Center)
+      .backgroundColor($r('app.color.card_background'))
+      .borderRadius(16)
+    }
+  }
+
+  @Builder
+  private splitContent() {
+    Row({ space: 16 }) {
+      Column() {
+        this.preview()
+      }
+      .height('100%')
+      .layoutWeight(5)
+
+      Scroll() {
+        this.editorSections()
+      }
+      .align(Alignment.TopStart)
+      .height('100%')
+      .layoutWeight(7)
+      .scrollBar(BarState.Off)
+    }
+    .width('100%')
+    .height('100%')
+    .layoutWeight(1)
+    .constraintSize({ maxWidth: 1180 })
+    .alignSelf(ItemAlign.Center)
+    .alignItems(VerticalAlign.Top)
+    .padding({ left: 14, right: 14, bottom: 28 })
+  }
+
+  @Builder
+  private stackedContent() {
+    Scroll() {
+      Column({ space: 14 }) {
+        this.preview()
+        this.editorSections()
+      }
+      .width('100%')
+      .constraintSize({ maxWidth: 1180 })
+      .padding({ left: 14, right: 14, bottom: 28 })
+    }
+    .align(Alignment.TopStart)
+    .layoutWeight(1)
+    .alignSelf(ItemAlign.Center)
+    .scrollBar(BarState.Off)
+  }
+
   build() {
     Column() {
       this.header()
-      Scroll() {
-        GridRow({
-          columns: 12,
-          gutter: { x: 16, y: 14 },
-          breakpoints: {
-            value: ['320vp', '600vp', '840vp'],
-            reference: BreakpointsReference.ComponentSize
-          }
-        }) {
-          GridCol({ span: { xs: 12, sm: 12, md: 12, lg: 5 } }) {
-            this.preview()
-          }
-          GridCol({ span: { xs: 12, sm: 12, md: 12, lg: 7 } }) {
-            if (this.draftLoaded) {
-              Column({ space: 14 }) {
-                if (this.definition().capabilities.requiresPhoto) {
-                  this.photoSection()
-                }
-                this.contentSection()
-                if (this.definition().capabilities.supportsEpisode ||
-                  this.definition().capabilities.supportsVersion ||
-                  this.definition().capabilities.supportsGrayscale ||
-                  this.definition().capabilities.supportsTheme) {
-                  this.optionsSection()
-                }
-                if (this.templateId !== 10) {
-                  this.metadataSection()
-                }
-                this.exportSection()
-              }
-              .width('100%')
-            } else {
-              Column({ space: 10 }) {
-                LoadingProgress()
-                  .width(30)
-                  .height(30)
-                  .color($r('app.color.brand_primary'))
-                Text('正在载入草稿')
-                  .fontSize(12)
-                  .fontColor($r('app.color.text_secondary'))
-              }
-              .width('100%')
-              .height(180)
-              .justifyContent(FlexAlign.Center)
-              .backgroundColor($r('app.color.card_background'))
-              .borderRadius(16)
-            }
-          }
-        }
-        .width('100%')
-        .constraintSize({ maxWidth: 1180 })
-        .alignSelf(ItemAlign.Center)
-        .padding({ left: 14, right: 14, bottom: 28 })
+      if (this.pageWidth >= 840) {
+        this.splitContent()
+      } else {
+        this.stackedContent()
       }
-      .align(Alignment.TopStart)
-      .scrollBar(BarState.Off)
-      .layoutWeight(1)
     }
     .width('100%')
     .height('100%')
     .backgroundColor($r('app.color.page_background'))
+    .onAreaChange((_oldValue: Area, newValue: Area) => {
+      this.pageWidth = this.lengthValue(newValue.width);
+    })
   }
 }
