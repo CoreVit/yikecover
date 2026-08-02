@@ -34,18 +34,21 @@ export const CORNER_LABEL_ROTATION: number = Math.PI / 4;
 export const EDITORIAL_HEADER_TAB_WIDTH: number = 510;
 export const EDITORIAL_HEADER_TAB_HEIGHT: number = 132;
 export const EDITORIAL_HEADER_VERSION_LEFT: number = 500;
+const EDITORIAL_HEADER_TAIL_WIDTH: number = 100;
+const EDITORIAL_HEADER_TAIL_CONTROL: number = 36;
 
 // Templates 06–09 share the same curve. A longer label may extend the straight
 // section horizontally without stretching or otherwise deforming that curve.
 export function drawEditorialHeaderTabPath(ctx: CanvasRenderer,
   width: number = EDITORIAL_HEADER_TAB_WIDTH): void {
-  const horizontalOffset: number = width - EDITORIAL_HEADER_TAB_WIDTH;
+  const curveEnd: number = width - EDITORIAL_HEADER_TAIL_WIDTH;
   ctx.beginPath();
   ctx.moveTo(0, 0);
   ctx.lineTo(width, 0);
-  ctx.bezierCurveTo(462 + horizontalOffset, 0,
-    480 + horizontalOffset, EDITORIAL_HEADER_TAB_HEIGHT,
-    380 + horizontalOffset, EDITORIAL_HEADER_TAB_HEIGHT);
+  ctx.bezierCurveTo(width - EDITORIAL_HEADER_TAIL_CONTROL, 0,
+    curveEnd + EDITORIAL_HEADER_TAIL_CONTROL,
+    EDITORIAL_HEADER_TAB_HEIGHT,
+    curveEnd, EDITORIAL_HEADER_TAB_HEIGHT);
   ctx.lineTo(0, EDITORIAL_HEADER_TAB_HEIGHT);
   ctx.closePath();
 }
@@ -83,9 +86,9 @@ export function drawEpisodeCornerLabel(ctx: CanvasRenderer, episode: string,
 export function drawEditorialEpisodeCornerPath(ctx: CanvasRenderer): void {
   ctx.beginPath();
   ctx.moveTo(1620, 0);
-  ctx.bezierCurveTo(1648, 0, 1656, 14, 1676, 34);
-  ctx.lineTo(1886, 244);
-  ctx.bezierCurveTo(1906, 264, 1920, 272, 1920, 300);
+  ctx.bezierCurveTo(1656, 0, 1670, 16, 1692, 38);
+  ctx.lineTo(1882, 228);
+  ctx.bezierCurveTo(1904, 250, 1920, 264, 1920, 300);
   ctx.lineTo(DESIGN_WIDTH, 0);
   ctx.closePath();
 }
@@ -421,7 +424,8 @@ export function editorialHeaderLayout(ctx: CanvasRenderer, text: string,
   labelLeft: number): AdaptiveHeaderLayout {
   return adaptiveHeaderLayout(ctx, text, labelLeft,
     CORNER_LABEL_FONT_SIZE, CORNER_LABEL_MIN_FONT_SIZE,
-    480, 920, 6, 130, 28, { bold: true, italic: true });
+    480, 920, 6, EDITORIAL_HEADER_TAIL_WIDTH, 28,
+    { bold: true, italic: true });
 }
 
 export function drawGradientText(ctx: CanvasRenderer, text: string,
