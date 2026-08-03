@@ -121,6 +121,44 @@ struct About {
     .width('100%')
   }
 
+  @Builder
+  private featureRow(code: string, title: string, description: string, showDivider: boolean) {
+    Column() {
+      Row({ space: 12 }) {
+        Text(code)
+          .width(28)
+          .fontSize(12)
+          .fontWeight(FontWeight.Bold)
+          .fontColor($r('app.color.brand_primary'))
+
+        Column({ space: 4 }) {
+          Text(title)
+            .fontSize(15)
+            .fontWeight(FontWeight.Bold)
+            .fontColor($r('app.color.text_primary'))
+
+          Text(description)
+            .fontSize(13)
+            .fontColor($r('app.color.text_secondary'))
+            .lineHeight(20)
+        }
+        .alignItems(HorizontalAlign.Start)
+        .layoutWeight(1)
+      }
+      .width('100%')
+      .alignItems(VerticalAlign.Top)
+      .padding({ top: 14, bottom: 14 })
+
+      if (showDivider) {
+        Divider()
+          .strokeWidth(1)
+          .color($r('app.color.divider'))
+          .margin({ left: 40 })
+      }
+    }
+    .width('100%')
+  }
+
   build() {
     Column() {
       Row() {
@@ -152,7 +190,7 @@ struct About {
                   .height(7)
                   .backgroundColor($r('app.color.source_accent'))
                   .borderRadius(4)
-                Text('OPEN SOURCE')
+                Text('SOURCE AVAILABLE')
                   .fontSize(11)
                   .fontWeight(FontWeight.Bold)
                   .fontColor($r('app.color.source_accent'))
@@ -169,7 +207,7 @@ struct About {
             .width('100%')
             .alignItems(VerticalAlign.Top)
 
-            Text('代码公开，\n改进也公开。')
+            Text('功能在更新，\n源码也公开。')
               .width('100%')
               .fontSize(30)
               .fontWeight(FontWeight.Bold)
@@ -177,7 +215,7 @@ struct About {
               .lineHeight(39)
               .margin({ top: 4 })
 
-            Text('一刻封面的项目源码公开托管在 GitHub。你可以查看实现、反馈问题，也可以参与改进。')
+            Text('一刻封面的项目源码公开托管在 GitHub。你可以查看实现、反馈问题，也可以参与改进。仓库当前未附加开源许可证。')
               .width('100%')
               .fontSize(14)
               .fontColor($r('app.color.text_secondary'))
@@ -258,6 +296,28 @@ struct About {
           .borderRadius(18)
           .margin({ top: 14 })
 
+          Text('最新版功能')
+            .width('100%')
+            .fontSize(18)
+            .fontWeight(FontWeight.Bold)
+            .fontColor($r('app.color.text_primary'))
+            .margin({ top: 28, bottom: 12 })
+
+          Column() {
+            this.featureRow('01', '10 套封面模板',
+              '涵盖双行、分集、会员、美食、现场、系列节目、播客和视频片尾等版式。', true)
+            this.featureRow('02', '可视化编辑与裁剪',
+              '替换图片和文字，按模板填写专属内容；图片支持 16:9 拖动与双指缩放裁剪。', true)
+            this.featureRow('03', '多规格图片导出',
+              '支持 720P、1080P、4K，以及 PNG、JPEG、WebP；非 PNG 格式可调整清晰度。', true)
+            this.featureRow('04', '本机作品管理',
+              '保存有修改的草稿并记录已导出作品；图片经系统确认保存到相册，业务数据仅留在本机。', false)
+          }
+          .width('100%')
+          .padding({ left: 17, right: 17 })
+          .backgroundColor($r('app.color.card_background'))
+          .borderRadius(16)
+
           Text('关于项目')
             .width('100%')
             .fontSize(18)
@@ -265,7 +325,7 @@ struct About {
             .fontColor($r('app.color.text_primary'))
             .margin({ top: 28, bottom: 12 })
 
-          Text('一刻封面希望把重复的封面排版，变成几步清楚、稳定的操作：选择模板，替换内容，然后导出。')
+          Text('一刻封面是一款在本机运行的内容封面制作元服务。选择模板、替换图片和文字、调整裁剪，即可实时预览并按所选规格保存到系统相册。无需注册或登录。')
             .width('100%')
             .fontSize(14)
             .fontColor($r('app.color.text_secondary'))
@@ -283,6 +343,9 @@ struct About {
 
           Column() {
             this.detailRow('版本', this.versionName, true)
+            this.detailRow('模板数量', '10 套', true)
+            this.detailRow('导出规格', '720P / 1080P / 4K', true)
+            this.detailRow('数据存储', '仅当前设备', true)
             this.detailRow('运行平台', 'HarmonyOS', false)
           }
           .width('100%')

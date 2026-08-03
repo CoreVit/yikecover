@@ -33,7 +33,7 @@ const SETTINGS: SettingEntry[] = [
   {
     id: 5,
     title: '关于一刻封面',
-    description: '开源信息、版本与项目地址'
+    description: '功能说明、版本与项目地址'
   }
 ];
 
