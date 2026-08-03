@@ -186,7 +186,7 @@ struct ExportSettingsPage {
       this.choice('PNG', '无损，文字边缘最清晰，文件较大',
         true, 'format', 'PNG')
       Divider().color($r('app.color.divider'))
-      this.choice('JPEG', '文件较小，不支持透明',
+      this.choice('JPEG（JPG）', '文件较小，不支持透明',
         true, 'format', 'JPEG')
       Divider().color($r('app.color.divider'))
       this.choice('WebP', '压缩效率较高，部分目标兼容性有限',

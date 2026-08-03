@@ -213,7 +213,8 @@ export struct WorksHome {
 
       Text(item.status)
         .fontSize(9)
-        .fontColor(item.status === '已导出' ? '#66D89A' : $r('app.color.brand_primary'))
+        .fontWeight(FontWeight.Medium)
+        .fontColor(item.status === '已导出' ? '#24583F' : '#174A8B')
         .padding({ left: 8, right: 8, top: 5, bottom: 5 })
         .backgroundColor($r('app.color.control_background'))
         .borderRadius(10)

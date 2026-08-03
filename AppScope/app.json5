@@ -3,8 +3,8 @@
     "bundleName": "com.atomicservice.6917611673389417844",
     "bundleType": "atomicService",
     "vendor": "张佳宾",
-    "versionCode": 1000000,
-    "versionName": "1.0.0",
+    "versionCode": 1000001,
+    "versionName": "1.0.1",
     "buildVersion": "1",
     "icon": "$media:app_icon",
     "label": "$string:app_name"
