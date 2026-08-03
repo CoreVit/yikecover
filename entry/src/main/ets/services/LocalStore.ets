@@ -50,6 +50,18 @@ function recordTitle(draft: CoverDraft): string {
 }
 
 function migrateDraftDefaults(draft: CoverDraft): CoverDraft {
+  if (!Number.isFinite(draft.photoOffsetX)) {
+    draft.photoOffsetX = 0;
+  }
+  if (!Number.isFinite(draft.photoOffsetY)) {
+    draft.photoOffsetY = 0;
+  }
+  if (!Number.isFinite(draft.photoScale)) {
+    draft.photoScale = 1;
+  }
+  draft.photoOffsetX = Math.max(-1, Math.min(1, draft.photoOffsetX));
+  draft.photoOffsetY = Math.max(-1, Math.min(1, draft.photoOffsetY));
+  draft.photoScale = Math.max(1, Math.min(4, draft.photoScale));
   if (draft.templateId >= 1 && draft.templateId <= 7) {
     if (draft.title1 === '在这里输入第一行标题') {
       draft.title1 = DEFAULT_PHOTO_TITLE_FIRST;

@@ -115,7 +115,8 @@ function drawFoodTitles(ctx: CanvasRenderer, draft: CoverDraft): boolean {
 
 export function renderFineFood(ctx: CanvasRenderer, draft: CoverDraft,
   bitmap: ImageBitmap | undefined): boolean {
-  drawCoverPhoto(ctx, bitmap, false);
+  drawCoverPhoto(ctx, bitmap, false, draft.photoOffsetX,
+    draft.photoOffsetY, draft.photoScale);
   drawFoodBorder(ctx, draft.brand);
   drawFoodBrand(ctx, draft.brand);
   return drawFoodTitles(ctx, draft);

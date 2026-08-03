@@ -92,7 +92,8 @@ function drawExclusiveTitles(ctx: CanvasRenderer,
 
 export function renderExclusive(ctx: CanvasRenderer, draft: CoverDraft,
   bitmap: ImageBitmap | undefined): boolean {
-  drawCoverPhoto(ctx, bitmap, false);
+  drawCoverPhoto(ctx, bitmap, false, draft.photoOffsetX,
+    draft.photoOffsetY, draft.photoScale);
   drawExclusiveShade(ctx);
   drawExclusiveBrand(ctx, draft.brand);
   return drawExclusiveTitles(ctx, draft);

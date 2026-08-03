@@ -15,8 +15,8 @@ export default function localUnitTest() {
       expect(DESIGN_HEIGHT).assertEqual(1080);
     });
 
-    it('containsNineTypedTemplates', 0, () => {
-      expect(TEMPLATE_DEFINITIONS.length).assertEqual(9);
+    it('containsTenTypedTemplates', 0, () => {
+      expect(TEMPLATE_DEFINITIONS.length).assertEqual(10);
       expect(getTemplateDefinition(8).capabilities.requiresPhoto).assertFalse();
       expect(getTemplateDefinition(9).capabilities.supportsPodcastFields).assertTrue();
       expect(getTemplateDefinition(1).capabilities.supportsEpisode).assertFalse();
@@ -36,6 +36,9 @@ export default function localUnitTest() {
       expect(draft.templateId).assertEqual(3);
       expect(draft.versionLabel).assertEqual('会员专享');
       expect(draft.publishDate.length).assertEqual(10);
+      expect(draft.photoOffsetX).assertEqual(0);
+      expect(draft.photoOffsetY).assertEqual(0);
+      expect(draft.photoScale).assertEqual(1);
     });
   });
 }

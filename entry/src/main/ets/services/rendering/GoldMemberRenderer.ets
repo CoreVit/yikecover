@@ -90,7 +90,8 @@ function drawMemberFrame(ctx: CanvasRenderer, draft: CoverDraft,
   ctx.save();
   createMemberOpening(ctx, draft.brand);
   ctx.clip();
-  drawCoverPhoto(ctx, bitmap, draft.grayscale);
+  drawCoverPhoto(ctx, bitmap, draft.grayscale, draft.photoOffsetX,
+    draft.photoOffsetY, draft.photoScale);
 
   const insetShade: CanvasGradient =
     ctx.createRadialGradient(DESIGN_WIDTH / 2, DESIGN_HEIGHT / 2, 370,

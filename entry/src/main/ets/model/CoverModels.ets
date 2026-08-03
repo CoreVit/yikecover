@@ -63,6 +63,9 @@ export interface ExportSettings {
 export interface CoverDraft {
   templateId: number;
   photoUri: string;
+  photoOffsetX: number;
+  photoOffsetY: number;
+  photoScale: number;
   brand: string;
   title1: string;
   title2: string;
@@ -259,6 +262,9 @@ export function createDefaultDraft(definition: TemplateDefinition): CoverDraft {
   return {
     templateId: definition.id,
     photoUri: '',
+    photoOffsetX: 0,
+    photoOffsetY: 0,
+    photoScale: 1,
     brand: definition.defaultBrand,
     title1: definition.defaultTitle1,
     title2: definition.defaultTitle2,

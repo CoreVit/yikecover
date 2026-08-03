@@ -75,7 +75,8 @@ function drawEpisodeBackground(ctx: CanvasRenderer, draft: CoverDraft,
   ctx.save();
   createEpisodeOpening(ctx, draft.brand);
   ctx.clip();
-  drawCoverPhoto(ctx, bitmap, false);
+  drawCoverPhoto(ctx, bitmap, false, draft.photoOffsetX,
+    draft.photoOffsetY, draft.photoScale);
 
   const leftShade: CanvasGradient = ctx.createLinearGradient(0, 0, 1050, 0);
   leftShade.addColorStop(0, '#E0000000');

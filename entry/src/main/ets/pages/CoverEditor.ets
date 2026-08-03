@@ -17,6 +17,7 @@ import {
   todayText
 } from '../model/CoverModels';
 import { CoverPreview } from '../components/CoverPreview';
+import { PhotoCropper } from '../components/PhotoCropper';
 import { SystemBackButton } from '../components/SystemBackButton';
 import { CoverRenderer, RenderResult } from '../services/CoverRenderer';
 import { ExportService } from '../services/ExportService';
@@ -35,6 +36,16 @@ struct CoverEditor {
 
   @State templateId: number = 1;
   @State photoUri: string = '';
+  @State photoOffsetX: number = 0;
+  @State photoOffsetY: number = 0;
+  @State photoScale: number = 1;
+  @State cropVisible: boolean = false;
+  @State cropPhotoUri: string = '';
+  @State cropOffsetX: number = 0;
+  @State cropOffsetY: number = 0;
+  @State cropScale: number = 1;
+  @State cropLoading: boolean = false;
+  @State cropLoadFailed: boolean = false;
   @State brand: string = '';
   @State title1: string = '';
   @State title2: string = '';
@@ -106,6 +117,10 @@ struct CoverEditor {
   }
 
   onBackPress(): boolean {
+    if (this.cropVisible) {
+      this.cancelCrop();
+      return true;
+    }
     this.leaveEditor();
     return true;
   }
@@ -117,6 +132,9 @@ struct CoverEditor {
   private async loadDraft(): Promise<void> {
     const draft: CoverDraft = await LocalStore.loadDraft(this.templateId);
     this.photoUri = draft.photoUri;
+    this.photoOffsetX = draft.photoOffsetX;
+    this.photoOffsetY = draft.photoOffsetY;
+    this.photoScale = draft.photoScale;
     this.brand = draft.brand;
     this.title1 = draft.title1;
     this.title2 = draft.title2;
@@ -160,6 +178,9 @@ struct CoverEditor {
     return {
       templateId: this.templateId,
       photoUri: this.photoUri,
+      photoOffsetX: this.photoOffsetX,
+      photoOffsetY: this.photoOffsetY,
+      photoScale: this.photoScale,
       brand: this.brand,
       title1: this.title1,
       title2: this.title2,
@@ -203,8 +224,6 @@ struct CoverEditor {
       options.maxSelectNumber = 1;
       const result: photoAccessHelper.PhotoSelectResult = await picker.select(options);
       if (result.photoUris.length > 0) {
-        this.photoLoading = true;
-        this.photoLoadFailed = false;
         const hostContext: Context | undefined = this.getUIContext().getHostContext();
         if (hostContext === undefined) {
           throw new Error('无法访问应用目录');
@@ -214,15 +233,67 @@ struct CoverEditor {
           `${hostContext.filesDir}/cover-photo-${this.templateId}-${Date.now()}.img`;
         fileIo.copyFileSync(source.fd, localPath);
         fileIo.closeSync(source);
-        this.photoUri = localPath;
-        this.requestPreview();
-        this.showToast('已按 16:9 居中裁切');
+        this.openCrop(localPath, 0, 0, 1);
       }
     } catch (error) {
       this.photoLoading = false;
-      this.photoLoadFailed = true;
+      if (this.photoUri.length === 0) {
+        this.photoLoadFailed = true;
+      }
       this.showToast('未能读取所选图片');
     }
+  }
+
+  private openCrop(uri: string, offsetX: number,
+    offsetY: number, scale: number): void {
+    this.cropPhotoUri = uri;
+    this.cropOffsetX = offsetX;
+    this.cropOffsetY = offsetY;
+    this.cropScale = scale;
+    this.cropLoading = true;
+    this.cropLoadFailed = false;
+    this.cropVisible = true;
+  }
+
+  private recropPhoto(): void {
+    if (this.photoUri.length === 0) {
+      return;
+    }
+    this.openCrop(this.photoUri, this.photoOffsetX,
+      this.photoOffsetY, this.photoScale);
+  }
+
+  private cancelCrop(): void {
+    if (this.cropPhotoUri.length > 0 && this.cropPhotoUri !== this.photoUri) {
+      try {
+        fileIo.unlinkSync(this.cropPhotoUri);
+      } catch (error) {
+      }
+    }
+    this.cropVisible = false;
+    this.cropPhotoUri = '';
+    this.cropLoading = false;
+    this.cropLoadFailed = false;
+  }
+
+  private confirmCrop(): void {
+    if (this.cropLoading || this.cropLoadFailed) {
+      return;
+    }
+    this.photoUri = this.cropPhotoUri;
+    this.photoOffsetX = this.cropOffsetX;
+    this.photoOffsetY = this.cropOffsetY;
+    this.photoScale = this.cropScale;
+    this.cropVisible = false;
+    this.cropPhotoUri = '';
+    this.requestPreview();
+    this.showToast('裁剪已应用');
+  }
+
+  private resetCrop(): void {
+    this.cropOffsetX = 0;
+    this.cropOffsetY = 0;
+    this.cropScale = 1;
   }
 
   private showToast(message: string): void {
@@ -394,6 +465,178 @@ struct CoverEditor {
         this.updatePublishDate(value);
       }
     });
+  }
+
+  @Builder
+  private cropHeader() {
+    Row() {
+      SystemBackButton({
+        onBack: (): void => {
+          this.cancelCrop();
+        }
+      })
+      Column({ space: 3 }) {
+        Text('裁剪背景图片')
+          .fontSize(18)
+          .fontWeight(FontWeight.Bold)
+          .fontColor($r('app.color.text_primary'))
+        Text('固定比例 16:9')
+          .fontSize(10)
+          .fontColor($r('app.color.text_secondary'))
+      }
+      .alignItems(HorizontalAlign.Start)
+      .margin({ left: 12 })
+      Blank()
+      Button('完成', { type: ButtonType.Normal })
+        .height(40)
+        .fontSize(13)
+        .fontWeight(FontWeight.Bold)
+        .fontColor('#FFFFFF')
+        .backgroundColor($r('app.color.brand_primary'))
+        .borderRadius(10)
+        .enabled(!this.cropLoading && !this.cropLoadFailed)
+        .onClick(() => {
+          this.confirmCrop();
+        })
+    }
+    .width('100%')
+    .padding({ left: 14, right: 14, top: 12, bottom: 12 })
+    .backgroundColor($r('app.color.nav_background'))
+  }
+
+  @Builder
+  private cropPage() {
+    Column() {
+      this.cropHeader()
+      Scroll() {
+        Column({ space: 16 }) {
+          Column({ space: 5 }) {
+          Text('调整封面取景')
+            .fontSize(20)
+            .fontWeight(FontWeight.Bold)
+            .fontColor($r('app.color.text_primary'))
+          Text('单指拖动图片，双指缩放；白色边框内是最终保留区域')
+            .fontSize(12)
+            .fontColor($r('app.color.text_secondary'))
+            .textAlign(TextAlign.Center)
+          }
+
+          Stack({ alignContent: Alignment.Center }) {
+          PhotoCropper({
+            photoUri: this.cropPhotoUri,
+            offsetX: this.cropOffsetX,
+            offsetY: this.cropOffsetY,
+            photoScale: this.cropScale,
+            onCropChanged: (offsetX: number, offsetY: number, scale: number): void => {
+              this.cropOffsetX = offsetX;
+              this.cropOffsetY = offsetY;
+              this.cropScale = scale;
+            },
+            onPhotoStateChanged: (state: string): void => {
+              this.cropLoading = state === 'loading';
+              this.cropLoadFailed = state === 'error';
+            }
+          })
+          .width('100%')
+
+          if (this.cropLoading) {
+            Column({ space: 10 }) {
+              LoadingProgress()
+                .width(34)
+                .height(34)
+                .color('#FFFFFF')
+              Text('正在准备图片')
+                .fontSize(13)
+                .fontColor('#FFFFFF')
+            }
+            .width('100%')
+            .height('100%')
+            .justifyContent(FlexAlign.Center)
+            .backgroundColor('#880B1016')
+          } else if (this.cropLoadFailed) {
+            Column({ space: 8 }) {
+              SymbolGlyph($r('sys.symbol.exclamationmark_triangle'))
+                .fontSize(26)
+                .fontColor(['#FFFFFF'])
+              Text('图片未能载入，请返回后重新选择')
+                .fontSize(12)
+                .fontColor('#FFFFFF')
+            }
+            .width('100%')
+            .height('100%')
+            .justifyContent(FlexAlign.Center)
+            .backgroundColor('#880B1016')
+          }
+          }
+          .width('100%')
+          .aspectRatio(16 / 9)
+          .shadow({ radius: 18, color: '#40000000', offsetY: 8 })
+
+          Row({ space: 12 }) {
+          Text('缩放')
+            .fontSize(11)
+            .fontColor($r('app.color.text_secondary'))
+          Slider({
+            value: this.cropScale,
+            min: 1,
+            max: 4,
+            step: 0.01,
+            style: SliderStyle.OutSet
+          })
+            .layoutWeight(1)
+            .selectedColor($r('app.color.brand_primary'))
+            .blockColor('#FFFFFF')
+            .trackColor($r('app.color.control_background'))
+            .onChange((value: number) => {
+              this.cropScale = value;
+            })
+          Text(`${Math.round(this.cropScale * 100)}%`)
+            .width(42)
+            .fontSize(11)
+            .fontColor($r('app.color.text_secondary'))
+            .textAlign(TextAlign.End)
+          }
+          .width('100%')
+
+          Row({ space: 12 }) {
+          Button('重置', { type: ButtonType.Normal })
+            .layoutWeight(1)
+            .height(44)
+            .fontSize(13)
+            .fontColor($r('app.color.text_primary'))
+            .backgroundColor($r('app.color.control_background'))
+            .borderRadius(10)
+            .onClick(() => {
+              this.resetCrop();
+            })
+          Button('应用裁剪', { type: ButtonType.Normal })
+            .layoutWeight(2)
+            .height(44)
+            .fontSize(13)
+            .fontWeight(FontWeight.Bold)
+            .fontColor('#FFFFFF')
+            .backgroundColor($r('app.color.brand_primary'))
+            .borderRadius(10)
+            .enabled(!this.cropLoading && !this.cropLoadFailed)
+            .onClick(() => {
+              this.confirmCrop();
+            })
+          }
+          .width('100%')
+        }
+        .width('100%')
+        .constraintSize({ maxWidth: 860 })
+        .padding({ left: 18, right: 18, top: 22, bottom: 24 })
+        .alignSelf(ItemAlign.Center)
+        .justifyContent(FlexAlign.Center)
+      }
+      .layoutWeight(1)
+      .align(Alignment.TopStart)
+      .scrollBar(BarState.Off)
+    }
+    .width('100%')
+    .height('100%')
+    .backgroundColor($r('app.color.page_background'))
   }
 
   @Builder
@@ -606,43 +849,90 @@ struct CoverEditor {
   @Builder
   private photoSection() {
     Column() {
-      this.sectionTitle('01', '背景图片', '上传后自动进行 16:9 居中裁切')
-      Row() {
-        Column({ space: 5 }) {
-          if (this.photoLoading) {
-            LoadingProgress()
-              .width(25)
-              .height(25)
-              .color($r('app.color.brand_primary'))
-          } else {
-            SymbolGlyph(this.photoLoadFailed ? $r('sys.symbol.exclamationmark_triangle') :
-              (this.photoUri.length > 0 ? $r('sys.symbol.checkmark') : $r('sys.symbol.plus')))
+      this.sectionTitle('01', '背景图片', '按 16:9 拖动和缩放取景')
+      if (this.photoUri.length === 0 || this.photoLoadFailed) {
+        Row() {
+          Column({ space: 5 }) {
+            if (this.photoLoading) {
+              LoadingProgress()
+                .width(25)
+                .height(25)
+                .color($r('app.color.brand_primary'))
+            } else {
+              SymbolGlyph(this.photoLoadFailed ? $r('sys.symbol.exclamationmark_triangle') :
+                $r('sys.symbol.plus'))
               .fontSize(24)
               .fontColor([this.photoLoadFailed ? $r('app.color.brand_primary') :
-                (this.photoUri.length > 0 ? '#5AA77B' : $r('app.color.brand_primary'))])
+                $r('app.color.brand_primary')])
+            }
+            Text(this.photoLoadFailed ? '重新选择主图' : '上传主图')
+              .fontSize(13)
+              .fontWeight(FontWeight.Medium)
+              .fontColor($r('app.color.text_primary'))
+            Text(this.photoLoadFailed ? '上次图片没有成功载入' : '选择后可调整裁剪区域')
+              .fontSize(10)
+              .fontColor($r('app.color.text_secondary'))
           }
-          Text(this.photoLoading ? '正在载入主图' :
-            (this.photoLoadFailed ? '重新选择主图' :
-              (this.photoUri.length > 0 ? '更换主图' : '上传主图')))
-            .fontSize(13)
-            .fontWeight(FontWeight.Medium)
-            .fontColor($r('app.color.text_primary'))
-          Text(this.photoLoading ? '完成后预览会自动刷新' :
-            (this.photoLoadFailed ? '上次图片没有成功载入' :
-              (this.photoUri.length > 0 ? '已加载 · 点击可替换' : '支持系统相册中的图片')))
-            .fontSize(10)
-            .fontColor($r('app.color.text_secondary'))
+          .width('100%')
+        }
+        .height(105)
+        .justifyContent(FlexAlign.Center)
+        .border({ width: 1, color: $r('app.color.divider'), style: BorderStyle.Dashed })
+        .borderRadius(12)
+        .backgroundColor($r('app.color.control_background'))
+        .onClick(() => {
+          this.selectPhoto();
+        })
+      } else {
+        Column({ space: 12 }) {
+          Row({ space: 10 }) {
+            SymbolGlyph($r('sys.symbol.checkmark'))
+              .fontSize(22)
+              .fontColor(['#5AA77B'])
+            Column({ space: 3 }) {
+              Text('背景图片已就绪')
+                .fontSize(13)
+                .fontWeight(FontWeight.Medium)
+                .fontColor($r('app.color.text_primary'))
+              Text(`16:9 裁剪 · ${Math.round(this.photoScale * 100)}% 缩放`)
+                .fontSize(10)
+                .fontColor($r('app.color.text_secondary'))
+            }
+            .alignItems(HorizontalAlign.Start)
+          }
+          .width('100%')
+
+          Row({ space: 10 }) {
+            Button('重新裁剪', { type: ButtonType.Normal })
+              .layoutWeight(1)
+              .height(42)
+              .fontSize(12)
+              .fontWeight(FontWeight.Medium)
+              .fontColor($r('app.color.brand_primary'))
+              .backgroundColor($r('app.color.brand_soft'))
+              .borderRadius(9)
+              .onClick(() => {
+                this.recropPhoto();
+              })
+            Button('更换图片', { type: ButtonType.Normal })
+              .layoutWeight(1)
+              .height(42)
+              .fontSize(12)
+              .fontColor($r('app.color.text_primary'))
+              .backgroundColor($r('app.color.control_background'))
+              .borderRadius(9)
+              .onClick(() => {
+                this.selectPhoto();
+              })
+          }
+          .width('100%')
         }
         .width('100%')
+        .padding(14)
+        .border({ width: 1, color: $r('app.color.divider'), style: BorderStyle.Solid })
+        .borderRadius(12)
+        .backgroundColor($r('app.color.control_background'))
       }
-      .height(105)
-      .justifyContent(FlexAlign.Center)
-      .border({ width: 1, color: $r('app.color.divider'), style: BorderStyle.Dashed })
-      .borderRadius(12)
-      .backgroundColor($r('app.color.control_background'))
-      .onClick(() => {
-        this.selectPhoto();
-      })
     }
     .width('100%')
     .padding(16)
@@ -1187,19 +1477,23 @@ struct CoverEditor {
   }
 
   build() {
-    Column() {
-      this.header()
-      if (this.pageWidth >= 840) {
-        this.splitContent()
-      } else {
-        this.stackedContent()
+    if (this.cropVisible) {
+      this.cropPage()
+    } else {
+      Column() {
+        this.header()
+        if (this.pageWidth >= 840) {
+          this.splitContent()
+        } else {
+          this.stackedContent()
+        }
       }
+      .width('100%')
+      .height('100%')
+      .backgroundColor($r('app.color.page_background'))
+      .onAreaChange((_oldValue: Area, newValue: Area) => {
+        this.pageWidth = this.lengthValue(newValue.width);
+      })
     }
-    .width('100%')
-    .height('100%')
-    .backgroundColor($r('app.color.page_background'))
-    .onAreaChange((_oldValue: Area, newValue: Area) => {
-      this.pageWidth = this.lengthValue(newValue.width);
-    })
   }
 }

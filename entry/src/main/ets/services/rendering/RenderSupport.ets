@@ -331,7 +331,8 @@ export function drawNeutralPhoto(ctx: CanvasRenderer): void {
 }
 
 export function drawCoverPhoto(ctx: CanvasRenderer,
-  bitmap: ImageBitmap | undefined, grayscale: boolean): void {
+  bitmap: ImageBitmap | undefined, grayscale: boolean,
+  offsetX: number = 0, offsetY: number = 0, photoScale: number = 1): void {
   ctx.save();
   if (grayscale) {
     ctx.filter = 'grayscale(1)';
@@ -339,14 +340,22 @@ export function drawCoverPhoto(ctx: CanvasRenderer,
   if (bitmap === undefined || bitmap.width <= 0 || bitmap.height <= 0) {
     drawNeutralPhoto(ctx);
   } else {
-    const scale: number = Math.max(
+    const coverScale: number = Math.max(
       DESIGN_WIDTH / bitmap.width,
       DESIGN_HEIGHT / bitmap.height
     );
-    const drawWidth: number = bitmap.width * scale;
-    const drawHeight: number = bitmap.height * scale;
-    const drawX: number = (DESIGN_WIDTH - drawWidth) / 2;
-    const drawY: number = (DESIGN_HEIGHT - drawHeight) / 2;
+    const safeScale: number = Number.isFinite(photoScale) ?
+      Math.max(1, Math.min(4, photoScale)) : 1;
+    const safeOffsetX: number = Number.isFinite(offsetX) ?
+      Math.max(-1, Math.min(1, offsetX)) : 0;
+    const safeOffsetY: number = Number.isFinite(offsetY) ?
+      Math.max(-1, Math.min(1, offsetY)) : 0;
+    const drawWidth: number = bitmap.width * coverScale * safeScale;
+    const drawHeight: number = bitmap.height * coverScale * safeScale;
+    const drawX: number = (DESIGN_WIDTH - drawWidth) / 2 +
+      (drawWidth - DESIGN_WIDTH) * safeOffsetX / 2;
+    const drawY: number = (DESIGN_HEIGHT - drawHeight) / 2 +
+      (drawHeight - DESIGN_HEIGHT) * safeOffsetY / 2;
 
     // Some HarmonyOS 6.1 devices ignore the source offset of the nine-argument
     // drawImage overload and crop from the top-left. Draw the entire scaled

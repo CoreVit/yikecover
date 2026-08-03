@@ -111,7 +111,8 @@ function drawGoldTitles(ctx: CanvasRenderer, draft: CoverDraft): boolean {
 
 export function renderGoldEpisode(ctx: CanvasRenderer, draft: CoverDraft,
   bitmap: ImageBitmap | undefined): boolean {
-  drawCoverPhoto(ctx, bitmap, false);
+  drawCoverPhoto(ctx, bitmap, false, draft.photoOffsetX,
+    draft.photoOffsetY, draft.photoScale);
   drawGoldTitleContrast(ctx);
   drawGoldHeader(ctx, draft);
   drawGoldCorner(ctx, resolvedEpisode(draft));

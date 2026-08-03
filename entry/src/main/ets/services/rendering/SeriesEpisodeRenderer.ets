@@ -124,7 +124,8 @@ function drawSeriesTitles(ctx: CanvasRenderer,
 export function renderSeriesEpisode(ctx: CanvasRenderer, draft: CoverDraft,
   bitmap: ImageBitmap | undefined): boolean {
   const palette: SeriesPalette = paletteFor(draft);
-  drawCoverPhoto(ctx, bitmap, false);
+  drawCoverPhoto(ctx, bitmap, false, draft.photoOffsetX,
+    draft.photoOffsetY, draft.photoScale);
   drawSeriesShade(ctx);
   drawSeriesHeader(ctx, draft, palette);
   drawSeriesCorner(ctx, resolvedEpisode(draft), palette);

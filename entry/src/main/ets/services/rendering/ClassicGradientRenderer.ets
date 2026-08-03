@@ -63,7 +63,8 @@ function drawFrameAndPhoto(ctx: CanvasRenderer, draft: CoverDraft,
   ctx.save();
   createClassicOpening(ctx, draft.brand);
   ctx.clip();
-  drawCoverPhoto(ctx, bitmap, false);
+  drawCoverPhoto(ctx, bitmap, false, draft.photoOffsetX,
+    draft.photoOffsetY, draft.photoScale);
 
   // One continuous edge vignette creates the recessed frame effect without
   // introducing a separate black strip along the bottom.
