@@ -215,7 +215,7 @@ struct About {
               .lineHeight(39)
               .margin({ top: 4 })
 
-            Text('一刻封面的项目源码公开托管在 GitHub。你可以查看实现、反馈问题，也可以参与改进。仓库当前未附加开源许可证。')
+              Text('一刻封面的项目源码公开托管在 GitHub。你可以查看实现、反馈问题，也可以参与改进。')
               .width('100%')
               .fontSize(14)
               .fontColor($r('app.color.text_secondary'))
