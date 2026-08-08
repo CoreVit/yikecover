@@ -55,46 +55,11 @@ struct Index {
   }
 
   @Builder
-  private myTabItem() {
-    Column({ space: 2 }) {
-      Text('我')
-        .width(22)
-        .height(22)
-        .fontSize(13)
-        .fontWeight(FontWeight.Bold)
-        .fontColor(this.currentTab === 2 ?
-          $r('app.color.brand_primary') : $r('app.color.text_muted'))
-        .textAlign(TextAlign.Center)
-        .border({
-          width: 1.5,
-          color: this.currentTab === 2 ?
-            $r('app.color.brand_primary') : $r('app.color.text_muted')
-        })
-        .borderRadius(11)
-
-      Text('我的')
-        .fontSize(10)
-        .fontWeight(this.currentTab === 2 ? FontWeight.Bold : FontWeight.Medium)
-        .fontColor(this.currentTab === 2 ?
-          $r('app.color.brand_primary') : $r('app.color.text_muted'))
-    }
-    .width(98)
-    .height(48)
-    .justifyContent(FlexAlign.Center)
-    .backgroundColor(this.currentTab === 2 ?
-      $r('app.color.brand_soft') : Color.Transparent)
-    .borderRadius(24)
-    .onClick(() => {
-      this.selectTab(2);
-    })
-  }
-
-  @Builder
   private floatingTabBar() {
     Row({ space: 4 }) {
       this.tabItem(0, '制作', $r('sys.symbol.plus'))
       this.tabItem(1, '作品', $r('sys.symbol.rectangle_on_rectangle'))
-      this.myTabItem()
+      this.tabItem(2, '我的', $r('sys.symbol.person_crop_circle_fill'))
     }
     .width(FLOATING_TAB_WIDTH)
     .height(FLOATING_TAB_HEIGHT)
