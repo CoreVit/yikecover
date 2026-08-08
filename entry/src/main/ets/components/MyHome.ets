@@ -1,3 +1,7 @@
+import { authentication } from '@kit.AccountKit';
+import { util } from '@kit.ArkTS';
+import { BusinessError } from '@kit.BasicServicesKit';
+
 interface MyMenuItem {
   id: number;
   title: string;
@@ -5,9 +9,17 @@ interface MyMenuItem {
 }
 
 const PAGE_CONTENT_MAX_WIDTH: number = 960;
-const STATE_SIGNED_OUT: number = 0;
-const STATE_SIGNED_IN: number = 1;
-const STATE_SUPPORTER: number = 2;
+
+const ACCOUNT_NOT_LOGGED_IN: number = 1001502001;
+const ACCOUNT_REQUEST_REFUSED: number = 1001500002;
+const ACCOUNT_NETWORK_ERROR: number = 1001502005;
+const ACCOUNT_INTERNAL_ERROR: number = 1001502009;
+const ACCOUNT_USER_CANCELLED: number = 1001502012;
+const ACCOUNT_SYSTEM_ERROR: number = 12300001;
+
+let runtimeSignedIn: boolean = false;
+let runtimeAccountName: string = '';
+let runtimeAvatarUri: string = '';
 
 const MY_MENU_ITEMS: MyMenuItem[] = [
   {
@@ -34,31 +46,95 @@ const MY_MENU_ITEMS: MyMenuItem[] = [
 
 @Component
 export struct MyHome {
-  @State previewState: number = STATE_SIGNED_OUT;
+  @State signedIn: boolean = false;
+  @State accountName: string = '';
+  @State avatarUri: string = '';
+  @State loggingIn: boolean = false;
 
-  private isSignedIn(): boolean {
-    return this.previewState !== STATE_SIGNED_OUT;
+  aboutToAppear(): void {
+    this.signedIn = runtimeSignedIn;
+    this.accountName = runtimeAccountName;
+    this.avatarUri = runtimeAvatarUri;
   }
 
-  private isSupporter(): boolean {
-    return this.previewState === STATE_SUPPORTER;
-  }
-
-  private previewLabel(): string {
-    if (this.previewState === STATE_SIGNED_IN) {
-      return '已登录 · 未购买';
-    }
-    if (this.previewState === STATE_SUPPORTER) {
-      return '已登录 · 支持者';
-    }
-    return '未登录';
-  }
-
-  private showPreviewMessage(message: string): void {
+  private showMessage(message: string): void {
     this.getUIContext().getPromptAction().showToast({
       message: message,
       duration: 1800
     });
+  }
+
+  private accountErrorMessage(code: number): string {
+    if (code === ACCOUNT_NOT_LOGGED_IN) {
+      return '请先在设备上登录华为账号';
+    }
+    if (code === ACCOUNT_NETWORK_ERROR) {
+      return '网络异常，请检查网络后重试';
+    }
+    if (code === ACCOUNT_USER_CANCELLED) {
+      return '已取消华为账号授权';
+    }
+    if (code === ACCOUNT_REQUEST_REFUSED) {
+      return '登录请求正在处理中';
+    }
+    if (code === ACCOUNT_INTERNAL_ERROR || code === ACCOUNT_SYSTEM_ERROR) {
+      return '华为账号服务暂不可用，请稍后重试';
+    }
+    return '登录失败，请稍后重试';
+  }
+
+  private async loginWithHuaweiID(): Promise<void> {
+    if (this.loggingIn) {
+      return;
+    }
+
+    this.loggingIn = true;
+    try {
+      const request = new authentication.HuaweiIDProvider().createAuthorizationWithHuaweiIDRequest();
+      request.scopes = ['profile'];
+      request.supportAtomicService = true;
+      request.forceAuthorization = true;
+      request.state = util.generateRandomUUID();
+
+      const controller = new authentication.AuthenticationController(this.getUIContext().getHostContext());
+      const data = await controller.executeRequest(request);
+      const response = data as authentication.AuthorizationWithHuaweiIDResponse;
+      const requestState = request.state || '';
+      const responseState = response.state || '';
+      if (requestState !== responseState) {
+        this.showMessage('登录校验失败，请重新尝试');
+        return;
+      }
+
+      const credential = response.data;
+      if (!credential) {
+        this.showMessage('未获取到华为账号信息');
+        return;
+      }
+
+      this.accountName = credential.nickName || '华为账号用户';
+      this.avatarUri = credential.avatarUri || '';
+      this.signedIn = true;
+      runtimeAccountName = this.accountName;
+      runtimeAvatarUri = this.avatarUri;
+      runtimeSignedIn = true;
+      this.showMessage('华为账号登录成功');
+    } catch (error) {
+      const accountError = error as BusinessError;
+      this.showMessage(this.accountErrorMessage(accountError.code));
+    } finally {
+      this.loggingIn = false;
+    }
+  }
+
+  private logout(): void {
+    runtimeSignedIn = false;
+    runtimeAccountName = '';
+    runtimeAvatarUri = '';
+    this.signedIn = false;
+    this.accountName = '';
+    this.avatarUri = '';
+    this.showMessage('已退出当前登录');
   }
 
   private openMenuItem(item: MyMenuItem): void {
@@ -69,61 +145,12 @@ export struct MyHome {
       return;
     }
 
-    if ((item.id === 1 || item.id === 2) && !this.isSignedIn()) {
-      this.showPreviewMessage('下一阶段接入华为账号登录');
+    if ((item.id === 1 || item.id === 2) && !this.signedIn) {
+      this.showMessage('请先登录华为账号');
       return;
     }
 
-    this.showPreviewMessage('前端预览完成，下一阶段接入真实能力');
-  }
-
-  @Builder
-  private previewButton(label: string, state: number) {
-    Text(label)
-      .layoutWeight(1)
-      .height(34)
-      .fontSize(11)
-      .fontWeight(this.previewState === state ? FontWeight.Bold : FontWeight.Medium)
-      .fontColor(this.previewState === state ?
-        $r('app.color.brand_primary') : $r('app.color.text_secondary'))
-      .textAlign(TextAlign.Center)
-      .backgroundColor(this.previewState === state ?
-        $r('app.color.brand_soft') : Color.Transparent)
-      .borderRadius(17)
-      .onClick(() => {
-        this.previewState = state;
-      })
-  }
-
-  @Builder
-  private statePreview() {
-    Column({ space: 10 }) {
-      Row() {
-        Text('状态预览')
-          .fontSize(12)
-          .fontWeight(FontWeight.Bold)
-          .fontColor($r('app.color.text_primary'))
-        Blank()
-        Text(this.previewLabel())
-          .fontSize(10)
-          .fontColor($r('app.color.text_muted'))
-      }
-      .width('100%')
-
-      Row({ space: 3 }) {
-        this.previewButton('未登录', STATE_SIGNED_OUT)
-        this.previewButton('已登录', STATE_SIGNED_IN)
-        this.previewButton('支持者', STATE_SUPPORTER)
-      }
-      .width('100%')
-      .padding(3)
-      .backgroundColor($r('app.color.control_background'))
-      .borderRadius(20)
-    }
-    .width('100%')
-    .padding(14)
-    .backgroundColor($r('app.color.card_background'))
-    .borderRadius(16)
+    this.showMessage('该功能将在后续阶段接入');
   }
 
   @Builder
@@ -132,8 +159,7 @@ export struct MyHome {
       Row()
         .width(64)
         .height(64)
-        .backgroundColor(this.isSupporter() ?
-          $r('app.color.support_soft') : $r('app.color.control_background'))
+        .backgroundColor($r('app.color.control_background'))
         .borderRadius(32)
 
       Stack({ alignContent: Alignment.BottomStart }) {
@@ -157,32 +183,18 @@ export struct MyHome {
       .height(54)
       .borderRadius(27)
       .clip(true)
+
+      if (this.signedIn && this.avatarUri.length > 0) {
+        Image(this.avatarUri)
+          .width(54)
+          .height(54)
+          .objectFit(ImageFit.Cover)
+          .borderRadius(27)
+      }
     }
     .width(68)
     .height(68)
-    .border({
-      width: this.isSupporter() ? 2 : 0,
-      color: $r('app.color.support_gold')
-    })
     .borderRadius(34)
-  }
-
-  @Builder
-  private supporterStatus() {
-    Row({ space: 8 }) {
-      Text('支持者')
-        .fontSize(11)
-        .fontWeight(FontWeight.Bold)
-        .fontColor($r('app.color.support_gold'))
-        .padding({ left: 9, right: 9, top: 5, bottom: 5 })
-        .backgroundColor($r('app.color.support_soft'))
-        .borderRadius(12)
-
-      Text('累计支持 ¥25')
-        .fontSize(12)
-        .fontWeight(FontWeight.Medium)
-        .fontColor($r('app.color.text_primary'))
-    }
   }
 
   @Builder
@@ -192,12 +204,12 @@ export struct MyHome {
         this.defaultAvatar()
 
         Column({ space: 5 }) {
-          Text(this.isSignedIn() ? '华为账号已登录' : '登录华为账号')
+          Text(this.signedIn ? this.accountName : '登录华为账号')
             .fontSize(19)
             .fontWeight(FontWeight.Bold)
             .fontColor($r('app.color.text_primary'))
 
-          Text(this.isSignedIn() ?
+          Text(this.signedIn ?
             '账号仅用于保存和恢复支持徽记' : '制作、保存和导出无需登录')
             .fontSize(12)
             .fontColor($r('app.color.text_secondary'))
@@ -207,16 +219,8 @@ export struct MyHome {
       }
       .width('100%')
 
-      if (this.isSupporter()) {
-        Row() {
-          this.supporterStatus()
-        }
-        .width('100%')
-        .margin({ top: 16 })
-      }
-
-      if (!this.isSignedIn()) {
-        Button('登录华为账号', { type: ButtonType.Normal })
+      if (!this.signedIn) {
+        Button(this.loggingIn ? '正在登录…' : '登录华为账号', { type: ButtonType.Normal })
           .width('100%')
           .height(44)
           .fontSize(14)
@@ -225,9 +229,10 @@ export struct MyHome {
           .backgroundColor($r('app.color.brand_primary'))
           .borderRadius(11)
           .margin({ top: 18 })
+          .enabled(!this.loggingIn)
+          .opacity(this.loggingIn ? 0.65 : 1)
           .onClick(() => {
-            this.previewState = STATE_SIGNED_IN;
-            this.showPreviewMessage('当前为前端假数据预览');
+            this.loginWithHuaweiID();
           })
       } else {
         Text('退出登录')
@@ -237,7 +242,7 @@ export struct MyHome {
           .textAlign(TextAlign.Center)
           .padding({ top: 15, bottom: 2 })
           .onClick(() => {
-            this.previewState = STATE_SIGNED_OUT;
+            this.logout();
           })
       }
     }
@@ -336,7 +341,6 @@ export struct MyHome {
           .alignItems(HorizontalAlign.Start)
 
           Column({ space: 12 }) {
-            this.statePreview()
             this.accountCard()
             this.freePromise()
           }
