@@ -1,0 +1,229 @@
+{
+  "permissions": [
+    {
+      "permissions": [
+        {
+          "role": "World",
+          "rights": []
+        },
+        {
+          "role": "Authenticated",
+          "rights": []
+        },
+        {
+          "role": "Creator",
+          "rights": []
+        },
+        {
+          "role": "Administrator",
+          "rights": ["Read", "Upsert", "Delete"]
+        }
+      ],
+      "objectTypeName": "SupportEntitlement"
+    },
+    {
+      "permissions": [
+        {
+          "role": "World",
+          "rights": []
+        },
+        {
+          "role": "Authenticated",
+          "rights": []
+        },
+        {
+          "role": "Creator",
+          "rights": []
+        },
+        {
+          "role": "Administrator",
+          "rights": ["Read", "Upsert", "Delete"]
+        }
+      ],
+      "objectTypeName": "IapOrder"
+    }
+  ],
+  "objectTypes": [
+    {
+      "indexes": [
+        {
+          "indexName": "idx_entitlement_uid",
+          "indexList": ["uid"]
+        },
+        {
+          "indexName": "idx_entitlement_uid_product",
+          "indexList": ["uid", "productId"]
+        }
+      ],
+      "objectTypeName": "SupportEntitlement",
+      "fields": [
+        {
+          "fieldName": "entitlementId",
+          "notNull": true,
+          "isNeedEncrypt": false,
+          "belongPrimaryKey": true,
+          "fieldType": "String"
+        },
+        {
+          "fieldName": "uid",
+          "notNull": true,
+          "isNeedEncrypt": false,
+          "belongPrimaryKey": false,
+          "fieldType": "String"
+        },
+        {
+          "fieldName": "productId",
+          "notNull": true,
+          "isNeedEncrypt": false,
+          "belongPrimaryKey": false,
+          "fieldType": "String"
+        },
+        {
+          "fieldName": "sourceOrderId",
+          "notNull": true,
+          "isNeedEncrypt": false,
+          "belongPrimaryKey": false,
+          "fieldType": "String"
+        },
+        {
+          "fieldName": "amountFen",
+          "notNull": true,
+          "isNeedEncrypt": false,
+          "belongPrimaryKey": false,
+          "fieldType": "Integer"
+        },
+        {
+          "fieldName": "status",
+          "notNull": true,
+          "isNeedEncrypt": false,
+          "belongPrimaryKey": false,
+          "fieldType": "Integer"
+        },
+        {
+          "fieldName": "grantedAt",
+          "notNull": true,
+          "isNeedEncrypt": false,
+          "belongPrimaryKey": false,
+          "fieldType": "Long"
+        },
+        {
+          "fieldName": "updatedAt",
+          "notNull": true,
+          "isNeedEncrypt": false,
+          "belongPrimaryKey": false,
+          "fieldType": "Long"
+        }
+      ]
+    },
+    {
+      "indexes": [
+        {
+          "indexName": "idx_order_uid",
+          "indexList": ["uid"]
+        },
+        {
+          "indexName": "idx_order_uid_product",
+          "indexList": ["uid", "productId"]
+        },
+        {
+          "indexName": "idx_order_entitlement",
+          "indexList": ["entitlementId"]
+        }
+      ],
+      "objectTypeName": "IapOrder",
+      "fields": [
+        {
+          "fieldName": "purchaseOrderId",
+          "notNull": true,
+          "isNeedEncrypt": false,
+          "belongPrimaryKey": true,
+          "fieldType": "String"
+        },
+        {
+          "fieldName": "entitlementId",
+          "notNull": true,
+          "isNeedEncrypt": false,
+          "belongPrimaryKey": false,
+          "fieldType": "String"
+        },
+        {
+          "fieldName": "uid",
+          "notNull": true,
+          "isNeedEncrypt": false,
+          "belongPrimaryKey": false,
+          "fieldType": "String"
+        },
+        {
+          "fieldName": "productId",
+          "notNull": true,
+          "isNeedEncrypt": false,
+          "belongPrimaryKey": false,
+          "fieldType": "String"
+        },
+        {
+          "fieldName": "purchaseToken",
+          "notNull": true,
+          "isNeedEncrypt": true,
+          "belongPrimaryKey": false,
+          "fieldType": "String"
+        },
+        {
+          "fieldName": "jwsPurchaseOrder",
+          "notNull": true,
+          "isNeedEncrypt": true,
+          "belongPrimaryKey": false,
+          "fieldType": "Text"
+        },
+        {
+          "fieldName": "amountFen",
+          "notNull": true,
+          "isNeedEncrypt": false,
+          "belongPrimaryKey": false,
+          "fieldType": "Integer"
+        },
+        {
+          "fieldName": "purchaseTime",
+          "notNull": true,
+          "isNeedEncrypt": false,
+          "belongPrimaryKey": false,
+          "fieldType": "Long"
+        },
+        {
+          "fieldName": "verifiedAt",
+          "notNull": true,
+          "isNeedEncrypt": false,
+          "belongPrimaryKey": false,
+          "fieldType": "Long"
+        },
+        {
+          "fieldName": "updatedAt",
+          "notNull": true,
+          "isNeedEncrypt": false,
+          "belongPrimaryKey": false,
+          "fieldType": "Long"
+        },
+        {
+          "fieldName": "finishStatus",
+          "notNull": true,
+          "isNeedEncrypt": false,
+          "belongPrimaryKey": false,
+          "fieldType": "Integer"
+        },
+        {
+          "fieldName": "status",
+          "notNull": true,
+          "isNeedEncrypt": false,
+          "belongPrimaryKey": false,
+          "fieldType": "Integer"
+        },
+        {
+          "fieldName": "revocationReasonCode",
+          "notNull": false,
+          "isNeedEncrypt": false,
+          "belongPrimaryKey": false,
+          "fieldType": "Integer"
+        }
+      ]
+    }
+  ]
+}
