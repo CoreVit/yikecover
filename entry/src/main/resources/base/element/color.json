@@ -57,6 +57,14 @@
       "value": "#BFD3CE"
     },
     {
+      "name": "support_gold",
+      "value": "#8A6717"
+    },
+    {
+      "name": "support_soft",
+      "value": "#D8C897"
+    },
+    {
       "name": "preview_background",
       "value": "#2B2D31"
     }
