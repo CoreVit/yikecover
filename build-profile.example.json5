@@ -1,7 +1,7 @@
 {
   "app": {
-    // Signing material is generated locally and must not be committed.
-    "signingConfigs": [],
+    // Configure signing locally in DevEco Studio after copying this file to
+    // build-profile.json5. Never commit signing paths or passwords.
     "products": [
       {
         "name": "default",
@@ -10,7 +10,21 @@
         "runtimeOS": "HarmonyOS",
         "buildOption": {
           "packOptions": {
-            // The .app submitted to AppGallery must contain signed HAP packages.
+            "appWithSignedPkg": true
+          },
+          "strictMode": {
+            "caseSensitiveCheck": true,
+            "useNormalizedOHMUrl": true
+          }
+        }
+      },
+      {
+        "name": "release",
+        "targetSdkVersion": "6.1.0(23)",
+        "compatibleSdkVersion": "6.1.0(23)",
+        "runtimeOS": "HarmonyOS",
+        "buildOption": {
+          "packOptions": {
             "appWithSignedPkg": true
           },
           "strictMode": {
@@ -22,7 +36,7 @@
     ],
     "buildModeSet": [
       {
-        "name": "debug",
+        "name": "debug"
       },
       {
         "name": "release"
@@ -37,7 +51,8 @@
         {
           "name": "default",
           "applyToProducts": [
-            "default"
+            "default",
+            "release"
           ]
         }
       ]
