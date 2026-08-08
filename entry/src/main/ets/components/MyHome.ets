@@ -1,6 +1,5 @@
 interface MyMenuItem {
   id: number;
-  mark: string;
   title: string;
   description: string;
 }
@@ -13,25 +12,21 @@ const STATE_SUPPORTER: number = 2;
 const MY_MENU_ITEMS: MyMenuItem[] = [
   {
     id: 1,
-    mark: '徽',
     title: '支持开发者',
     description: '购买永久支持徽记，全部功能仍然免费'
   },
   {
     id: 2,
-    mark: '记',
     title: '支持记录',
     description: '查看当前账号拥有的支持徽记'
   },
   {
     id: 3,
-    mark: '关',
     title: '关于一刻封面',
     description: '版本信息、开源地址与功能介绍'
   },
   {
     id: 4,
-    mark: '隐',
     title: '隐私政策',
     description: '了解账号与订单信息的使用方式'
   }
@@ -290,18 +285,6 @@ export struct MyHome {
   private menuRow(item: MyMenuItem, isLast: boolean) {
     Column() {
       Row({ space: 12 }) {
-        Text(item.mark)
-          .width(34)
-          .height(34)
-          .fontSize(12)
-          .fontWeight(FontWeight.Bold)
-          .fontColor(item.id <= 2 ?
-            $r('app.color.brand_primary') : $r('app.color.source_accent'))
-          .textAlign(TextAlign.Center)
-          .backgroundColor(item.id <= 2 ?
-            $r('app.color.brand_soft') : $r('app.color.source_soft'))
-          .borderRadius(10)
-
         Column({ space: 4 }) {
           Text(item.title)
             .fontSize(15)
@@ -326,7 +309,6 @@ export struct MyHome {
         Divider()
           .strokeWidth(1)
           .color($r('app.color.divider'))
-          .margin({ left: 46 })
       }
     }
     .width('100%')
