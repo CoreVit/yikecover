@@ -18,3 +18,4 @@
 *.pem
 *.key
 /signing/
+/AppScope/resources/rawfile/agconnect-services.json

@@ -1,6 +1,5 @@
-import { authentication } from '@kit.AccountKit';
-import { util } from '@kit.ArkTS';
 import { BusinessError } from '@kit.BasicServicesKit';
+import auth, { AuthUser } from '@hw-agconnect/auth';
 
 interface MyMenuItem {
   id: number;
@@ -16,10 +15,6 @@ const ACCOUNT_NETWORK_ERROR: number = 1001502005;
 const ACCOUNT_INTERNAL_ERROR: number = 1001502009;
 const ACCOUNT_USER_CANCELLED: number = 1001502012;
 const ACCOUNT_SYSTEM_ERROR: number = 12300001;
-
-let runtimeSignedIn: boolean = false;
-let runtimeAccountName: string = '';
-let runtimeAvatarUri: string = '';
 
 const MY_MENU_ITEMS: MyMenuItem[] = [
   {
@@ -52,9 +47,26 @@ export struct MyHome {
   @State loggingIn: boolean = false;
 
   aboutToAppear(): void {
-    this.signedIn = runtimeSignedIn;
-    this.accountName = runtimeAccountName;
-    this.avatarUri = runtimeAvatarUri;
+    this.restoreSession();
+  }
+
+  private applyUser(user: AuthUser): void {
+    this.accountName = user.getDisplayName() || '华为账号用户';
+    this.avatarUri = user.getPhotoUrl() || '';
+    this.signedIn = true;
+  }
+
+  private async restoreSession(): Promise<void> {
+    try {
+      const user = await auth.getCurrentUser();
+      if (user) {
+        this.applyUser(user);
+      }
+    } catch (_error) {
+      this.signedIn = false;
+      this.accountName = '';
+      this.avatarUri = '';
+    }
   }
 
   private showMessage(message: string): void {
@@ -90,34 +102,13 @@ export struct MyHome {
 
     this.loggingIn = true;
     try {
-      const request = new authentication.HuaweiIDProvider().createAuthorizationWithHuaweiIDRequest();
-      request.scopes = ['profile'];
-      request.supportAtomicService = true;
-      request.forceAuthorization = true;
-      request.state = util.generateRandomUUID();
-
-      const controller = new authentication.AuthenticationController(this.getUIContext().getHostContext());
-      const data = await controller.executeRequest(request);
-      const response = data as authentication.AuthorizationWithHuaweiIDResponse;
-      const requestState = request.state || '';
-      const responseState = response.state || '';
-      if (requestState !== responseState) {
-        this.showMessage('登录校验失败，请重新尝试');
-        return;
-      }
-
-      const credential = response.data;
-      if (!credential) {
-        this.showMessage('未获取到华为账号信息');
-        return;
-      }
-
-      this.accountName = credential.nickName || '华为账号用户';
-      this.avatarUri = credential.avatarUri || '';
-      this.signedIn = true;
-      runtimeAccountName = this.accountName;
-      runtimeAvatarUri = this.avatarUri;
-      runtimeSignedIn = true;
+      const result = await auth.signIn({
+        autoCreateUser: true,
+        credentialInfo: {
+          kind: 'hwid'
+        }
+      });
+      this.applyUser(result.getUser());
       this.showMessage('华为账号登录成功');
     } catch (error) {
       const accountError = error as BusinessError;
@@ -127,14 +118,16 @@ export struct MyHome {
     }
   }
 
-  private logout(): void {
-    runtimeSignedIn = false;
-    runtimeAccountName = '';
-    runtimeAvatarUri = '';
-    this.signedIn = false;
-    this.accountName = '';
-    this.avatarUri = '';
-    this.showMessage('已退出当前登录');
+  private async logout(): Promise<void> {
+    try {
+      await auth.signOut();
+      this.signedIn = false;
+      this.accountName = '';
+      this.avatarUri = '';
+      this.showMessage('已退出当前登录');
+    } catch (_error) {
+      this.showMessage('退出失败，请稍后重试');
+    }
   }
 
   private openMenuItem(item: MyMenuItem): void {
