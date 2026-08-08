@@ -4,6 +4,7 @@ import {
   getTemplateDefinition
 } from '../model/CoverModels';
 import { CoverPreview } from './CoverPreview';
+import { StatusBadge } from './StatusBadge';
 import { LocalStore } from '../services/LocalStore';
 
 interface SettingEntry {
@@ -12,7 +13,7 @@ interface SettingEntry {
   description: string;
 }
 
-const PAGE_CONTENT_MAX_WIDTH: number = 1000;
+const PAGE_CONTENT_MAX_WIDTH: number = 1120;
 
 const SETTINGS: SettingEntry[] = [
   {
@@ -82,10 +83,12 @@ export struct WorksHome {
       .fontWeight(this.currentFilter === index ? FontWeight.Medium : FontWeight.Regular)
       .fontColor(this.currentFilter === index ?
         $r('app.color.text_primary') : $r('app.color.text_secondary'))
-      .padding({ left: 15, right: 15, top: 8, bottom: 8 })
+      .height(48)
+      .padding({ left: 16, right: 16 })
       .backgroundColor(this.currentFilter === index ?
         $r('app.color.control_selected') : Color.Transparent)
-      .borderRadius(17)
+      .borderRadius(12)
+      .accessibilityText(`筛选：${label}`)
       .onClick(() => {
         this.currentFilter = index;
       })
@@ -118,7 +121,7 @@ export struct WorksHome {
           .rotate({ angle: 18 })
           .translate({ x: -15, y: 0 })
         Text('一刻封面')
-          .fontSize(11)
+          .fontSize(13)
           .fontWeight(FontWeight.Bold)
           .fontColor($r('app.color.text_primary'))
           .padding({ left: 10, bottom: 9 })
@@ -130,6 +133,7 @@ export struct WorksHome {
       .translate({ x: 15, y: 0 })
     }
     .width('100%')
+    .constraintSize({ minHeight: 48 })
     .height(105)
   }
 
@@ -143,7 +147,7 @@ export struct WorksHome {
             .fontWeight(FontWeight.Medium)
             .fontColor($r('app.color.text_primary'))
           Text(item.description)
-            .fontSize(11)
+            .fontSize(12)
             .fontColor($r('app.color.text_secondary'))
         }
         .alignItems(HorizontalAlign.Start)
@@ -194,35 +198,30 @@ export struct WorksHome {
       })
       .width(88)
       .height(50)
-      .borderRadius(8)
+      .borderRadius(10)
       .clip(true)
 
       Column({ space: 4 }) {
         Text(item.title)
-          .fontSize(13)
+          .fontSize(14)
           .fontWeight(FontWeight.Medium)
           .fontColor($r('app.color.text_primary'))
           .maxLines(1)
         Text(`${item.templateName} · ${item.updatedAt}`)
-          .fontSize(9)
+          .fontSize(12)
           .fontColor($r('app.color.text_secondary'))
           .maxLines(1)
       }
       .alignItems(HorizontalAlign.Start)
       .layoutWeight(1)
 
-      Text(item.status)
-        .fontSize(9)
-        .fontWeight(FontWeight.Medium)
-        .fontColor(item.status === '已导出' ? '#24583F' : '#174A8B')
-        .padding({ left: 8, right: 8, top: 5, bottom: 5 })
-        .backgroundColor($r('app.color.control_background'))
-        .borderRadius(10)
+      StatusBadge({ label: item.status, exported: item.status === '已导出' })
     }
     .width('100%')
     .padding(12)
     .backgroundColor($r('app.color.card_background'))
-    .borderRadius(13)
+    .borderRadius(16)
+    .accessibilityText(`${item.status}，${item.title}，${item.templateName}`)
     .onClick(() => {
       this.getUIContext().getRouter().pushUrl({
         url: 'pages/CoverEditor',
@@ -240,7 +239,7 @@ export struct WorksHome {
         Row() {
           Column({ space: 4 }) {
             Text('作品')
-              .fontSize(27)
+              .fontSize(28)
               .fontWeight(FontWeight.Bold)
               .fontColor($r('app.color.text_primary'))
             Text(`${this.records.length} 条记录`)
@@ -280,13 +279,14 @@ export struct WorksHome {
               .margin({ top: 7 })
 
             Button('去制作', { type: ButtonType.Normal })
-              .height(42)
+            .height(48)
               .padding({ left: 24, right: 24 })
               .fontSize(14)
               .fontWeight(FontWeight.Bold)
-              .fontColor('#FFFFFF')
+              .fontColor($r('app.color.text_on_accent'))
               .backgroundColor($r('app.color.brand_primary'))
-              .borderRadius(11)
+              .borderRadius(12)
+              .accessibilityText('去制作封面')
               .margin({ top: 20 })
               .onClick(() => {
                 this.currentTab = 0;
@@ -295,7 +295,7 @@ export struct WorksHome {
           .width('100%')
           .padding({ left: 20, right: 20, top: 30, bottom: 28 })
           .backgroundColor($r('app.color.card_background'))
-          .borderRadius(18)
+          .borderRadius(16)
           .margin({ top: 18 })
         } else {
           Column({ space: 9 }) {
@@ -327,7 +327,7 @@ export struct WorksHome {
         }
         .width('100%')
         .constraintSize({ maxWidth: PAGE_CONTENT_MAX_WIDTH })
-        .padding({ left: 18, right: 18, top: 18 })
+        .padding({ left: 16, right: 16, top: 20 })
       }
       .width('100%')
       .justifyContent(FlexAlign.Center)

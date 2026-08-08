@@ -9,10 +9,11 @@ export struct SystemBackButton {
         .fontSize(22)
         .fontColor([$r('app.color.text_primary')])
     }
-    .width(40)
-    .height(40)
+    .width(48)
+    .height(48)
     .padding(0)
     .backgroundColor($r('app.color.control_background'))
+    .borderRadius(12)
     .accessibilityText('返回')
     .onClick(() => {
       this.onBack();

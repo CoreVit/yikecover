@@ -1,8 +1,8 @@
 import { CreateHome } from '../components/CreateHome';
 import { WorksHome } from '../components/WorksHome';
 
-const FLOATING_TAB_WIDTH: number = 216;
-const FLOATING_TAB_HEIGHT: number = 58;
+const FLOATING_TAB_WIDTH: number = 224;
+const FLOATING_TAB_HEIGHT: number = 64;
 const FLOATING_TAB_BOTTOM_MARGIN: number = 18;
 
 @Entry
@@ -30,24 +30,26 @@ struct Index {
   private tabItem(index: number, label: string, symbol: Resource) {
     Column({ space: 2 }) {
       SymbolGlyph(symbol)
-        .fontSize(21)
+        .fontSize(22)
         .fontColor([
           this.currentTab === index ?
             $r('app.color.brand_primary') : $r('app.color.text_muted')
         ])
 
       Text(label)
-        .fontSize(10)
+        .fontSize(12)
         .fontWeight(this.currentTab === index ? FontWeight.Bold : FontWeight.Medium)
         .fontColor(this.currentTab === index ?
           $r('app.color.brand_primary') : $r('app.color.text_muted'))
     }
-    .width(98)
-    .height(48)
+    .width(102)
+    .height(52)
     .justifyContent(FlexAlign.Center)
     .backgroundColor(this.currentTab === index ?
       $r('app.color.brand_soft') : Color.Transparent)
     .borderRadius(24)
+    .accessibilityText(label)
+    .accessibilityDescription(this.currentTab === index ? '当前页面' : `切换到${label}`)
     .onClick(() => {
       this.selectTab(index);
     })
