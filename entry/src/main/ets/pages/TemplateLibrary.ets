@@ -5,7 +5,6 @@ import {
 } from '../model/CoverModels';
 import { CoverPreview } from '../components/CoverPreview';
 import { SystemBackButton } from '../components/SystemBackButton';
-import { PageTitleBlock } from '../components/PageTitleBlock';
 
 @Entry
 @Component
@@ -34,12 +33,12 @@ struct TemplateLibrary {
             .fontColor($r('app.color.text_primary'))
           Blank()
           Text(item.code)
-            .fontSize(12)
-            .fontColor($r('app.color.text_secondary'))
+            .fontSize(10)
+            .fontColor(item.accent)
         }
         .width('100%')
         Text(item.subtitle)
-          .fontSize(13)
+          .fontSize(11)
           .fontColor($r('app.color.text_secondary'))
           .maxLines(1)
       }
@@ -47,10 +46,9 @@ struct TemplateLibrary {
       .width('100%')
     }
     .width('100%')
-    .padding(12)
+    .padding(10)
     .backgroundColor($r('app.color.card_background'))
     .borderRadius(16)
-    .accessibilityText(`使用模板：${item.name}，${item.subtitle}`)
     .onClick(() => {
       this.getUIContext().getRouter().pushUrl({
         url: 'pages/CoverEditor',
@@ -69,10 +67,16 @@ struct TemplateLibrary {
             this.getUIContext().getRouter().back();
           }
         })
-        PageTitleBlock({
-          title: '模板库',
-          subtitle: '十套代码模板 · 1920 × 1080'
-        })
+        Column({ space: 3 }) {
+          Text('模板库')
+            .fontSize(24)
+            .fontWeight(FontWeight.Bold)
+            .fontColor($r('app.color.text_primary'))
+          Text('十套代码模板 · 1920 × 1080')
+            .fontSize(11)
+            .fontColor($r('app.color.text_secondary'))
+        }
+        .alignItems(HorizontalAlign.Start)
         .margin({ left: 12 })
         Blank()
       }
@@ -84,8 +88,7 @@ struct TemplateLibrary {
         Column({ space: 12 }) {
           Text('每套模板只固定版式，可按模板编辑对应内容。')
             .width('100%')
-            .fontSize(14)
-            .lineHeight(22)
+            .fontSize(12)
             .fontColor($r('app.color.text_secondary'))
             .padding({ top: 4, bottom: 4 })
 

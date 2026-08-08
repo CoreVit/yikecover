@@ -19,7 +19,6 @@ import {
 import { CoverPreview } from '../components/CoverPreview';
 import { PhotoCropper } from '../components/PhotoCropper';
 import { SystemBackButton } from '../components/SystemBackButton';
-import { PageTitleBlock } from '../components/PageTitleBlock';
 import { CoverRenderer, RenderResult } from '../services/CoverRenderer';
 import { ExportService } from '../services/ExportService';
 import { LocalStore } from '../services/LocalStore';
@@ -476,17 +475,23 @@ struct CoverEditor {
           this.cancelCrop();
         }
       })
-      PageTitleBlock({
-        title: '裁剪背景图片',
-        subtitle: '固定比例 16:9 · 最终尺寸 1920 × 1080'
-      })
+      Column({ space: 3 }) {
+        Text('裁剪背景图片')
+          .fontSize(18)
+          .fontWeight(FontWeight.Bold)
+          .fontColor($r('app.color.text_primary'))
+        Text('固定比例 16:9')
+          .fontSize(10)
+          .fontColor($r('app.color.text_secondary'))
+      }
+      .alignItems(HorizontalAlign.Start)
       .margin({ left: 12 })
       Blank()
       Button('完成', { type: ButtonType.Normal })
-        .height(48)
+        .height(40)
         .fontSize(13)
         .fontWeight(FontWeight.Bold)
-        .fontColor($r('app.color.text_on_accent'))
+        .fontColor('#FFFFFF')
         .backgroundColor($r('app.color.brand_primary'))
         .borderRadius(10)
         .enabled(!this.cropLoading && !this.cropLoadFailed)
@@ -539,10 +544,10 @@ struct CoverEditor {
               LoadingProgress()
                 .width(34)
                 .height(34)
-                .color($r('app.color.text_on_accent'))
+                .color('#FFFFFF')
               Text('正在准备图片')
                 .fontSize(13)
-                .fontColor($r('app.color.text_on_accent'))
+                .fontColor('#FFFFFF')
             }
             .width('100%')
             .height('100%')
@@ -552,10 +557,10 @@ struct CoverEditor {
             Column({ space: 8 }) {
               SymbolGlyph($r('sys.symbol.exclamationmark_triangle'))
                 .fontSize(26)
-                .fontColor([$r('app.color.text_on_accent')])
+                .fontColor(['#FFFFFF'])
               Text('图片未能载入，请返回后重新选择')
                 .fontSize(12)
-                .fontColor($r('app.color.text_on_accent'))
+                .fontColor('#FFFFFF')
             }
             .width('100%')
             .height('100%')
@@ -569,7 +574,7 @@ struct CoverEditor {
 
           Row({ space: 12 }) {
           Text('缩放')
-            .fontSize(12)
+            .fontSize(11)
             .fontColor($r('app.color.text_secondary'))
           Slider({
             value: this.cropScale,
@@ -580,14 +585,14 @@ struct CoverEditor {
           })
             .layoutWeight(1)
             .selectedColor($r('app.color.brand_primary'))
-            .blockColor($r('app.color.text_on_accent'))
+            .blockColor('#FFFFFF')
             .trackColor($r('app.color.control_background'))
             .onChange((value: number) => {
               this.cropScale = value;
             })
           Text(`${Math.round(this.cropScale * 100)}%`)
             .width(42)
-            .fontSize(12)
+            .fontSize(11)
             .fontColor($r('app.color.text_secondary'))
             .textAlign(TextAlign.End)
           }
@@ -596,7 +601,7 @@ struct CoverEditor {
           Row({ space: 12 }) {
           Button('重置', { type: ButtonType.Normal })
             .layoutWeight(1)
-            .height(48)
+            .height(44)
             .fontSize(13)
             .fontColor($r('app.color.text_primary'))
             .backgroundColor($r('app.color.control_background'))
@@ -606,10 +611,10 @@ struct CoverEditor {
             })
           Button('应用裁剪', { type: ButtonType.Normal })
             .layoutWeight(2)
-            .height(48)
+            .height(44)
             .fontSize(13)
             .fontWeight(FontWeight.Bold)
-            .fontColor($r('app.color.text_on_accent'))
+            .fontColor('#FFFFFF')
             .backgroundColor($r('app.color.brand_primary'))
             .borderRadius(10)
             .enabled(!this.cropLoading && !this.cropLoadFailed)
@@ -642,10 +647,16 @@ struct CoverEditor {
           this.leaveEditor();
         }
       })
-      PageTitleBlock({
-        title: this.definition().name,
-        subtitle: '1920 × 1080 设计坐标'
-      })
+      Column({ space: 3 }) {
+        Text(this.definition().name)
+          .fontSize(18)
+          .fontWeight(FontWeight.Bold)
+          .fontColor($r('app.color.text_primary'))
+        Text('1920 × 1080 设计坐标')
+          .fontSize(10)
+          .fontColor($r('app.color.text_secondary'))
+      }
+      .alignItems(HorizontalAlign.Start)
       .margin({ left: 12 })
       Blank()
     }
@@ -658,7 +669,7 @@ struct CoverEditor {
   private sectionTitle(index: string, title: string, note: string) {
     Row() {
       Text(index)
-        .fontSize(12)
+        .fontSize(10)
         .fontWeight(FontWeight.Bold)
         .fontColor($r('app.color.brand_primary'))
         .width(26)
@@ -669,7 +680,7 @@ struct CoverEditor {
           .fontColor($r('app.color.text_primary'))
         if (note.length > 0) {
           Text(note)
-            .fontSize(12)
+            .fontSize(10)
             .fontColor($r('app.color.text_secondary'))
         }
       }
@@ -685,12 +696,12 @@ struct CoverEditor {
     Column({ space: 6 }) {
       Text(label)
         .width('100%')
-        .fontSize(12)
+        .fontSize(11)
         .fontColor($r('app.color.text_secondary'))
       TextInput({ text: value, placeholder: placeholder })
         .maxLength(maxLength)
         .width('100%')
-        .height(48)
+        .height(44)
         .fontSize(13)
         .fontColor($r('app.color.text_primary'))
         .placeholderColor($r('app.color.text_muted'))
@@ -711,13 +722,13 @@ struct CoverEditor {
     Column({ space: 6 }) {
       Text(label)
         .width('100%')
-        .fontSize(12)
+        .fontSize(11)
         .fontColor($r('app.color.text_secondary'))
       TextInput({ text: value, placeholder: placeholder })
         .type(InputType.Number)
         .maxLength(2)
         .width('100%')
-        .height(48)
+        .height(44)
         .fontSize(13)
         .fontColor($r('app.color.text_primary'))
         .placeholderColor($r('app.color.text_muted'))
@@ -736,11 +747,10 @@ struct CoverEditor {
   private episodeChoice(label: string) {
     Text(label)
       .layoutWeight(1)
-      .height(48)
+      .height(38)
       .fontSize(12)
       .fontWeight(this.episodePreset === label ? FontWeight.Bold : FontWeight.Regular)
-      .fontColor(this.episodePreset === label ?
-        $r('app.color.text_on_accent') : $r('app.color.text_secondary'))
+      .fontColor(this.episodePreset === label ? '#FFFFFF' : $r('app.color.text_secondary'))
       .textAlign(TextAlign.Center)
       .backgroundColor(this.episodePreset === label ?
         $r('app.color.brand_primary') : $r('app.color.control_background'))
@@ -783,13 +793,13 @@ struct CoverEditor {
             LoadingProgress()
               .width(34)
               .height(34)
-              .color($r('app.color.text_on_accent'))
+              .color('#FFFFFF')
             Text('正在载入图片')
               .fontSize(13)
               .fontWeight(FontWeight.Medium)
-              .fontColor($r('app.color.text_on_accent'))
+              .fontColor('#FFFFFF')
             Text('完成后会自动刷新')
-              .fontSize(12)
+              .fontSize(10)
               .fontColor('#CCFFFFFF')
           }
           .width('100%')
@@ -800,10 +810,10 @@ struct CoverEditor {
           Column({ space: 8 }) {
             SymbolGlyph($r('sys.symbol.exclamationmark_triangle'))
               .fontSize(25)
-              .fontColor([$r('app.color.text_on_accent')])
+              .fontColor(['#FFFFFF'])
             Text('图片未能载入，请重新选择')
               .fontSize(12)
-              .fontColor($r('app.color.text_on_accent'))
+              .fontColor('#FFFFFF')
           }
           .width('100%')
           .height('100%')
@@ -819,17 +829,15 @@ struct CoverEditor {
           Row()
             .width(6)
             .height(6)
-            .backgroundColor(this.titleTooLong ?
-              $r('app.color.status_error') : $r('app.color.status_exported'))
+            .backgroundColor(this.titleTooLong ? '#FF574D' : '#47D889')
             .borderRadius(3)
           Text(this.titleTooLong ? '标题过长，请精简内容' : '预览与导出共用同一渲染函数')
-            .fontSize(12)
-            .fontColor(this.titleTooLong ?
-              $r('app.color.status_error') : $r('app.color.text_secondary'))
+            .fontSize(10)
+            .fontColor(this.titleTooLong ? '#FF7A72' : $r('app.color.text_secondary'))
         }
         Blank()
         Text(this.exportLabel)
-          .fontSize(12)
+          .fontSize(10)
           .fontColor($r('app.color.text_secondary'))
       }
       .width('100%')
@@ -862,7 +870,7 @@ struct CoverEditor {
               .fontWeight(FontWeight.Medium)
               .fontColor($r('app.color.text_primary'))
             Text(this.photoLoadFailed ? '上次图片没有成功载入' : '选择后可调整裁剪区域')
-              .fontSize(12)
+              .fontSize(10)
               .fontColor($r('app.color.text_secondary'))
           }
           .width('100%')
@@ -880,14 +888,14 @@ struct CoverEditor {
           Row({ space: 10 }) {
             SymbolGlyph($r('sys.symbol.checkmark'))
               .fontSize(22)
-              .fontColor([$r('app.color.status_exported')])
+              .fontColor(['#5AA77B'])
             Column({ space: 3 }) {
               Text('背景图片已就绪')
                 .fontSize(13)
                 .fontWeight(FontWeight.Medium)
                 .fontColor($r('app.color.text_primary'))
               Text(`16:9 裁剪 · ${Math.round(this.photoScale * 100)}% 缩放`)
-                .fontSize(12)
+                .fontSize(10)
                 .fontColor($r('app.color.text_secondary'))
             }
             .alignItems(HorizontalAlign.Start)
@@ -897,7 +905,7 @@ struct CoverEditor {
           Row({ space: 10 }) {
             Button('重新裁剪', { type: ButtonType.Normal })
               .layoutWeight(1)
-              .height(48)
+              .height(42)
               .fontSize(12)
               .fontWeight(FontWeight.Medium)
               .fontColor($r('app.color.brand_primary'))
@@ -908,7 +916,7 @@ struct CoverEditor {
               })
             Button('更换图片', { type: ButtonType.Normal })
               .layoutWeight(1)
-              .height(48)
+              .height(42)
               .fontSize(12)
               .fontColor($r('app.color.text_primary'))
               .backgroundColor($r('app.color.control_background'))
@@ -953,7 +961,7 @@ struct CoverEditor {
         Column({ space: 6 }) {
           Text('中心正文')
             .width('100%')
-            .fontSize(12)
+            .fontSize(11)
             .fontColor($r('app.color.text_secondary'))
           TextArea({ text: this.title2, placeholder: '输入语录正文' })
             .width('100%')
@@ -978,7 +986,7 @@ struct CoverEditor {
               .fontColor($r('app.color.text_primary'))
             Text(this.theme === CoverTheme.LIGHT ?
               '当前为白底黑字' : '切换为白底黑字')
-              .fontSize(12)
+              .fontSize(10)
               .fontColor($r('app.color.text_secondary'))
           }
           .alignItems(HorizontalAlign.Start)
@@ -1010,7 +1018,7 @@ struct CoverEditor {
         Column({ space: 6 }) {
           Text('正文')
             .width('100%')
-            .fontSize(12)
+            .fontSize(11)
             .fontColor($r('app.color.text_secondary'))
           TextArea({ text: this.podcastBody, placeholder: '输入播客正文' })
             .width('100%')
@@ -1057,8 +1065,8 @@ struct CoverEditor {
             !isValidPodcastEpisode(this.customEpisode)) {
             Text('请输入 1–2 位数字，例如：01')
               .width('100%')
-              .fontSize(12)
-              .fontColor($r('app.color.status_error'))
+              .fontSize(10)
+              .fontColor('#FF746A')
           }
         } else if (this.templateId === 6 || this.templateId === 7) {
           this.field('分集字符', this.customEpisode, '1–2 位数字或一个字符',
@@ -1070,13 +1078,13 @@ struct CoverEditor {
             !isValidCustomEpisode(this.customEpisode)) {
             Text('“字”“9”“10”有效；“特别”“100”无效')
               .width('100%')
-              .fontSize(12)
-              .fontColor($r('app.color.status_error'))
+              .fontSize(10)
+              .fontColor('#FF746A')
           }
         } else {
           Text('分集字符')
             .width('100%')
-            .fontSize(12)
+            .fontSize(11)
             .fontColor($r('app.color.text_secondary'))
           Row({ space: 7 }) {
             this.episodeChoice(EpisodePreset.UP)
@@ -1092,8 +1100,8 @@ struct CoverEditor {
               !isValidCustomEpisode(this.customEpisode)) {
               Text('“字”“9”“10”有效；“特别”“100”无效')
                 .width('100%')
-                .fontSize(12)
-                .fontColor($r('app.color.status_error'))
+                .fontSize(10)
+                .fontColor('#FF746A')
             }
           }
         }
@@ -1102,15 +1110,14 @@ struct CoverEditor {
       if (this.definition().capabilities.supportsVersion) {
         Text('版本标识')
           .width('100%')
-          .fontSize(12)
+          .fontSize(11)
           .fontColor($r('app.color.text_secondary'))
         Flex({ wrap: FlexWrap.Wrap }) {
           ForEach(VERSION_PRESETS, (label: string) => {
             Text(label)
-              .fontSize(12)
+              .fontSize(11)
               .fontColor((!this.customVersion && this.versionLabel === label) ||
-                (this.customVersion && label === '自定义') ?
-                  $r('app.color.text_on_accent') : $r('app.color.text_secondary'))
+                (this.customVersion && label === '自定义') ? '#FFFFFF' : $r('app.color.text_secondary'))
               .padding({ left: 10, right: 10, top: 7, bottom: 7 })
               .backgroundColor((!this.customVersion && this.versionLabel === label) ||
                 (this.customVersion && label === '自定义') ?
@@ -1136,7 +1143,7 @@ struct CoverEditor {
         }
         Text('金色只是视觉风格，不代表软件付费权限。')
           .width('100%')
-          .fontSize(12)
+          .fontSize(10)
           .fontColor($r('app.color.text_secondary'))
       }
 
@@ -1147,7 +1154,7 @@ struct CoverEditor {
               .fontSize(13)
               .fontColor($r('app.color.text_primary'))
             Text('仅影响上传的主图，不影响边框与文字')
-              .fontSize(12)
+              .fontSize(10)
               .fontColor($r('app.color.text_secondary'))
           }
           .alignItems(HorizontalAlign.Start)
@@ -1165,12 +1172,12 @@ struct CoverEditor {
       if (this.definition().capabilities.supportsTheme) {
         Text('主题')
           .width('100%')
-          .fontSize(12)
+          .fontSize(11)
           .fontColor($r('app.color.text_secondary'))
         Row({ space: 8 }) {
           Text('红色')
             .layoutWeight(1)
-            .height(48)
+            .height(38)
             .fontSize(12)
             .fontColor(this.theme === CoverTheme.RED ?
               '#FFFFFF' : $r('app.color.text_secondary'))
@@ -1184,7 +1191,7 @@ struct CoverEditor {
             })
           Text('青色')
             .layoutWeight(1)
-            .height(48)
+            .height(38)
             .fontSize(12)
             .fontColor(this.theme === CoverTheme.CYAN ?
               '#FFFFFF' : $r('app.color.text_secondary'))
@@ -1213,7 +1220,7 @@ struct CoverEditor {
       Row({ space: 8 }) {
         TextInput({ text: this.tagInput, placeholder: '输入标签，如：示例标签' })
           .layoutWeight(1)
-          .height(48)
+          .height(42)
           .fontSize(12)
           .fontColor($r('app.color.text_primary'))
           .backgroundColor($r('app.color.control_background'))
@@ -1222,8 +1229,8 @@ struct CoverEditor {
             this.tagInput = value;
           })
         Button(`添加 ${this.tags.length}/10`, { type: ButtonType.Normal })
-          .height(48)
-          .fontSize(12)
+          .height(42)
+          .fontSize(11)
           .fontColor($r('app.color.text_primary'))
           .backgroundColor($r('app.color.control_background'))
           .borderRadius(9)
@@ -1237,10 +1244,10 @@ struct CoverEditor {
           ForEach(this.tags, (tag: string, index: number) => {
             Row({ space: 5 }) {
               Text(`# ${tag}`)
-                .fontSize(12)
+                .fontSize(10)
                 .fontColor($r('app.color.text_secondary'))
               SymbolGlyph($r('sys.symbol.xmark'))
-                .fontSize(12)
+                .fontSize(9)
                 .fontColor([$r('app.color.text_muted')])
             }
               .padding({ left: 9, right: 9, top: 6, bottom: 6 })
@@ -1257,7 +1264,7 @@ struct CoverEditor {
       Column({ space: 6 }) {
         Text('发布日期')
           .width('100%')
-          .fontSize(12)
+          .fontSize(11)
           .fontColor($r('app.color.text_secondary'))
         Row() {
           Text(this.publishDate)
@@ -1269,7 +1276,7 @@ struct CoverEditor {
             .fontColor([$r('app.color.text_secondary')])
         }
         .width('100%')
-        .height(48)
+        .height(44)
         .padding({ left: 12, right: 12 })
         .backgroundColor($r('app.color.control_background'))
         .borderRadius(9)
@@ -1281,11 +1288,11 @@ struct CoverEditor {
       Column({ space: 8 }) {
         Row() {
           Text('自动整合结果')
-            .fontSize(12)
+            .fontSize(11)
             .fontColor($r('app.color.text_secondary'))
           Blank()
           Text('只读')
-            .fontSize(12)
+            .fontSize(9)
             .fontColor($r('app.color.text_muted'))
         }
         .width('100%')
@@ -1298,9 +1305,9 @@ struct CoverEditor {
           .borderRadius(9)
         Button('一键复制', { type: ButtonType.Normal })
           .width('100%')
-          .height(48)
+          .height(40)
           .fontSize(12)
-          .fontColor($r('app.color.text_on_accent'))
+          .fontColor('#FFFFFF')
           .backgroundColor($r('app.color.brand_primary'))
           .borderRadius(9)
           .onClick(() => {
@@ -1328,7 +1335,7 @@ struct CoverEditor {
             .fontWeight(FontWeight.Bold)
             .fontColor($r('app.color.text_primary'))
           Text('全局设置 · 预览与导出构图一致')
-            .fontSize(12)
+            .fontSize(10)
             .fontColor($r('app.color.text_secondary'))
         }
         .alignItems(HorizontalAlign.Start)
@@ -1361,7 +1368,7 @@ struct CoverEditor {
           .height(50)
           .fontSize(14)
           .fontWeight(FontWeight.Bold)
-          .fontColor($r('app.color.text_on_accent'))
+          .fontColor('#FFFFFF')
           .backgroundColor($r('app.color.brand_primary'))
           .borderRadius(25)
           .enabled(false)
@@ -1374,7 +1381,7 @@ struct CoverEditor {
           .height(50)
           .fontSize(14)
           .fontWeight(FontWeight.Bold)
-          .fontColor($r('app.color.text_on_accent'))
+          .fontColor('#FFFFFF')
           .backgroundColor($r('app.color.brand_primary'))
           .enabled(!this.exporting && !this.photoLoading && !this.photoLoadFailed)
           .onClick(() => {
@@ -1446,7 +1453,7 @@ struct CoverEditor {
     .width('100%')
     .height('100%')
     .layoutWeight(1)
-    .constraintSize({ maxWidth: 1120 })
+    .constraintSize({ maxWidth: 1180 })
     .alignSelf(ItemAlign.Center)
     .alignItems(VerticalAlign.Top)
     .padding({ left: 14, right: 14, top: 14, bottom: 28 })
@@ -1460,7 +1467,7 @@ struct CoverEditor {
         this.editorSections()
       }
       .width('100%')
-      .constraintSize({ maxWidth: 1120 })
+      .constraintSize({ maxWidth: 1180 })
       .padding({ left: 14, right: 14, top: 14, bottom: 28 })
     }
     .align(Alignment.TopStart)

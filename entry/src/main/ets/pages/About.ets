@@ -1,7 +1,6 @@
 import { bundleManager } from '@kit.AbilityKit';
 import { BusinessError } from '@kit.BasicServicesKit';
 import { SystemBackButton } from '../components/SystemBackButton';
-import { PageTitleBlock } from '../components/PageTitleBlock';
 import { RepositoryService } from '../services/RepositoryService';
 
 function currentVersionName(): string {
@@ -44,6 +43,57 @@ struct About {
       .catch((_error: Error) => {
         this.showCopyError();
       });
+  }
+
+  @Builder
+  private branchMark() {
+    Stack() {
+      Column()
+        .width(2)
+        .height(74)
+        .backgroundColor($r('app.color.source_accent'))
+        .position({ x: 26, y: 20 })
+
+      Column()
+        .width(2)
+        .height(40)
+        .backgroundColor($r('app.color.source_accent'))
+        .rotate({ angle: 42 })
+        .position({ x: 40, y: 31 })
+
+      Row()
+        .width(12)
+        .height(12)
+        .backgroundColor($r('app.color.brand_primary'))
+        .borderRadius(6)
+        .position({ x: 21, y: 13 })
+
+      Row()
+        .width(12)
+        .height(12)
+        .backgroundColor($r('app.color.source_accent'))
+        .borderRadius(6)
+        .position({ x: 50, y: 32 })
+
+      Row()
+        .width(12)
+        .height(12)
+        .backgroundColor($r('app.color.card_background'))
+        .border({
+          width: 2,
+          color: $r('app.color.source_accent')
+        })
+        .borderRadius(6)
+        .position({ x: 21, y: 87 })
+
+      Text('</>')
+        .fontSize(17)
+        .fontWeight(FontWeight.Bold)
+        .fontColor($r('app.color.text_primary'))
+        .position({ x: 68, y: 44 })
+    }
+    .width(120)
+    .height(112)
   }
 
   @Builder
@@ -118,41 +168,51 @@ struct About {
           }
         })
 
-        PageTitleBlock({
-          title: '关于一刻封面',
-          subtitle: '版本、开源与协议信息'
-        })
+        Text('关于一刻封面')
+          .fontSize(18)
+          .fontWeight(FontWeight.Bold)
+          .fontColor($r('app.color.text_primary'))
           .margin({ left: 13 })
 
         Blank()
       }
       .width('100%')
-      .padding({ left: 18, right: 18, top: 14, bottom: 14 })
-      .backgroundColor($r('app.color.nav_background'))
+      .height(56)
+      .padding({ left: 18, right: 18 })
 
       Scroll() {
         Column() {
           Column() {
             Row() {
-              Text('开源项目')
-                .fontSize(12)
-                .fontWeight(FontWeight.Bold)
-                .fontColor($r('app.color.brand_primary'))
-                .padding({ left: 10, right: 10, top: 6, bottom: 6 })
-                .backgroundColor($r('app.color.card_background'))
-                .borderRadius(12)
+              Row({ space: 7 }) {
+                Row()
+                  .width(7)
+                  .height(7)
+                  .backgroundColor($r('app.color.source_accent'))
+                  .borderRadius(4)
+                Text('SOURCE AVAILABLE')
+                  .fontSize(11)
+                  .fontWeight(FontWeight.Bold)
+                  .fontColor($r('app.color.source_accent'))
+                  .letterSpacing(1)
+              }
+              .padding({ left: 11, right: 11, top: 7, bottom: 7 })
+              .backgroundColor($r('app.color.source_soft'))
+              .borderRadius(16)
 
               Blank()
+
+              this.branchMark()
             }
             .width('100%')
             .alignItems(VerticalAlign.Top)
 
-            Text('开源、透明的封面工具')
+            Text('功能在更新，\n源码也公开。')
               .width('100%')
-              .fontSize(24)
+              .fontSize(30)
               .fontWeight(FontWeight.Bold)
               .fontColor($r('app.color.text_primary'))
-              .lineHeight(32)
+              .lineHeight(39)
               .margin({ top: 4 })
 
               Text('一刻封面的项目源码公开托管在 GitHub。你可以查看实现、反馈问题，也可以参与改进。')
@@ -183,7 +243,7 @@ struct About {
               Blank()
 
               Text('PUBLIC')
-                .fontSize(12)
+                .fontSize(10)
                 .fontWeight(FontWeight.Bold)
                 .fontColor($r('app.color.source_accent'))
                 .padding({ left: 8, right: 8, top: 5, bottom: 5 })
@@ -197,28 +257,27 @@ struct About {
 
             Text('github.com/CoreVit/yikecover')
               .width('100%')
-              .fontSize(13)
+              .fontSize(12)
               .fontColor($r('app.color.text_muted'))
               .margin({ top: 13 })
 
             Button({ type: ButtonType.Normal }) {
               Row({ space: 7 }) {
                 Text('复制 GitHub 地址')
-              .fontSize(14)
+                  .fontSize(14)
                   .fontWeight(FontWeight.Bold)
-              .fontColor($r('app.color.text_on_accent'))
+                  .fontColor('#FFFFFF')
                 SymbolGlyph($r('sys.symbol.arrow_right_up_and_square'))
                   .fontSize(16)
-                  .fontColor([$r('app.color.text_on_accent')])
+                  .fontColor(['#FFFFFF'])
               }
               .justifyContent(FlexAlign.Center)
               .width('100%')
             }
               .width('100%')
-              .height(48)
+              .height(46)
               .backgroundColor($r('app.color.brand_primary'))
               .borderRadius(12)
-              .accessibilityText('复制 GitHub 仓库地址')
               .margin({ top: 18 })
               .onClick(() => {
                 this.copyRepositoryUrl();
@@ -226,7 +285,7 @@ struct About {
 
             Text('源码与使用说明以 GitHub 仓库中的最新内容为准。')
               .width('100%')
-              .fontSize(12)
+              .fontSize(11)
               .fontColor($r('app.color.text_muted'))
               .textAlign(TextAlign.Center)
               .margin({ top: 11 })
@@ -284,7 +343,6 @@ struct About {
 
           Column() {
             this.detailRow('版本', this.versionName, true)
-            this.detailRow('开源许可', 'AGPL-3.0-only', true)
             this.detailRow('模板数量', '10 套', true)
             this.detailRow('导出规格', '720P / 1080P / 4K', true)
             this.detailRow('数据存储', '仅当前设备', true)
@@ -297,13 +355,13 @@ struct About {
 
           Text('© 2026 一刻封面')
             .width('100%')
-            .fontSize(12)
+            .fontSize(11)
             .fontColor($r('app.color.text_muted'))
             .textAlign(TextAlign.Center)
             .margin({ top: 28, bottom: 30 })
         }
         .width('100%')
-        .constraintSize({ maxWidth: 1120 })
+        .constraintSize({ maxWidth: 960 })
         .alignSelf(ItemAlign.Center)
         .padding({ left: 18, right: 18, top: 10 })
       }

@@ -1,6 +1,5 @@
 import { LocalStore } from '../services/LocalStore';
 import { SystemBackButton } from '../components/SystemBackButton';
-import { PageTitleBlock } from '../components/PageTitleBlock';
 
 @Entry
 @Component
@@ -99,7 +98,7 @@ struct HistoryRecords {
             .fontWeight(FontWeight.Medium)
             .fontColor($r('app.color.text_primary'))
           Text(description)
-            .fontSize(13)
+            .fontSize(11)
             .fontColor($r('app.color.text_secondary'))
         }
         .alignItems(HorizontalAlign.Start)
@@ -125,10 +124,16 @@ struct HistoryRecords {
             this.getUIContext().getRouter().back();
           }
         })
-        PageTitleBlock({
-          title: '历史记录',
-          subtitle: `${this.recordCount} 条本机记录`
-        })
+        Column({ space: 3 }) {
+          Text('历史记录')
+            .fontSize(24)
+            .fontWeight(FontWeight.Bold)
+            .fontColor($r('app.color.text_primary'))
+          Text(`${this.recordCount} 条本机记录`)
+            .fontSize(11)
+            .fontColor($r('app.color.text_secondary'))
+        }
+        .alignItems(HorizontalAlign.Start)
         .margin({ left: 12 })
       }
       .width('100%')
@@ -140,7 +145,7 @@ struct HistoryRecords {
           Column() {
             Text('保存在本机')
               .width('100%')
-              .fontSize(18)
+              .fontSize(17)
               .fontWeight(FontWeight.Bold)
               .fontColor($r('app.color.text_primary'))
               .margin({ bottom: 5 })
@@ -160,9 +165,9 @@ struct HistoryRecords {
             Row({ space: 9 }) {
               SymbolGlyph($r('sys.symbol.exclamationmark_triangle'))
                 .fontSize(19)
-                .fontColor([$r('app.color.status_error')])
+                .fontColor([$r('app.color.brand_primary')])
               Text('清空全部本机数据')
-                .fontSize(18)
+                .fontSize(17)
                 .fontWeight(FontWeight.Bold)
                 .fontColor($r('app.color.text_primary'))
             }
@@ -170,7 +175,7 @@ struct HistoryRecords {
 
             Text('草稿、历史记录、上传图片副本和所有设置都会删除，应用恢复到首次使用时的默认状态。此操作无法撤销。')
               .width('100%')
-              .fontSize(14)
+              .fontSize(12)
               .lineHeight(20)
               .fontColor($r('app.color.text_secondary'))
 
@@ -178,9 +183,9 @@ struct HistoryRecords {
               Row({ space: 7 }) {
                 SymbolGlyph($r('sys.symbol.checkmark'))
                   .fontSize(13)
-                  .fontColor([$r('app.color.status_exported')])
+                  .fontColor(['#3B7568'])
                 Text('已清空，导出设置已恢复为 1080P · PNG')
-                  .fontSize(13)
+                  .fontSize(11)
                   .fontColor($r('app.color.text_secondary'))
               }
               .width('100%')
@@ -189,14 +194,12 @@ struct HistoryRecords {
             if (!this.confirming) {
               Button('清空全部数据', { type: ButtonType.Normal })
                 .width('100%')
-                .height(48)
+                .height(46)
                 .fontSize(14)
                 .fontWeight(FontWeight.Bold)
-                .fontColor($r('app.color.status_error'))
-                .backgroundColor($r('app.color.card_background'))
-                .border({ width: 1, color: $r('app.color.status_error') })
-                .borderRadius(12)
-                .accessibilityText('清空全部本机数据，危险操作')
+                .fontColor('#FFFFFF')
+                .backgroundColor($r('app.color.brand_primary'))
+                .borderRadius(11)
                 .enabled(!this.clearing)
                 .onClick(() => {
                   this.startConfirmation();
@@ -206,17 +209,17 @@ struct HistoryRecords {
                 `${this.confirmSeconds} 秒后可确认清理` : '请再次确认是否清空')
                 .width('100%')
                 .fontSize(12)
-                .fontColor($r('app.color.status_warning'))
+                .fontColor($r('app.color.brand_primary'))
                 .textAlign(TextAlign.Center)
 
               Row({ space: 10 }) {
                 Button('取消', { type: ButtonType.Normal })
                   .layoutWeight(1)
-                  .height(48)
+                  .height(46)
                   .fontSize(14)
                   .fontColor($r('app.color.text_primary'))
                   .backgroundColor($r('app.color.control_background'))
-                  .borderRadius(12)
+                  .borderRadius(11)
                   .enabled(!this.clearing)
                   .onClick(() => {
                     this.cancelConfirmation();
@@ -226,14 +229,13 @@ struct HistoryRecords {
                   (this.confirmSeconds > 0 ? `等待 ${this.confirmSeconds} 秒` : '确认清空'),
                   { type: ButtonType.Normal })
                   .layoutWeight(1)
-                  .height(48)
+                  .height(46)
                   .fontSize(14)
                   .fontWeight(FontWeight.Bold)
-                  .fontColor(this.confirmSeconds > 0 ?
-                    $r('app.color.text_secondary') : $r('app.color.text_on_accent'))
+                  .fontColor('#FFFFFF')
                   .backgroundColor(this.confirmSeconds > 0 ?
-                    $r('app.color.control_selected') : $r('app.color.status_error'))
-                  .borderRadius(12)
+                    $r('app.color.control_selected') : $r('app.color.brand_primary'))
+                  .borderRadius(11)
                   .enabled(this.confirmSeconds === 0 && !this.clearing)
                   .onClick(() => {
                     this.clearEverything();
@@ -248,7 +250,7 @@ struct HistoryRecords {
           .borderRadius(16)
         }
         .width('100%')
-        .constraintSize({ maxWidth: 1120 })
+        .constraintSize({ maxWidth: 960 })
         .alignSelf(ItemAlign.Center)
         .padding({ left: 16, right: 16, top: 16, bottom: 28 })
       }

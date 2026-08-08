@@ -157,11 +157,9 @@ export struct PhotoCropper {
       .width('100%')
       .aspectRatio(16 / 9)
       .backgroundColor('#202226')
-      .border({ width: 2, color: $r('app.color.text_on_accent'), style: BorderStyle.Solid })
-      .borderRadius($r('app.float.radius_control'))
+      .border({ width: 2, color: '#FFFFFF', style: BorderStyle.Solid })
+      .borderRadius(4)
       .clip(true)
-      .accessibilityText('16比9图片裁切区域')
-      .accessibilityDescription('单指拖动图片，双指缩放图片')
       .onReady(() => {
         this.canvasReady = true;
         this.requestDraw();

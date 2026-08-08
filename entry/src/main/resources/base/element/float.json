@@ -3,46 +3,6 @@
     {
       "name": "page_text_font_size",
       "value": "50fp"
-    },
-    {
-      "name": "font_display",
-      "value": "28fp"
-    },
-    {
-      "name": "font_page_title",
-      "value": "24fp"
-    },
-    {
-      "name": "font_section_title",
-      "value": "18fp"
-    },
-    {
-      "name": "font_body",
-      "value": "14fp"
-    },
-    {
-      "name": "font_secondary",
-      "value": "13fp"
-    },
-    {
-      "name": "font_minimum",
-      "value": "12fp"
-    },
-    {
-      "name": "touch_target",
-      "value": "48vp"
-    },
-    {
-      "name": "radius_control",
-      "value": "12vp"
-    },
-    {
-      "name": "radius_card",
-      "value": "16vp"
-    },
-    {
-      "name": "radius_floating",
-      "value": "24vp"
     }
   ]
 }

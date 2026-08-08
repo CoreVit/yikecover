@@ -1,7 +1,6 @@
 import { ExportSettings } from '../model/CoverModels';
 import { LocalStore } from '../services/LocalStore';
 import { SystemBackButton } from '../components/SystemBackButton';
-import { PageTitleBlock } from '../components/PageTitleBlock';
 
 @Entry
 @Component
@@ -123,7 +122,7 @@ struct ExportSettingsPage {
           .fontColor(enabled && this.settingsReady ?
             $r('app.color.text_primary') : $r('app.color.text_muted'))
         Text(description)
-          .fontSize(13)
+          .fontSize(10)
           .fontColor($r('app.color.text_secondary'))
       }
       .alignItems(HorizontalAlign.Start)
@@ -135,7 +134,7 @@ struct ExportSettingsPage {
         .radioStyle({
           checkedBackgroundColor: $r('app.color.brand_primary'),
           uncheckedBorderColor: $r('app.color.divider'),
-          indicatorColor: $r('app.color.text_on_accent')
+          indicatorColor: '#FFFFFF'
         })
         .onChange((isChecked: boolean) => {
           if (isChecked) {
@@ -144,8 +143,7 @@ struct ExportSettingsPage {
         })
     }
     .width('100%')
-    .constraintSize({ minHeight: 48 })
-    .padding({ top: 12, bottom: 12 })
+    .padding({ top: 13, bottom: 13 })
     .opacity(enabled && this.settingsReady ? 1 : 0.46)
     .onClick(() => {
       this.selectChoice(group, value, enabled);
@@ -209,10 +207,16 @@ struct ExportSettingsPage {
             this.goBack();
           }
         })
-        PageTitleBlock({
-          title: '导出设置',
-          subtitle: '所有封面共用这一套参数'
-        })
+        Column({ space: 3 }) {
+          Text('导出设置')
+            .fontSize(24)
+            .fontWeight(FontWeight.Bold)
+            .fontColor($r('app.color.text_primary'))
+          Text('所有封面共用这一套参数')
+            .fontSize(11)
+            .fontColor($r('app.color.text_secondary'))
+        }
+        .alignItems(HorizontalAlign.Start)
         .margin({ left: 12 })
       }
       .width('100%')
@@ -266,7 +270,7 @@ struct ExportSettingsPage {
                 })
               Text('建议 90–95；默认 92。质量越高，文件通常越大。')
                 .width('100%')
-                .fontSize(13)
+                .fontSize(11)
                 .fontColor($r('app.color.text_secondary'))
             }
             .width('100%')
@@ -277,17 +281,17 @@ struct ExportSettingsPage {
 
           Row({ space: 8 }) {
             SymbolGlyph($r('sys.symbol.checkmark'))
-              .fontSize(14)
-              .fontColor([$r('app.color.status_exported')])
+              .fontSize(12)
+              .fontColor(['#5AA77B'])
             Text(this.savedHint.length > 0 ? this.savedHint : '修改后自动保存，仅存储在本机')
-              .fontSize(13)
+              .fontSize(11)
               .fontColor($r('app.color.text_secondary'))
           }
           .width('100%')
           .padding({ left: 4, bottom: 22 })
         }
         .width('100%')
-        .constraintSize({ maxWidth: 1120 })
+        .constraintSize({ maxWidth: 1040 })
         .alignSelf(ItemAlign.Center)
         .padding({ left: 16, right: 16, top: 16 })
       }

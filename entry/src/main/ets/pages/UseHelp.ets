@@ -1,5 +1,4 @@
 import { SystemBackButton } from '../components/SystemBackButton';
-import { PageTitleBlock } from '../components/PageTitleBlock';
 
 interface HelpStep {
   code: string;
@@ -93,7 +92,7 @@ struct UseHelp {
   private processNode(code: string, label: string) {
     Column({ space: 5 }) {
       Text(code)
-        .fontSize(12)
+        .fontSize(11)
         .fontWeight(FontWeight.Bold)
         .fontColor($r('app.color.brand_primary'))
       Text(label)
@@ -109,7 +108,7 @@ struct UseHelp {
     Column() {
       Row() {
         Text(step.code)
-          .fontSize(12)
+          .fontSize(11)
           .fontWeight(FontWeight.Bold)
           .fontColor($r('app.color.brand_primary'))
           .padding({ left: 9, right: 9, top: 6, bottom: 6 })
@@ -150,7 +149,7 @@ struct UseHelp {
         .fontColor($r('app.color.text_primary'))
       Text(item.answer)
         .width('100%')
-        .fontSize(13)
+        .fontSize(12)
         .lineHeight(20)
         .fontColor($r('app.color.text_secondary'))
     }
@@ -168,20 +167,19 @@ struct UseHelp {
         Text(label)
           .fontSize(14)
           .fontWeight(FontWeight.Bold)
-          .fontColor(primary ? $r('app.color.text_on_accent') : $r('app.color.text_primary'))
+          .fontColor(primary ? '#FFFFFF' : $r('app.color.text_primary'))
         SymbolGlyph($r('sys.symbol.chevron_forward'))
           .fontSize(15)
-          .fontColor([primary ? $r('app.color.text_on_accent') : $r('app.color.text_secondary')])
+          .fontColor([primary ? '#FFFFFF' : $r('app.color.text_secondary')])
       }
       .justifyContent(FlexAlign.Center)
       .width('100%')
     }
     .width('100%')
-    .height(48)
+    .height(46)
     .backgroundColor(primary ?
       $r('app.color.brand_primary') : $r('app.color.control_background'))
     .borderRadius(12)
-    .accessibilityText(label)
     .onClick(() => {
       action();
     })
@@ -195,7 +193,16 @@ struct UseHelp {
             this.goBack();
           }
         })
-        PageTitleBlock({ title: '使用帮助', subtitle: '从选择模板到保存相册' })
+        Column({ space: 3 }) {
+          Text('使用帮助')
+            .fontSize(24)
+            .fontWeight(FontWeight.Bold)
+            .fontColor($r('app.color.text_primary'))
+          Text('从选择模板到保存相册')
+            .fontSize(11)
+            .fontColor($r('app.color.text_secondary'))
+        }
+        .alignItems(HorizontalAlign.Start)
         .margin({ left: 12 })
       }
       .width('100%')
@@ -241,7 +248,7 @@ struct UseHelp {
 
           Text('制作步骤')
             .width('100%')
-            .fontSize(18)
+            .fontSize(19)
             .fontWeight(FontWeight.Bold)
             .fontColor($r('app.color.text_primary'))
             .margin({ top: 28, bottom: 12 })
@@ -264,7 +271,7 @@ struct UseHelp {
 
           Text('常见问题')
             .width('100%')
-            .fontSize(18)
+            .fontSize(19)
             .fontWeight(FontWeight.Bold)
             .fontColor($r('app.color.text_primary'))
             .margin({ top: 28, bottom: 12 })
@@ -287,7 +294,7 @@ struct UseHelp {
 
           Text('继续操作')
             .width('100%')
-            .fontSize(18)
+            .fontSize(19)
             .fontWeight(FontWeight.Bold)
             .fontColor($r('app.color.text_primary'))
             .margin({ top: 28, bottom: 12 })
@@ -315,7 +322,7 @@ struct UseHelp {
           .margin({ bottom: 28 })
         }
         .width('100%')
-        .constraintSize({ maxWidth: 1120 })
+        .constraintSize({ maxWidth: 1040 })
         .alignSelf(ItemAlign.Center)
         .padding({ left: 16, right: 16, top: 18 })
       }

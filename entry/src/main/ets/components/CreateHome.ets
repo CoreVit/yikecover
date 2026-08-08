@@ -17,9 +17,9 @@ const HERO_VELOCITY_THRESHOLD: number = 680;
 const HERO_PREVIEW_MAX_WIDTH: number = 360;
 const HERO_PREVIEW_WIDTH_RATIO: number = 0.82;
 const HERO_STAGE_EXTRA_HEIGHT: number = 18;
-const PAGE_HORIZONTAL_PADDING: number = 32;
+const PAGE_HORIZONTAL_PADDING: number = 36;
 const HERO_CARD_HORIZONTAL_PADDING: number = 36;
-const PAGE_CONTENT_MAX_WIDTH: number = 1120;
+const PAGE_CONTENT_MAX_WIDTH: number = 1000;
 
 const TEMPLATE_SHORTCUTS: TemplateShortcut[] = [
   {
@@ -223,12 +223,12 @@ export struct CreateHome {
 
       Column({ space: 3 }) {
         Text(getTemplateDefinition(item.id).name)
-        .fontSize(14)
+          .fontSize(15)
           .fontWeight(FontWeight.Medium)
           .fontColor($r('app.color.text_primary'))
           .maxLines(1)
         Text(getTemplateDefinition(item.id).subtitle)
-          .fontSize(13)
+          .fontSize(11)
           .fontColor($r('app.color.text_secondary'))
           .maxLines(1)
       }
@@ -248,7 +248,7 @@ export struct CreateHome {
         Row() {
           Column({ space: 4 }) {
             Text('一刻封面')
-              .fontSize(28)
+              .fontSize(27)
               .fontWeight(FontWeight.Bold)
               .fontColor($r('app.color.text_primary'))
             Text('让每次制作都有固定章法')
@@ -301,15 +301,15 @@ export struct CreateHome {
           Row() {
             Row({ space: 6 }) {
               Text(this.currentHeroTemplate().code)
-                .fontSize(12)
+                .fontSize(10)
                 .fontWeight(FontWeight.Bold)
                 .fontColor(this.currentHeroTemplate().accent)
               Text(this.currentHeroTemplate().name)
-                .fontSize(13)
+                .fontSize(12)
                 .fontWeight(FontWeight.Medium)
                 .fontColor($r('app.color.text_primary'))
               Text(this.currentHeroTemplate().subtitle)
-                .fontSize(13)
+                .fontSize(12)
                 .fontColor($r('app.color.text_secondary'))
                 .maxLines(1)
                 .textOverflow({ overflow: TextOverflow.Ellipsis })
@@ -318,7 +318,7 @@ export struct CreateHome {
             Blank()
 
             Text(`${this.currentHeroIndex + 1} / ${TEMPLATE_DEFINITIONS.length}`)
-              .fontSize(12)
+              .fontSize(10)
               .fontColor($r('app.color.text_secondary'))
               .padding({ left: 8, right: 8, top: 4, bottom: 4 })
               .backgroundColor($r('app.color.page_background'))
@@ -329,7 +329,7 @@ export struct CreateHome {
           .padding({ left: 8, right: 8 })
 
           Text('选择一个模板，开始创作')
-            .fontSize(18)
+            .fontSize(20)
             .fontWeight(FontWeight.Bold)
             .fontColor($r('app.color.text_primary'))
             .margin({ top: 5 })
@@ -344,11 +344,10 @@ export struct CreateHome {
             .height(48)
             .fontSize(15)
             .fontWeight(FontWeight.Bold)
-            .fontColor($r('app.color.text_on_accent'))
+            .fontColor('#FFFFFF')
             .backgroundColor($r('app.color.brand_primary'))
             .borderRadius(12)
             .margin({ top: 20 })
-            .accessibilityText(`使用${this.currentHeroTemplate().name}`)
             .onClick(() => {
               this.openTemplate(this.currentHeroTemplate().id);
             })
@@ -392,7 +391,7 @@ export struct CreateHome {
         Row({ space: 10 }) {
           Column({ space: 5 }) {
             Text('01')
-              .fontSize(12)
+              .fontSize(11)
               .fontWeight(FontWeight.Bold)
               .fontColor($r('app.color.brand_primary'))
             Text('选模板')
@@ -408,7 +407,7 @@ export struct CreateHome {
 
           Column({ space: 5 }) {
             Text('02')
-              .fontSize(12)
+              .fontSize(11)
               .fontWeight(FontWeight.Bold)
               .fontColor($r('app.color.brand_primary'))
             Text('换内容')
@@ -424,7 +423,7 @@ export struct CreateHome {
 
           Column({ space: 5 }) {
             Text('03')
-              .fontSize(12)
+              .fontSize(11)
               .fontWeight(FontWeight.Bold)
               .fontColor($r('app.color.brand_primary'))
             Text('导出作品')
